@@ -1,50 +1,38 @@
-import Map from "@/components/Map";
-import Header from "@/components/Header";
-import type { Spot } from "@/types/spot";
+import MapApp from "@/components/MapApp"
+import { DUMMY_SPOTS } from "@/lib/client/dummySpots"
 
-// ダミーデータ
-// Supabase連携後は以下に差し替える:
-//   const spots = await supabase.from("spots").select("*") （lib/server/supabase.tsを使用）
-// またはAPI経由:
-//   const spots = await getSpots() （lib/client/spots.tsを使用）
-const DUMMY_SPOTS: Spot[] = [
-  {
-    id: "1",
-    name: "大阪城",
-    description: "豊臣秀吉が築いた歴史的な城",
-    lat: 34.6873,
-    lng: 135.5262,
-    createdAt: "2026-04-09",
-    createdBy: "user-1",
-  },
-  {
-    id: "2",
-    name: "道頓堀",
-    description: "大阪を代表する繁華街。グリコサインで有名",
-    lat: 34.6687,
-    lng: 135.5014,
-    createdAt: "2026-04-09",
-    createdBy: "user-1",
-  },
-  {
-    id: "3",
-    name: "通天閣",
-    description: "新世界のシンボルタワー",
-    lat: 34.6526,
-    lng: 135.5061,
-    createdAt: "2026-04-09",
-    createdBy: "user-1",
-  },
-];
+type SearchParams = Promise<{
+  pref?: string   // 都道府県
+  cat?: string    // カテゴリ（カンマ区切りで複数）
+  order?: string  // 並び順
+}>
 
-export default function Home() {
-  return (
-    <div className="h-screen w-screen flex flex-col">
-      <Header />
-      {/* 地図はヘッダーの残りの高さいっぱいに表示 */}
-      <div className="flex-1">
-        <Map spots={DUMMY_SPOTS} />
-      </div>
-    </div>
-  );
+export default async function Home({ searchParams }: { searchParams: SearchParams }) {
+  const { pref, cat, order } = await searchParams
+
+  let spots = [...DUMMY_SPOTS]
+
+  // 都道府県で絞り込み
+  if (pref) {
+    spots = spots.filter((s) => s.prefecture === pref)
+  }
+
+  // カテゴリで絞り込み（複数選択対応）
+  if (cat) {
+    const cats = cat.split(",")
+    spots = spots.filter((s) => cats.includes(s.category))
+  }
+
+  // 並び順
+  if (order === "登録が古い順") {
+    spots.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+  } else {
+    // デフォルト: 登録が新しい順
+    spots.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  }
+
+  // Supabase連携後は以下に差し替える:
+  //   const spots = await supabase.from("spots").select("*").eq("prefecture", pref ?? "")
+
+  return <MapApp spots={spots} pref={pref} cat={cat} />
 }
