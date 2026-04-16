@@ -1,6 +1,6 @@
-// お気に入りページ
+// マイライブラリページ
 // URL: /favorites
-// TODO: ログインユーザーがお気に入り登録したスポットを表示する
+// TODO: ログインユーザーがライブラリ登録したスポットを表示する
 
 import type { Spot } from "@/types/spot";
 
@@ -29,12 +29,12 @@ const DUMMY_FAVORITES: Spot[] = [
 export default function FavoritesPage() {
   return (
     <div>
-      <h1 className="text-2xl font-bold text-zinc-900 mb-6">お気に入り</h1>
+      <h1 className="text-2xl font-bold text-zinc-900 mb-6">マイライブラリ</h1>
 
       {DUMMY_FAVORITES.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-zinc-400">
           <p className="text-4xl mb-4">❤️</p>
-          <p className="text-sm">お気に入りはまだありません</p>
+          <p className="text-sm">マイライブラリはまだありません</p>
         </div>
       ) : (
         <ul className="flex flex-col gap-3">

@@ -5,10 +5,11 @@ type SearchParams = Promise<{
   pref?: string   // 都道府県
   cat?: string    // カテゴリ（カンマ区切りで複数）
   order?: string  // 並び順
+  q?: string      // 検索クエリ
 }>
 
 export default async function Home({ searchParams }: { searchParams: SearchParams }) {
-  const { pref, cat, order } = await searchParams
+  const { pref, cat, order, q } = await searchParams
 
   let spots = [...DUMMY_SPOTS]
 
@@ -29,6 +30,14 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
   } else {
     // デフォルト: 登録が新しい順
     spots.sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+  }
+
+  if (q) {
+    const query = q.toLowerCase()
+    spots = spots.filter((s) =>
+      s.name.toLowerCase().includes(query) ||
+      (s.description ?? "").toLowerCase().includes(query)
+    )
   }
 
   // Supabase連携後は以下に差し替える:
