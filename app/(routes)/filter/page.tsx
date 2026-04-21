@@ -93,6 +93,7 @@ function FilterForm() {
   const [order, setOrder]       = useState(
     searchParams.get("order") ?? DEFAULT_ORDER
   )
+  const [query, setQuery]       = useState(searchParams.get("q") ?? "")
 
   // カテゴリ追加
   const [customCats, setCustomCats] = useState<string[]>([])
@@ -123,6 +124,7 @@ function FilterForm() {
     setDistance(DEFAULT_DISTANCE)
     setOrder(DEFAULT_ORDER)
     setCustomCats([])
+    setQuery("")
   }
 
   function handleSubmit() {
@@ -130,6 +132,7 @@ function FilterForm() {
     if (prefecture)            params.set("pref", prefecture)
     if (selectedCats.length)   params.set("cat", selectedCats.join(","))
     if (order !== DEFAULT_ORDER) params.set("order", order)
+    if (query.trim())           params.set("q", query.trim())
     router.push(`/?${params.toString()}`)
   }
 
@@ -141,6 +144,17 @@ function FilterForm() {
 
   return (
     <div>
+      {/* 検索バー */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="スポットを検索..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full px-4 py-3 rounded-2xl bg-zinc-50 border border-zinc-200 text-sm text-zinc-700 outline-none focus:border-zinc-400 transition-colors"
+        />
+      </div>
+
       {/* ヘッダー */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold text-zinc-900">絞り込み</h1>

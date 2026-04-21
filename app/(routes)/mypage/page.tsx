@@ -86,7 +86,7 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
       onClick={() => onChange(!value)}
       className={`w-10 h-6 rounded-full transition-colors relative ${value ? "bg-zinc-900" : "bg-zinc-200"}`}
     >
-      <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${value ? "translate-x-5" : "translate-x-1"}`} />
+      <span className={`absolute left-0.5 top-0.5 w-4 h-5 rounded-full bg-white shadow transition-transform duration-200 ${value ? "translate-x-5" : "translate-x-0"}`} />
     </button>
   )
 }
@@ -180,7 +180,7 @@ export default function MyPage() {
         <div className="mt-4 pt-4 border-t border-zinc-50 grid grid-cols-3 text-center">
           {[
             { value: DUMMY_STATS.spotsCount,     label: "スポット" },
-            { value: DUMMY_STATS.favoritesCount, label: "お気に入り" },
+            { value: DUMMY_STATS.favoritesCount, label: "マイライブラリ" },
             { value: DUMMY_STATS.likesReceived,  label: "いいね" },
           ].map((stat, i) => (
             <div key={i} className={i === 1 ? "border-x border-zinc-100" : ""}>
@@ -190,7 +190,6 @@ export default function MyPage() {
           ))}
         </div>
       </div>
-
       {/* ── 登録スポット ── */}
       <div>
         <SectionTitle>スポット</SectionTitle>
@@ -202,7 +201,7 @@ export default function MyPage() {
           />
           <NavRow
             href="/favorites"
-            label="お気に入り"
+            label="マイライブラリ"
             sub={`${DUMMY_STATS.favoritesCount} 件`}
           />
           <NavRow
