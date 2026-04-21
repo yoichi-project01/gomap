@@ -6,6 +6,14 @@ export type SpotWithMeta = Spot & {
   category: string
 }
 
+// スポット集合を表現する型
+export type SpotGroup = {
+  id: string
+  name: string
+  description: string
+  spots: Spot[]
+}
+
 export const DUMMY_SPOTS: SpotWithMeta[] = [
   {
     id: "1",
@@ -83,5 +91,27 @@ export const DUMMY_SPOTS: SpotWithMeta[] = [
     createdBy: "user-1",
     prefecture: "京都府",
     category: "観光",
+  },
+]
+
+// スポット集合
+export const DUMMY_SPOT_GROUPS: SpotGroup[] = [
+  {
+    id: "group-new-osaka",
+    name: "大阪の観光地7選",
+    description: "最近登録された大阪の観光スポット",
+    spots: DUMMY_SPOTS.filter(s => s.prefecture === "大阪府").slice(0, 4),
+  },
+  {
+    id: "group-popular-kyoto",
+    name: "京都の人気スポット",
+    description: "おすすめの京都観光スポット",
+    spots: DUMMY_SPOTS.filter(s => s.prefecture === "京都府"),
+  },
+  {
+    id: "group-ranking-gourmet",
+    name: "グルメスポットランキング",
+    description: "人気のあるグルメスポット",
+    spots: DUMMY_SPOTS.filter(s => s.category === "グルメ"),
   },
 ]

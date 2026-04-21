@@ -4,6 +4,7 @@
 // ssr: false はClient Component内でのみ有効（Next.js 16の制約）
 import dynamic from "next/dynamic"
 import type { Spot } from "@/types/spot"
+import type { LeafletMapProps } from "./LeafletMap"
 
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
   ssr: false,
@@ -12,12 +13,10 @@ const LeafletMap = dynamic(() => import("./LeafletMap"), {
       地図を読み込み中...
     </div>
   ),
-})
+}) as React.ComponentType<LeafletMapProps>
 
-type Props = {
-  spots: Spot[]
-}
+type Props = LeafletMapProps
 
-export default function Map({ spots }: Props) {
-  return <LeafletMap spots={spots} />
+export default function Map({ spots, center, fitBounds, selectedSpot, onMarkerClick }: Props) {
+  return <LeafletMap spots={spots} center={center} fitBounds={fitBounds} selectedSpot={selectedSpot} onMarkerClick={onMarkerClick} />
 }
