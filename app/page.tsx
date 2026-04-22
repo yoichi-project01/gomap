@@ -1,6 +1,8 @@
 import HomeHeader from '@/components/home/HomeHeader';
 import RecentSpots from '@/components/home/RecentSpots';
 import SpotScrollSection from '@/components/home/SpotScrollSection';
+// ▼ 作成したボタンをインポート
+import AddSpotButton from '@/components/home/AddSpotButton';
 
 export default function HomeDashboard() {
   return (
@@ -15,7 +17,8 @@ export default function HomeDashboard() {
         <SpotScrollSection title="ランキング" type="ranking" />
       </main>
 
-      {/* ▼ ここにあった BottomNav は layout.tsx に任せるため削除しました ▼ */}
+      {/* ▼ 右下に浮く新規追加ボタンを配置 ▼ */}
+      <AddSpotButton />
       
     </div>
   );
