@@ -16,6 +16,7 @@
 ```bash
 # 1. パッケージをインストール
 npm install
+npm install lucide-react
 
 # 2. .env.local を作成して必要なキーを入力（下記参照）
 
