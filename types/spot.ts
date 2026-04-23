@@ -1,15 +1,18 @@
-// スポット（地図上のピン）の型定義
-// フロントエンド・バックエンド共通で使用する
-
-export type Spot = {
+// 地点（道頓堀、大阪城などの具体的なピン）
+export type Location = {
   id: string;
   name: string;
-  description: string | null;
+  desc: string;
   lat: number;
   lng: number;
-  createdAt: string;
-  createdBy: string; // ユーザーID
 };
 
-// スポット新規作成時の入力型（idとcreatedAtはサーバー側で付与）
-export type CreateSpotInput = Omit<Spot, "id" | "createdAt">;
+// スポット（大阪観光名所7選などの、地点をまとめたコレクション）
+export type SpotCollection = {
+  id: string;
+  name: string;
+  description: string;
+  creator?: string;
+  likes?: number;
+  locations: Location[];
+};

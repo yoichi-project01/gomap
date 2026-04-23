@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
-import BottomNav from "@/components/BottomNav";
+// ▼ 変更: 新しいパスからインポート
+import BottomNav from "@/components/ui/BottomNav";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -9,8 +10,8 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Go! Map",
-  description: "現在地を表示する地図アプリ",
+  title: "Gomap",
+  description: "大阪観光名所スポットアプリ",
 };
 
 export default function RootLayout({
@@ -19,11 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className={`${geist.variable} h-full antialiased`}>
-      <body className="h-full flex flex-col bg-zinc-50">
-        <div className="flex-1 overflow-hidden min-h-0">
-          {children}
-        </div>
+    <html lang="ja">
+      {/* 背景を黒(bg-black)に設定し、Spotify風のダークテーマを全体に適用 */}
+      <body className={`${geist.variable} antialiased bg-black text-white`}>
+        {children}
+        {/* アプリ全体で共通のボトムナビゲーション */}
         <BottomNav />
       </body>
     </html>
