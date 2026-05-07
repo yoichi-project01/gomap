@@ -7,7 +7,7 @@ export default function RoutesLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="min-h-screen bg-black overflow-y-auto">
       <main className="w-full max-w-2xl mx-auto px-4 py-8">
         {children}
       </main>
