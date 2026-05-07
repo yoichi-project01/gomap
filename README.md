@@ -34,8 +34,6 @@ npm run dev
 このファイルはGit管理対象外のため、各自で作成が必要です。
 
 ```
-# Google Maps APIキー（フロントエンド用）
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=ここにキーを入力
 
 # Supabase（バックエンド用）
 SUPABASE_URL=ここにURLを入力
@@ -130,7 +128,7 @@ lib/server/users.ts        # Supabaseへのクエリ
 | 用途 | 技術 |
 |---|---|
 | フレームワーク | Next.js 16 |
-| 地図 | Google Maps API（@vis.gl/react-google-maps） |
+| 地図 | leaflet(react-leaflet) |
 | DB | Supabase |
 | スタイル | Tailwind CSS |
 | 言語 | TypeScript |

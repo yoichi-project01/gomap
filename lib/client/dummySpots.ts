@@ -1,17 +1,9 @@
-import type { Spot } from "@/types/spot"
+import type { Spot, PlaceList } from "@/types/spot"
 
-// Spot型を拡張してフィルタ用フィールドを追加（Supabase連携後はDBのカラムに対応）
+// Spot型を拡張してフィルタ用フィールドを追加
 export type SpotWithMeta = Spot & {
   prefecture: string
   category: string
-}
-
-// スポット集合を表現する型
-export type SpotGroup = {
-  id: string
-  name: string
-  description: string
-  spots: Spot[]
 }
 
 export const DUMMY_SPOTS: SpotWithMeta[] = [
@@ -94,8 +86,8 @@ export const DUMMY_SPOTS: SpotWithMeta[] = [
   },
 ]
 
-// スポット集合
-export const DUMMY_SPOT_GROUPS: SpotGroup[] = [
+// プレイスリストのダミーデータ
+export const DUMMY_PLACE_LISTS: PlaceList[] = [
   {
     id: "group-new-osaka",
     name: "大阪の観光地7選",

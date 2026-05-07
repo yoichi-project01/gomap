@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ChevronLeft, Heart, Share2, Map as MapIcon, MoreVertical } from 'lucide-react';
-import CollectionMapWrapper from '@/components/CollectionMapWrapper';
+import CollectionMapWrapper from '@/components/PlaceListMapWrapper';
 
 // モックデータ：クリックされたスポット（プレイリスト）の情報を想定
 const collectionData = {

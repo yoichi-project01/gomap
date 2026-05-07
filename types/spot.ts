@@ -1,18 +1,19 @@
-// 地点（道頓堀、大阪城などの具体的なピン）
-export type Location = {
+export type Spot = {
   id: string;
   name: string;
-  desc: string;
+  desc?: string;
+  description?: string;
   lat: number;
   lng: number;
+  createdAt?: string;
+  createdBy?: string;
 };
 
-// スポット（大阪観光名所7選などの、地点をまとめたコレクション）
-export type SpotCollection = {
+export type PlaceList = {
   id: string;
   name: string;
   description: string;
   creator?: string;
   likes?: number;
-  locations: Location[];
+  spots: Spot[];
 };

@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { Location } from './SpotMiniMap'; // 先ほど定義した型を再利用
+import { Spot } from '@/types/spot'; // LocationではなくSpotをインポート
 
 const customIcon = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
@@ -14,30 +14,29 @@ const customIcon = L.icon({
 });
 
 type Props = {
-  locations: Location[];
+  spots: Spot[]; // locations から spots に変更
 };
 
-export default function CollectionMap({ locations }: Props) {
-  if (!locations || locations.length === 0) return null;
+export default function CollectionMap({ spots }: Props) {
+  if (!spots || spots.length === 0) return null;
 
   // 最初の地点を中心に設定
-  const centerPosition: [number, number] = [locations[0].lat, locations[0].lng];
+  const centerPosition: [number, number] = [spots[0].lat, spots[0].lng];
 
   return (
     <MapContainer 
       center={centerPosition} 
       zoom={13} 
       className="h-full w-full z-0"
-      // 詳細画面なのでズームやドラッグ操作を許可します（デフォルトのまま）
     >
       <TileLayer
         attribution='&copy; OpenStreetMap'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {locations.map((loc) => (
-        <Marker key={loc.id} position={[loc.lat, loc.lng]} icon={customIcon}>
+      {spots.map((spot) => (
+        <Marker key={spot.id} position={[spot.lat, spot.lng]} icon={customIcon}>
           <Popup className="font-bold text-center">
-            {loc.name}
+            {spot.name}
           </Popup>
         </Marker>
       ))}

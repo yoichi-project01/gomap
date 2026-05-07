@@ -1,8 +1,8 @@
 import HomeHeader from '@/components/home/HomeHeader';
-import RecentSpots from '@/components/home/RecentSpots';
-import SpotScrollSection from '@/components/home/SpotScrollSection';
-// ▼ 作成したボタンをインポート
-import AddSpotButton from '@/components/home/AddSpotButton';
+// ▼ 以下のコンポーネント名はファイル名を変更した後に合わせてください
+import RecentPlaceLists from '@/components/home/RecentPlaceLists';
+import PlaceListScrollSection from '@/components/home/PlaceListScrollSection';
+import AddPlaceListButton from '@/components/home/AddPlaceListButton';
 
 export default function HomeDashboard() {
   return (
@@ -11,14 +11,14 @@ export default function HomeDashboard() {
       <HomeHeader />
 
       <main className="px-4 mt-2">
-        <RecentSpots />
-        <SpotScrollSection title="新着" type="new" />
-        <SpotScrollSection title="注目" type="featured" />
-        <SpotScrollSection title="ランキング" type="ranking" />
+        <RecentPlaceLists />
+        <PlaceListScrollSection title="新着" type="new" />
+        <PlaceListScrollSection title="注目" type="featured" />
+        <PlaceListScrollSection title="ランキング" type="ranking" />
       </main>
 
       {/* ▼ 右下に浮く新規追加ボタンを配置 ▼ */}
-      <AddSpotButton />
+      <AddPlaceListButton />
       
     </div>
   );

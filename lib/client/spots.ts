@@ -1,21 +1,26 @@
 // フロントエンド担当
-// /api/spots エンドポイントを呼び出す関数群
+// APIエンドポイントを呼び出す関数群
 // componentsやapp/page.tsxからimportして使う
 
-import type { Spot, CreateSpotInput } from "@/types/spot";
+import type { PlaceList } from "@/types/spot";
 
-export async function getSpots(): Promise<Spot[]> {
-  const res = await fetch("/api/spots");
-  if (!res.ok) throw new Error("スポットの取得に失敗しました");
+// プレイスリスト作成用の入力型
+export type CreatePlaceListInput = Omit<PlaceList, "id">;
+
+// プレイスリスト一覧を取得
+export async function getPlaceLists(): Promise<PlaceList[]> {
+  const res = await fetch("/api/placelists");
+  if (!res.ok) throw new Error("プレイスリストの取得に失敗しました");
   return res.json();
 }
 
-export async function createSpot(input: CreateSpotInput): Promise<Spot> {
-  const res = await fetch("/api/spots", {
+// 新しいプレイスリストを作成
+export async function createPlaceList(input: CreatePlaceListInput): Promise<PlaceList> {
+  const res = await fetch("/api/placelists", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error("スポットの登録に失敗しました");
+  if (!res.ok) throw new Error("プレイスリストの登録に失敗しました");
   return res.json();
 }

@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { Map as MapIcon, Heart } from 'lucide-react';
 
-export default function RecentSpots() {
-  // 最近チェックした「コレクション（まとまり）」のデータ
+export default function RecentPlaceLists() {
+  // 最近チェックした「プレイスリスト」のデータ
   const recentCollections = [
-    { id: 'fav', title: 'お気に入りスポット', isFav: true },
+    { id: 'fav', title: 'お気に入りプレイスリスト', isFav: true },
     { id: '1', title: '大阪観光名所7選', isFav: false },
-    { id: '2', title: '絶景の夜景スポット', isFav: false },
+    { id: '2', title: '絶景の夜景プレイスリスト', isFav: false },
     { id: '3', title: '大阪食い倒れツアー', isFav: false },
     { id: '4', title: '最新カフェ巡りin中崎町', isFav: false },
     { id: '5', title: 'ディープな大阪体験', isFav: false },
@@ -16,7 +16,7 @@ export default function RecentSpots() {
     <div className="grid grid-cols-2 gap-2 mb-8">
       {recentCollections.map((item, i) => (
         <Link 
-          href={item.id === 'fav' ? '/favorites' : `/spots/collection/${item.id}`}
+          href={item.id === 'fav' ? '/favorites' : `/placelists/${item.id}`}
           key={i} 
           className="bg-zinc-800/60 hover:bg-zinc-700/60 rounded flex items-center overflow-hidden h-14 cursor-pointer transition group"
         >
