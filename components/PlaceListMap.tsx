@@ -17,7 +17,7 @@ type Props = {
   spots: Spot[]; // locations から spots に変更
 };
 
-export default function CollectionMap({ spots }: Props) {
+export default function PlaceListMap({ spots }: Props) {
   if (!spots || spots.length === 0) return null;
 
   // 最初の地点を中心に設定

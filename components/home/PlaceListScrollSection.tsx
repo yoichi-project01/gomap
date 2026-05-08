@@ -10,10 +10,8 @@ type Props = {
 };
 
 export default function PlaceListScrollSection({ title, type }: Props) {
-  // すべて表示ボタンが押されたかどうかの状態を管理
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // 表示しきれない状態を作るために、モックデータを少し増やしています
   const collections = {
     new: [
       { id: 'placelist-new1', title: '大阪の新定番プレイスリスト', desc: 'USJ新エリア、あべのハルカスなど' },
@@ -45,34 +43,27 @@ export default function PlaceListScrollSection({ title, type }: Props) {
   };
 
   const currentData = collections[type] || [];
-  
-  // 最初に表示する上限数（PC画面の幅に合わせて5個〜6個が目安）
-  const displayLimit = 5; 
-  
-  // データが上限数より多ければ「すべて表示」を出す条件を満たす
+  const displayLimit = 5;
   const hasMore = currentData.length > displayLimit;
-  
-  // 表示モードに応じて、データを切り出すか全件渡すか決定
   const displayedData = isExpanded ? currentData : currentData.slice(0, displayLimit);
 
   return (
     <section className="mb-10">
       <div className="flex justify-between items-end mb-4">
-        <h2 className="text-xl font-bold">{title}</h2>
-        
-        {/* 「すべて表示」ボタンの表示制御 */}
+        <h2 className="text-xl font-bold text-zinc-900 dark:text-white">{title}</h2>
+
         {hasMore && !isExpanded && (
-          <button 
+          <button
             onClick={() => setIsExpanded(true)}
-            className="text-xs font-bold text-zinc-400 hover:text-white transition"
+            className="text-xs font-bold text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-white transition"
           >
             すべて表示
           </button>
         )}
         {isExpanded && (
-          <button 
+          <button
             onClick={() => setIsExpanded(false)}
-            className="text-xs font-bold text-zinc-400 hover:text-white transition"
+            className="text-xs font-bold text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-white transition"
           >
             一部を表示
           </button>
@@ -82,25 +73,23 @@ export default function PlaceListScrollSection({ title, type }: Props) {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {displayedData.map((item, index) => (
           <Link href={`/placelists/${item.id}`} key={item.id} className="flex flex-col group cursor-pointer">
-            <div className="aspect-square w-full bg-zinc-800 rounded-md mb-3 shadow-lg group-hover:opacity-80 transition relative overflow-hidden flex items-center justify-center">
-              
-              {type === 'new' && <Sparkles className="w-10 h-10 text-yellow-400" />}
+            <div className="aspect-square w-full bg-zinc-200 dark:bg-zinc-800 rounded-md mb-3 shadow-lg group-hover:opacity-80 transition relative overflow-hidden flex items-center justify-center">
+              {type === 'new' && <Sparkles className="w-10 h-10 text-yellow-500 dark:text-yellow-400" />}
               {type === 'featured' && <Flame className="w-10 h-10 text-red-500" />}
               {type === 'ranking' && (
                 <>
-                  <span className="absolute -left-2 -bottom-5 text-[80px] font-bold text-zinc-600/40 italic z-0 select-none">
+                  <span className="absolute -left-2 -bottom-5 text-[80px] font-bold text-zinc-400/40 dark:text-zinc-600/40 italic z-0 select-none">
                     {index + 1}
                   </span>
                   <Trophy className="w-8 h-8 text-yellow-500 z-10" />
                 </>
               )}
             </div>
-            
-            <h3 className="font-bold text-sm truncate mb-1">
+
+            <h3 className="font-bold text-sm truncate mb-1 text-zinc-900 dark:text-zinc-100">
               {item.title}
             </h3>
-            
-            <p className="text-zinc-400 text-xs line-clamp-2 whitespace-normal leading-relaxed">
+            <p className="text-zinc-500 dark:text-zinc-400 text-xs line-clamp-2 whitespace-normal leading-relaxed">
               {item.desc}
             </p>
           </Link>

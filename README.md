@@ -1,6 +1,6 @@
 # Go! Map
 
-現在地を表示・スポットを登録できる地図アプリ
+現在地を表示・プレイスリストを作成できる地図アプリ
 
 ---
 
@@ -52,10 +52,10 @@ gomap/
 │   ├── layout.tsx          # 全ページ共通のレイアウト
 │   ├── page.tsx            # トップページ（/）
 │   ├── (routes)/           # 各ページをここに追加していく
-│   │   └── spots/
+│   │   └── placelists/
 │   │       └── page.tsx    # スポット一覧ページ（/spots）
 │   └── api/                # APIエンドポイント（バックエンド担当）
-│       └── spots/
+│       └── placelists/
 │           └── route.ts    # GET /api/spots, POST /api/spots
 │
 ├── components/             # UIパーツ（フロントエンド担当）

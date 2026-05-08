@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
-// ▼ 変更: 新しいパスからインポート
 import BottomNav from "@/components/ui/BottomNav";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -20,12 +20,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
-      {/* 背景を黒(bg-black)に設定し、Spotify風のダークテーマを全体に適用 */}
-      <body className={`${geist.variable} antialiased bg-black text-white`}>
-        {children}
-        {/* アプリ全体で共通のボトムナビゲーション */}
-        <BottomNav />
+    <html lang="ja" className="dark">
+      <head>
+        {/* フラッシュ防止: React より先にテーマを適用する */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',t==='dark');}catch(e){}})();`,
+          }}
+        />
+      </head>
+      <body className={`${geist.variable} antialiased bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50`}>
+        <ThemeProvider>
+          {children}
+          <BottomNav />
+        </ThemeProvider>
       </body>
     </html>
   );
