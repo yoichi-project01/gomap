@@ -3,9 +3,11 @@ import RecentPlaceLists from '@/components/home/RecentPlaceLists';
 import PlaceListScrollSection from '@/components/home/PlaceListScrollSection';
 import FilteredResults from '@/components/home/FilteredResults';
 import AddPlaceListButton from '@/components/home/AddPlaceListButton';
-import { listPlaceLists } from '@/lib/server/placeLists';
+import { fetchRecentLikeCounts, listPlaceLists } from '@/lib/server/placeLists';
 import { supabase } from '@/lib/server/supabase';
 import { filterPlaceLists, hasActiveFilters, parseFilters } from '@/lib/filter/placeLists';
+
+const FEATURED_WINDOW_DAYS = 30;
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +24,13 @@ export default async function HomeDashboard({
 
   const byNew = placeLists;
   const byRanking = [...placeLists].sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
-  const featured = byRanking;
+
+  // 注目: 直近 FEATURED_WINDOW_DAYS 日のいいね数の多い順(同数なら累計で安定化)
+  const recentLikeCounts = await fetchRecentLikeCounts(supabase, FEATURED_WINDOW_DAYS);
+  const featured = [...placeLists].sort((a, b) => {
+    const diff = (recentLikeCounts.get(b.id) ?? 0) - (recentLikeCounts.get(a.id) ?? 0);
+    return diff !== 0 ? diff : (b.likes ?? 0) - (a.likes ?? 0);
+  });
 
   const filtered = filtering ? filterPlaceLists(placeLists, filters) : [];
 

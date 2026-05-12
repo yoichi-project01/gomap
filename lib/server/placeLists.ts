@@ -164,6 +164,31 @@ export async function createPlaceList(
   return fresh;
 }
 
+// 直近 N 日間に各プレイスリストに付いた place_list_likes の件数を集計。
+// 戻り値は place_list_id → count の Map。出現しないものは 0 とみなす。
+// 全ユーザーのいいねを集計する必要があるので、RLS を迂回する service_role
+// クライアントから呼び出すこと。
+export async function fetchRecentLikeCounts(
+  client: SupabaseClient,
+  sinceDays: number,
+): Promise<Map<string, number>> {
+  const since = new Date();
+  since.setDate(since.getDate() - sinceDays);
+
+  const { data, error } = await client
+    .from("place_list_likes")
+    .select("place_list_id")
+    .gte("created_at", since.toISOString());
+
+  if (error) throw error;
+
+  const counts = new Map<string, number>();
+  for (const row of (data ?? []) as Array<{ place_list_id: string }>) {
+    counts.set(row.place_list_id, (counts.get(row.place_list_id) ?? 0) + 1);
+  }
+  return counts;
+}
+
 export async function countPlaceListsByCreator(
   client: SupabaseClient,
   userId: string,

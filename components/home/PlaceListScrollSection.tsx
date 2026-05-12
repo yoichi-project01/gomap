@@ -46,15 +46,30 @@ export default function PlaceListScrollSection({ title, type, placeLists }: Prop
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         {displayedData.map((item, index) => (
           <Link href={`/placelists/${item.id}`} key={item.id} className="flex flex-col group cursor-pointer">
-            <div className="aspect-square w-full bg-zinc-200 dark:bg-zinc-800 rounded-md mb-3 shadow-lg group-hover:opacity-80 transition relative overflow-hidden flex items-center justify-center">
-              {type === 'new' && <Sparkles className="w-10 h-10 text-yellow-500 dark:text-yellow-400" />}
-              {type === 'featured' && <Flame className="w-10 h-10 text-red-500" />}
+            <div
+              className="aspect-square w-full bg-zinc-200 dark:bg-zinc-800 rounded-md mb-3 shadow-lg group-hover:opacity-80 transition relative overflow-hidden flex items-center justify-center"
+              style={item.coverImageUrl ? {
+                backgroundImage: `url(${item.coverImageUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              } : undefined}
+            >
+              {!item.coverImageUrl && type === 'new' && <Sparkles className="w-10 h-10 text-yellow-500 dark:text-yellow-400" />}
+              {!item.coverImageUrl && type === 'featured' && <Flame className="w-10 h-10 text-red-500" />}
               {type === 'ranking' && (
                 <>
-                  <span className="absolute -left-2 -bottom-5 text-[80px] font-bold text-zinc-400/40 dark:text-zinc-600/40 italic z-0 select-none">
+                  <span
+                    className={`absolute -left-2 -bottom-5 text-[80px] font-bold italic z-10 select-none ${
+                      item.coverImageUrl
+                        ? 'text-white/80 drop-shadow-lg'
+                        : 'text-zinc-400/40 dark:text-zinc-600/40'
+                    }`}
+                  >
                     {index + 1}
                   </span>
-                  <Trophy className="w-8 h-8 text-yellow-500 z-10" />
+                  {!item.coverImageUrl && (
+                    <Trophy className="w-8 h-8 text-yellow-500 z-10" />
+                  )}
                 </>
               )}
             </div>
