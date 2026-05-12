@@ -15,7 +15,7 @@ export default function RecentPlaceLists() {
     <div className="grid grid-cols-2 gap-2 mb-8">
       {recentCollections.map((item, i) => (
         <Link
-          href={item.id === 'fav' ? '/favorites' : `/placelists/${item.id}`}
+          href={item.id === 'fav' ? '/mylibrary/likes' : `/placelists/${item.id}`}
           key={i}
           className="bg-zinc-200/60 dark:bg-zinc-800/60 hover:bg-zinc-300/60 dark:hover:bg-zinc-700/60 rounded flex items-center overflow-hidden h-14 cursor-pointer transition group"
         >

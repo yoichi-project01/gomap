@@ -22,7 +22,7 @@ export default function LikedPlaceLists() {
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-4 py-8 pb-24">
       <div className="flex items-center gap-3 mb-6">
         <Link
-          href="/favorites"
+          href="/mylibrary"
           className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
           aria-label="マイライブラリに戻る"
         >

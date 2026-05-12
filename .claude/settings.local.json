@@ -5,10 +5,7 @@
       "Bash(npm run:*)",
       "Bash(node -e \"require\\('leaflet'\\)\")",
       "Bash(node -e \"require\\('react-leaflet'\\)\")",
-      "Bash(node -e \"require\\('@types/leaflet'\\)\")",
-      "Bash(npx tsc *)",
-      "Bash(echo \"EXIT=$?\")",
-      "Bash(npx next *)"
+      "Bash(node -e \"require\\('@types/leaflet'\\)\")"
     ]
   }
 }
