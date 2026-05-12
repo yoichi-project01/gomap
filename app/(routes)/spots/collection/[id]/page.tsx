@@ -65,7 +65,7 @@ export default function CollectionDetailPage({ params }: { params: { id: string 
       <div className="px-4 mb-8">
         <div className="h-64 w-full rounded-xl overflow-hidden border border-zinc-800 shadow-lg relative z-0">
           {/* 先ほど作った複数ピン対応・操作可能なマップラッパー */}
-          <CollectionMapWrapper locations={collectionData.locations} />
+          <CollectionMapWrapper spots={collectionData.locations} />
         </div>
       </div>
 
