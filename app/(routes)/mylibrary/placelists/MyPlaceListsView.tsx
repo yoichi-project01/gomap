@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { Pencil } from "lucide-react"
 import SpotMiniMapWrapper from "@/components/SpotMiniMapWrapper"
 import type { PlaceList } from "@/types/spot"
 import { deletePlaceList } from "@/lib/client/placeLists"
@@ -89,9 +90,17 @@ export default function MyPlaceListsView({ initialPlaceLists }: Props) {
                     </p>
                     <p className="text-xs text-zinc-300 dark:text-zinc-600 mt-0.5 truncate">{placeList.description}</p>
                   </Link>
+                  <div className="ml-3 flex items-center gap-1 shrink-0">
+                  <Link
+                    href={`/placelists/${placeList.id}/edit`}
+                    className="p-1.5 text-zinc-300 dark:text-zinc-600 hover:text-green-500 transition-colors"
+                    aria-label={`${placeList.name}を編集`}
+                  >
+                    <Pencil className="w-[15px] h-[15px]" />
+                  </Link>
                   <button
                     onClick={() => setDeletingId(placeList.id)}
-                    className="ml-3 p-1.5 text-zinc-300 dark:text-zinc-600 hover:text-red-400 transition-colors shrink-0"
+                    className="p-1.5 text-zinc-300 dark:text-zinc-600 hover:text-red-400 transition-colors"
                     aria-label={`${placeList.name}を削除`}
                   >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -100,6 +109,7 @@ export default function MyPlaceListsView({ initialPlaceLists }: Props) {
                       <path d="M10 11v6M14 11v6M9 6V4h6v2" />
                     </svg>
                   </button>
+                  </div>
                 </div>
               </>
             )}

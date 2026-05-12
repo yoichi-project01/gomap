@@ -33,6 +33,23 @@ export async function createPlaceList(input: CreatePlaceListInput): Promise<Plac
   return res.json();
 }
 
+export type UpdatePlaceListInput = {
+  name: string;
+  spotIds: string[];
+  description?: string;
+  coverImageUrl?: string;
+};
+
+export async function updatePlaceList(id: string, input: UpdatePlaceListInput): Promise<PlaceList> {
+  const res = await fetch(`/api/placelists/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error("プレイスリストの更新に失敗しました");
+  return res.json();
+}
+
 export async function deletePlaceList(id: string): Promise<void> {
   const res = await fetch(`/api/placelists/${encodeURIComponent(id)}`, { method: "DELETE" });
   if (!res.ok) throw new Error("プレイスリストの削除に失敗しました");
