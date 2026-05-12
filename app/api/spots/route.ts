@@ -53,10 +53,29 @@ export async function POST(req: NextRequest) {
     prefecture?: string;
     category?: string;
     coverImageUrl?: string;
+    source?: unknown;
   };
 
+  if (input.source !== undefined && input.source !== "user" && input.source !== "map_ref") {
+    return NextResponse.json(
+      { error: "source は 'user' または 'map_ref' を指定してください" },
+      { status: 400 },
+    );
+  }
+  const source: "user" | "map_ref" = input.source === "map_ref" ? "map_ref" : "user";
+
   try {
-    const created = await createSpot(authed, { ...input, creator: user.id });
+    const created = await createSpot(authed, {
+      name: input.name,
+      description: input.description,
+      lat: input.lat,
+      lng: input.lng,
+      prefecture: input.prefecture,
+      category: input.category,
+      coverImageUrl: input.coverImageUrl,
+      creator: user.id,
+      source,
+    });
     return NextResponse.json(created, { status: 201 });
   } catch (error) {
     console.error("[POST /api/spots]", error);

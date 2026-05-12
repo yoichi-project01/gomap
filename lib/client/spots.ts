@@ -1,7 +1,7 @@
 // フロントから /api/spots を叩く関数群
 // componentsやページからimportして使う
 
-import type { Spot } from "@/types/spot";
+import type { Spot, SpotSource } from "@/types/spot";
 
 export type ListSpotsParams = {
   prefecture?: string;
@@ -17,6 +17,7 @@ export type CreateSpotInput = {
   prefecture?: string;
   category?: string;
   creator?: string;
+  source?: SpotSource;
   coverImageUrl?: string;
 };
 

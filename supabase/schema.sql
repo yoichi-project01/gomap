@@ -25,6 +25,9 @@ drop function if exists public.set_updated_at cascade;
 -- =====================================================================
 -- spots: 個別スポット
 -- =====================================================================
+-- source:
+--   'user'    : ユーザーがスポットとして明示的に登録したもの (マイページに表示)
+--   'map_ref' : プレイスリスト作成時のマップ検索から作られた参照 (マイページには出さない)
 create table public.spots (
   id          uuid             primary key default gen_random_uuid(),
   name        text             not null,
@@ -34,6 +37,7 @@ create table public.spots (
   prefecture  text,
   category    text,
   creator     uuid             references auth.users(id) on delete cascade,  -- NULL = 編集部コンテンツ
+  source      text             not null default 'user' check (source in ('user', 'map_ref')),
   created_at  timestamptz      not null default now(),
   updated_at  timestamptz      not null default now()
 );
@@ -42,6 +46,7 @@ create index spots_prefecture_idx on public.spots(prefecture);
 create index spots_category_idx   on public.spots(category);
 create index spots_created_at_idx on public.spots(created_at desc);
 create index spots_creator_idx    on public.spots(creator);
+create index spots_source_idx     on public.spots(source);
 
 
 -- =====================================================================

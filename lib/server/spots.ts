@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Spot } from "@/types/spot";
 
+type SpotSource = "user" | "map_ref";
+
 type SpotRow = {
   id: string;
   name: string;
@@ -10,6 +12,7 @@ type SpotRow = {
   prefecture: string | null;
   category: string | null;
   creator: string | null;
+  source: SpotSource | null;
   cover_image_url: string | null;
   created_at: string;
   updated_at: string;
@@ -25,6 +28,7 @@ function rowToSpot(row: SpotRow): Spot {
     prefecture: row.prefecture ?? undefined,
     category: row.category ?? undefined,
     creator: row.creator ?? undefined,
+    source: row.source ?? "user",
     coverImageUrl: row.cover_image_url ?? undefined,
     createdAt: row.created_at,
     createdBy: row.creator ?? undefined,
@@ -61,6 +65,8 @@ export async function getSpotById(
   return data ? rowToSpot(data as SpotRow) : null;
 }
 
+// マイページ「登録したスポット」用: ユーザーが明示的に登録した source='user' のみ。
+// マップ検索からプレイスリスト用に作られた 'map_ref' は除外。
 export async function listSpotsByCreator(
   client: SupabaseClient,
   userId: string,
@@ -69,6 +75,7 @@ export async function listSpotsByCreator(
     .from("spots")
     .select("*")
     .eq("creator", userId)
+    .eq("source", "user")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data as SpotRow[]).map(rowToSpot);
@@ -81,7 +88,8 @@ export async function countSpotsByCreator(
   const { count, error } = await client
     .from("spots")
     .select("id", { count: "exact", head: true })
-    .eq("creator", userId);
+    .eq("creator", userId)
+    .eq("source", "user");
   if (error) throw error;
   return count ?? 0;
 }
@@ -94,6 +102,7 @@ export type CreateSpotInput = {
   prefecture?: string;
   category?: string;
   creator: string; // auth.users.id (uuid)
+  source?: SpotSource;
   coverImageUrl?: string;
 };
 
@@ -111,6 +120,7 @@ export async function createSpot(
       prefecture: input.prefecture ?? null,
       category: input.category ?? null,
       creator: input.creator,
+      source: input.source ?? "user",
       cover_image_url: input.coverImageUrl ?? null,
     })
     .select("*")

@@ -33,7 +33,8 @@
       "Bash(awk '{print $5}')",
       "PowerShell(Stop-Process -Id 15040 -Force -ErrorAction SilentlyContinue)",
       "Bash(curl -s -o /dev/null -w \"/login: %{http_code}\\\\n\" http://localhost:2200/login)",
-      "Bash(node --env-file=.env.local -e ' *)"
+      "Bash(node --env-file=.env.local -e ' *)",
+      "Bash(npx eslint *)"
     ]
   }
 }

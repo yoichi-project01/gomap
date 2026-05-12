@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, Plus, MapPin, X, Search } from 'lucide-react';
 import type { Spot } from '@/types/spot';
 import { createPlaceList } from '@/lib/client/placeLists';
+import { createSpot } from '@/lib/client/spots';
 import CoverImageUploader from '@/components/ui/CoverImageUploader';
+import LocationSearchModal from '@/components/spot/LocationSearchModal';
+import type { PlaceSearchResult } from '@/app/api/places/search/route';
 
 type Props = {
   availableSpots: Spot[];
@@ -18,6 +21,8 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
   const [selectedSpots, setSelectedSpots] = useState<Spot[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [mapSearchOpen, setMapSearchOpen] = useState(false);
+  const [isAddingMapPlace, setIsAddingMapPlace] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [cover, setCover] = useState<{ url: string; path: string } | null>(null);
 
@@ -36,6 +41,28 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
 
   const removeSpot = (id: string) => {
     setSelectedSpots((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  const handleSelectMapPlace = async (result: PlaceSearchResult) => {
+    if (isAddingMapPlace) return;
+    setIsAddingMapPlace(true);
+    try {
+      const created = await createSpot({
+        name: result.name,
+        lat: result.lat,
+        lng: result.lng,
+        description: result.address,
+        prefecture: result.prefecture ?? undefined,
+        source: 'map_ref',
+      });
+      setSelectedSpots((prev) => [...prev, created]);
+      setMapSearchOpen(false);
+    } catch (err) {
+      console.error(err);
+      alert('場所の追加に失敗しました');
+    } finally {
+      setIsAddingMapPlace(false);
+    }
   };
 
   const handleSave = async () => {
@@ -144,13 +171,22 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
             )}
           </div>
 
-          <button
-            onClick={() => setShowSearch((v) => !v)}
-            className="w-full flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white py-3.5 rounded-full font-bold text-sm transition shadow-md"
-          >
-            <Plus className="w-5 h-5" />
-            スポットを検索して追加
-          </button>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setMapSearchOpen(true)}
+              className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 text-black py-3.5 rounded-full font-bold text-sm transition shadow-md"
+            >
+              <MapPin className="w-5 h-5" />
+              マップから場所を検索して追加
+            </button>
+            <button
+              onClick={() => setShowSearch((v) => !v)}
+              className="w-full flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white py-3 rounded-full font-bold text-xs transition"
+            >
+              <Plus className="w-4 h-4" />
+              登録済みスポットから選ぶ
+            </button>
+          </div>
 
           {showSearch && (
             <div className="mt-4 bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
@@ -195,6 +231,13 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
           )}
         </div>
       </main>
+
+      {mapSearchOpen && (
+        <LocationSearchModal
+          onClose={() => setMapSearchOpen(false)}
+          onSelect={handleSelectMapPlace}
+        />
+      )}
     </div>
   );
 }

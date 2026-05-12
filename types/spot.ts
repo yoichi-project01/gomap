@@ -1,3 +1,5 @@
+export type SpotSource = "user" | "map_ref";
+
 export type Spot = {
   id: string;
   name: string;
@@ -7,6 +9,7 @@ export type Spot = {
   prefecture?: string;
   category?: string;
   creator?: string;
+  source?: SpotSource;
   coverImageUrl?: string;
   createdAt?: string;
   createdBy?: string;
