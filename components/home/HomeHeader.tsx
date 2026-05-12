@@ -2,14 +2,14 @@ import Link from 'next/link';
 import { Bell, Clock, Settings, LogIn } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
+import { getDisplayName } from '@/lib/server/profiles';
 
 export default async function HomeHeader() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const metadataName =
-    typeof user?.user_metadata?.name === "string" ? user.user_metadata.name.trim() : "";
-  const displayName = metadataName || user?.email?.split("@")[0] || "";
+  const profileName = user ? await getDisplayName(supabase, user.id) : null;
+  const displayName = profileName || user?.email?.split("@")[0] || "";
   const initial = displayName.slice(0, 1).toUpperCase() || "?";
 
   return (

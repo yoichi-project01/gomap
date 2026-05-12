@@ -4,8 +4,8 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import ThemeToggle from "@/components/ui/ThemeToggle"
 import { logoutAction, deleteAccountAction } from "@/app/actions/auth"
+import { updateDisplayNameAction } from "@/app/actions/profile"
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorageState"
-import { createSupabaseBrowserClient } from "@/lib/client/supabaseBrowser"
 
 const APP_VERSION = "0.1.0"
 
@@ -149,10 +149,9 @@ export default function MyPageClient({ user, stats }: { user: MyPageUser; stats:
     }
     setSavingName(true)
     try {
-      const supabase = createSupabaseBrowserClient()
-      const { error } = await supabase.auth.updateUser({ data: { name: next } })
-      if (error) {
-        alert("名前の保存に失敗しました: " + error.message)
+      const result = await updateDisplayNameAction(next)
+      if (result?.error) {
+        alert(result.error)
         return
       }
       setName(next)

@@ -8,12 +8,13 @@ type Props = {
 
 export default function RecentPlaceLists({ placeLists }: Props) {
   const items = [
-    { id: 'fav', title: 'いいねしたプレイスリスト', isFav: true, href: '/mylibrary/likes' },
+    { id: 'fav', title: 'いいねしたプレイスリスト', isFav: true, href: '/mylibrary/likes', coverImageUrl: null as string | null },
     ...placeLists.slice(0, 5).map((p) => ({
       id: p.id,
       title: p.name,
       isFav: false,
       href: `/placelists/${p.id}`,
+      coverImageUrl: p.coverImageUrl ?? null,
     })),
   ];
 
@@ -25,10 +26,21 @@ export default function RecentPlaceLists({ placeLists }: Props) {
           key={item.id}
           className="bg-zinc-200/60 dark:bg-zinc-800/60 hover:bg-zinc-300/60 dark:hover:bg-zinc-700/60 rounded flex items-center overflow-hidden h-14 cursor-pointer transition group"
         >
-          <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] flex items-center justify-center">
-            {item.isFav
-              ? <Heart className="w-6 h-6 text-white" />
-              : <MapIcon className="w-6 h-6 text-white/50" />}
+          <div
+            className={`w-14 h-14 flex-shrink-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)] flex items-center justify-center ${
+              item.coverImageUrl ? '' : 'bg-gradient-to-br from-indigo-500 to-purple-600'
+            }`}
+            style={item.coverImageUrl ? {
+              backgroundImage: `url(${item.coverImageUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            } : undefined}
+          >
+            {!item.coverImageUrl && (
+              item.isFav
+                ? <Heart className="w-6 h-6 text-white" />
+                : <MapIcon className="w-6 h-6 text-white/50" />
+            )}
           </div>
           <span className="px-3 text-xs font-bold truncate line-clamp-2 leading-tight text-zinc-800 dark:text-zinc-100 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
             {item.title}

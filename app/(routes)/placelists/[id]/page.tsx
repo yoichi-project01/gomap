@@ -5,6 +5,8 @@ import PlaceListMapWrapper from '@/components/PlaceListMapWrapper';
 import { getPlaceListById } from '@/lib/server/placeLists';
 import { supabase } from '@/lib/server/supabase';
 
+export const dynamic = 'force-dynamic';
+
 type Props = {
   params: Promise<{ id: string }>;
 };
