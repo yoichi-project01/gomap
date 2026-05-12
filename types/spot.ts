@@ -8,7 +8,8 @@ export type Spot = {
   lng: number;
   prefecture?: string;
   category?: string;
-  creator?: string;
+  creator?: string;       // auth.users.id (uuid)
+  creatorName?: string;   // profiles.display_name (表示用)
   source?: SpotSource;
   coverImageUrl?: string;
   createdAt?: string;
@@ -19,7 +20,8 @@ export type PlaceList = {
   id: string;
   name: string;
   description: string;
-  creator?: string;
+  creator?: string;       // auth.users.id (uuid)
+  creatorName?: string;   // profiles.display_name (表示用)
   likes?: number;
   coverImageUrl?: string;
   createdAt?: string;

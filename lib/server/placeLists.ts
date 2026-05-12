@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PlaceList, Spot } from "@/types/spot";
+import { fetchDisplayNames } from "@/lib/server/profiles";
 
 type SpotRow = {
   id: string;
@@ -46,16 +47,21 @@ function spotRowToSpot(row: SpotRow): Spot {
   };
 }
 
-function rowToPlaceList(row: PlaceListWithSpotsRow): PlaceList {
+function rowToPlaceList(
+  row: PlaceListWithSpotsRow,
+  nameByCreator: Map<string, string>,
+): PlaceList {
   const sortedSpots = [...row.place_list_spots]
     .sort((a, b) => a.position - b.position)
-    .map((pls) => spotRowToSpot(pls.spots));
+    .map((pls) => pls.spots && spotRowToSpot(pls.spots))
+    .filter((s): s is Spot => Boolean(s));
 
   return {
     id: row.id,
     name: row.name,
     description: row.description ?? "",
     creator: row.creator ?? undefined,
+    creatorName: row.creator ? nameByCreator.get(row.creator) : undefined,
     likes: row.likes_count,
     coverImageUrl: row.cover_image_url ?? undefined,
     createdAt: row.created_at,
@@ -88,7 +94,12 @@ export async function listPlaceLists(
 
   const { data, error } = await query;
   if (error) throw error;
-  return (data as unknown as PlaceListWithSpotsRow[]).map(rowToPlaceList);
+  const rows = data as unknown as PlaceListWithSpotsRow[];
+  const nameByCreator = await fetchDisplayNames(
+    client,
+    rows.map((r) => r.creator),
+  );
+  return rows.map((row) => rowToPlaceList(row, nameByCreator));
 }
 
 export async function getPlaceListById(
@@ -102,7 +113,10 @@ export async function getPlaceListById(
     .maybeSingle();
 
   if (error) throw error;
-  return data ? rowToPlaceList(data as unknown as PlaceListWithSpotsRow) : null;
+  if (!data) return null;
+  const row = data as unknown as PlaceListWithSpotsRow;
+  const nameByCreator = await fetchDisplayNames(client, [row.creator]);
+  return rowToPlaceList(row, nameByCreator);
 }
 
 export type CreatePlaceListInput = {

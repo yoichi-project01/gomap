@@ -46,9 +46,9 @@ export default async function PlaceListDetailPage({ params }: Props) {
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-4">{placeList.description}</p>
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white">
-              {placeList.creator?.charAt(0).toUpperCase() || 'U'}
+              {placeList.creatorName?.charAt(0).toUpperCase() || 'U'}
             </div>
-            <span className="text-xs text-zinc-500 dark:text-zinc-300">作成者: {placeList.creator || '匿名ユーザー'}</span>
+            <span className="text-xs text-zinc-500 dark:text-zinc-300">作成者: {placeList.creatorName || '匿名ユーザー'}</span>
           </div>
         </div>
 

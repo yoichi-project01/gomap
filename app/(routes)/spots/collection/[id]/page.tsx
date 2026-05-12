@@ -37,7 +37,7 @@ export default async function CollectionDetailPage({ params }: Props) {
             {collection.description}
           </p>
           <div className="flex items-center gap-2 text-xs font-bold text-zinc-400">
-            <span className="text-white">{collection.creator ?? '匿名ユーザー'}</span>
+            <span className="text-white">{collection.creatorName ?? '匿名ユーザー'}</span>
             <span>•</span>
             <span>{collection.likes ?? 0} 件のいいね</span>
             <span>•</span>
