@@ -140,7 +140,7 @@ function FilterForm() {
     }
     if (order !== DEFAULT_ORDER) params.set("order", order)
     if (query.trim())            params.set("q", query.trim())
-    router.push(`/?${params.toString()}`)
+    router.push(`/results?${params.toString()}`)
   }
 
   const prefSummary  = prefecture || "指定なし"
