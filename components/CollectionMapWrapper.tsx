@@ -19,6 +19,6 @@ type Props = {
   locations: Location[];
 };
 
-export default function SpotMapWrapper(props: Props) {
+export default function CollectionMapWrapper(props: Props) {
   return <CollectionMap {...props} />;
 }
