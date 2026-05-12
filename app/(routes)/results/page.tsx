@@ -7,6 +7,7 @@
 import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
+import { ChevronLeft } from "lucide-react"
 import { placeLists, type PlaceList } from "@/lib/data/placeLists"
 import SpotMiniMapWrapper from "@/components/SpotMiniMapWrapper"
 
@@ -83,10 +84,21 @@ function ResultsContent() {
     <div className="min-h-screen bg-white dark:bg-black text-zinc-900 dark:text-white pb-24 font-sans">
       {/* ヘッダー */}
       <div className="px-4 py-4 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
-        <h1 className="text-xl font-bold">絞り込み結果</h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
-          {filteredPlaceLists.length}件のプレイスリストが見つかりました
-        </p>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
+            title="戻る"
+          >
+            <ChevronLeft className="w-6 h-6 text-zinc-600 dark:text-zinc-400" />
+          </button>
+          <div>
+            <h1 className="text-xl font-bold">絞り込み結果</h1>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+              {filteredPlaceLists.length}件のプレイスリストが見つかりました
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* 絞り込み条件 */}
