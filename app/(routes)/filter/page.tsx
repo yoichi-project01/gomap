@@ -78,11 +78,38 @@ function FilterForm() {
   const [selectedCats, setSelectedCats] = useState<string[]>(
     searchParams.get("cat") ? searchParams.get("cat")!.split(",") : []
   )
-  const [distance, setDistance] = useState(DEFAULT_DISTANCE)
+  const [distance, setDistance] = useState(searchParams.get("distance") ?? DEFAULT_DISTANCE)
   const [order, setOrder]       = useState(
     searchParams.get("order") ?? DEFAULT_ORDER
   )
   const [query, setQuery]       = useState(searchParams.get("q") ?? "")
+
+  const initialLat = searchParams.get("lat")
+  const initialLng = searchParams.get("lng")
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
+    initialLat && initialLng ? { lat: Number(initialLat), lng: Number(initialLng) } : null
+  )
+  const [geoStatus, setGeoStatus] = useState<"idle" | "loading" | "ok" | "denied" | "error">(
+    initialLat && initialLng ? "ok" : "idle"
+  )
+
+  function requestLocation() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoStatus("error")
+      return
+    }
+    setGeoStatus("loading")
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setGeoStatus("ok")
+      },
+      (err) => {
+        setGeoStatus(err.code === err.PERMISSION_DENIED ? "denied" : "error")
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+    )
+  }
 
   function toggleCat(cat: string) {
     setSelectedCats((prev) =>
@@ -96,13 +123,21 @@ function FilterForm() {
     setDistance(DEFAULT_DISTANCE)
     setOrder(DEFAULT_ORDER)
     setQuery("")
+    setCoords(null)
+    setGeoStatus("idle")
   }
 
   function handleSubmit() {
     const params = new URLSearchParams()
     if (prefecture)              params.set("pref", prefecture)
     if (selectedCats.length)     params.set("cat", selectedCats.join(","))
-    if (distance)                params.set("distance", distance)
+    if (distance) {
+      params.set("distance", distance)
+      if (coords) {
+        params.set("lat", coords.lat.toFixed(6))
+        params.set("lng", coords.lng.toFixed(6))
+      }
+    }
     if (order !== DEFAULT_ORDER) params.set("order", order)
     if (query.trim())            params.set("q", query.trim())
     router.push(`/?${params.toString()}`)
@@ -174,7 +209,23 @@ function FilterForm() {
       </AccordionSection>
 
       <AccordionSection title="距離" summary={distSummary} defaultOpen={false}>
-        <div className="pt-3 flex flex-col gap-2">
+        <div className="pt-3 mb-3 flex items-center gap-3 flex-wrap">
+          <button
+            type="button"
+            onClick={requestLocation}
+            disabled={geoStatus === "loading"}
+            className="text-xs px-3 py-1.5 rounded-full border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:border-zinc-400 dark:hover:border-zinc-500 disabled:opacity-50 transition-colors"
+          >
+            {geoStatus === "loading" ? "取得中…" : coords ? "現在地を再取得" : "現在地を取得"}
+          </button>
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+            {geoStatus === "ok" && coords && `取得済み (${coords.lat.toFixed(3)}, ${coords.lng.toFixed(3)})`}
+            {geoStatus === "denied" && "位置情報の利用が拒否されています"}
+            {geoStatus === "error"  && "現在地を取得できませんでした"}
+            {geoStatus === "idle"   && "距離で絞り込むには現在地が必要です"}
+          </span>
+        </div>
+        <div className="flex flex-col gap-2">
           {DISTANCES.map((dist) => (
             <label
               key={dist}

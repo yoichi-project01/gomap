@@ -15,8 +15,12 @@ export default function HomeHeader() {
 
         <div className="flex items-center gap-4 text-zinc-500 dark:text-zinc-400">
           <ThemeToggle className="w-8 h-8 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100" />
-          <Bell className="w-6 h-6 cursor-pointer hover:text-zinc-900 dark:hover:text-white transition" />
-          <Clock className="w-6 h-6 cursor-pointer hover:text-zinc-900 dark:hover:text-white transition" />
+          <span aria-disabled="true" title="準備中" className="inline-flex cursor-not-allowed text-zinc-300 dark:text-zinc-600">
+            <Bell className="w-6 h-6" />
+          </span>
+          <span aria-disabled="true" title="準備中" className="inline-flex cursor-not-allowed text-zinc-300 dark:text-zinc-600">
+            <Clock className="w-6 h-6" />
+          </span>
           <Link href="/mypage">
             <Settings className="w-6 h-6 cursor-pointer hover:text-zinc-900 dark:hover:text-white transition" />
           </Link>

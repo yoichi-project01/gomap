@@ -1,26 +1,57 @@
-// フロントエンド担当
-// APIエンドポイントを呼び出す関数群
-// componentsやapp/page.tsxからimportして使う
+// フロントから /api/spots を叩く関数群
+// componentsやページからimportして使う
 
-import type { PlaceList } from "@/types/spot";
+import type { Spot } from "@/types/spot";
 
-// プレイスリスト作成用の入力型
-export type CreatePlaceListInput = Omit<PlaceList, "id">;
+export type ListSpotsParams = {
+  prefecture?: string;
+  category?: string;
+  q?: string;
+};
 
-// プレイスリスト一覧を取得
-export async function getPlaceLists(): Promise<PlaceList[]> {
-  const res = await fetch("/api/placelists");
-  if (!res.ok) throw new Error("プレイスリストの取得に失敗しました");
+export type CreateSpotInput = {
+  name: string;
+  lat: number;
+  lng: number;
+  description?: string;
+  prefecture?: string;
+  category?: string;
+  creator?: string;
+  coverImageUrl?: string;
+};
+
+function buildQuery(params: ListSpotsParams): string {
+  const sp = new URLSearchParams();
+  if (params.prefecture) sp.set("prefecture", params.prefecture);
+  if (params.category) sp.set("category", params.category);
+  if (params.q) sp.set("q", params.q);
+  const qs = sp.toString();
+  return qs ? `?${qs}` : "";
+}
+
+export async function getSpots(params: ListSpotsParams = {}): Promise<Spot[]> {
+  const res = await fetch(`/api/spots${buildQuery(params)}`);
+  if (!res.ok) throw new Error("スポット一覧の取得に失敗しました");
   return res.json();
 }
 
-// 新しいプレイスリストを作成
-export async function createPlaceList(input: CreatePlaceListInput): Promise<PlaceList> {
-  const res = await fetch("/api/placelists", {
+export async function getSpotById(id: string): Promise<Spot> {
+  const res = await fetch(`/api/spots/${encodeURIComponent(id)}`);
+  if (!res.ok) throw new Error("スポットの取得に失敗しました");
+  return res.json();
+}
+
+export async function createSpot(input: CreateSpotInput): Promise<Spot> {
+  const res = await fetch("/api/spots", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error("プレイスリストの登録に失敗しました");
+  if (!res.ok) throw new Error("スポットの登録に失敗しました");
   return res.json();
+}
+
+export async function deleteSpot(id: string): Promise<void> {
+  const res = await fetch(`/api/spots/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("スポットの削除に失敗しました");
 }

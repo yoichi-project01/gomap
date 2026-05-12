@@ -7,6 +7,10 @@ import { Home, Search, Library, User } from 'lucide-react';
 export default function BottomNav() {
   const pathname = usePathname() || '';
 
+  if (pathname === '/login' || pathname === '/signup') {
+    return null;
+  }
+
   const getNavClass = (basePath: string) => {
     const active = basePath === '/'
       ? pathname === '/'

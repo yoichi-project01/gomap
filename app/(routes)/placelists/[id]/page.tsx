@@ -1,18 +1,18 @@
-'use client';
-
-import { use } from 'react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { ArrowLeft, MapPin, Heart, Share2, MoreVertical } from 'lucide-react';
 import PlaceListMapWrapper from '@/components/PlaceListMapWrapper';
-import { DUMMY_PLACE_LISTS } from '@/lib/client/dummySpots';
+import { getPlaceListById } from '@/lib/server/placeLists';
+import { supabase } from '@/lib/server/supabase';
 
 type Props = {
   params: Promise<{ id: string }>;
 };
 
-export default function PlaceListDetailPage({ params }: Props) {
-  const { id } = use(params);
-  const placeList = DUMMY_PLACE_LISTS.find((p) => p.id === id) || DUMMY_PLACE_LISTS[0];
+export default async function PlaceListDetailPage({ params }: Props) {
+  const { id } = await params;
+  const placeList = await getPlaceListById(supabase, id);
+  if (!placeList) notFound();
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white font-sans pb-20">
@@ -40,7 +40,7 @@ export default function PlaceListDetailPage({ params }: Props) {
             <h1 className="text-3xl font-bold">{placeList.name}</h1>
             <button className="flex items-center gap-2 px-4 py-2 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 rounded-full transition">
               <Heart className="w-5 h-5" />
-              <span className="text-sm font-bold">{placeList.likes || 0}</span>
+              <span className="text-sm font-bold">{placeList.likes ?? 0}</span>
             </button>
           </div>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-4">{placeList.description}</p>
@@ -73,7 +73,7 @@ export default function PlaceListDetailPage({ params }: Props) {
                     {spot.name}
                   </h3>
                   <p className="text-zinc-500 dark:text-zinc-500 text-xs truncate">
-                    {spot.description || spot.desc || '説明はありません'}
+                    {spot.description ?? spot.desc ?? '説明はありません'}
                   </p>
                 </div>
                 <ArrowLeft className="w-4 h-4 text-zinc-400 dark:text-zinc-600 rotate-180" />

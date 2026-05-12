@@ -3,49 +3,22 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Sparkles, Flame, Trophy } from 'lucide-react';
+import type { PlaceList } from '@/types/spot';
 
 type Props = {
   title: string;
   type: 'new' | 'featured' | 'ranking';
+  placeLists: PlaceList[];
 };
 
-export default function PlaceListScrollSection({ title, type }: Props) {
+export default function PlaceListScrollSection({ title, type, placeLists }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const collections = {
-    new: [
-      { id: 'placelist-new1', title: '大阪の新定番プレイスリスト', desc: 'USJ新エリア、あべのハルカスなど' },
-      { id: 'placelist-new2', title: '話題のNEWオープン', desc: 'KITTE大阪、グラングリーン大阪など' },
-      { id: 'placelist-new3', title: '最新カフェ巡りin中崎町', desc: 'レトロでおしゃれな隠れ家カフェ' },
-      { id: 'placelist-new4', title: '季節のイベント・お祭り', desc: '天神祭、御堂筋イルミネーション' },
-      { id: 'placelist-new5', title: '写真映えスイーツ', desc: '難波・心斎橋エリアの最新SNS映えスイーツ' },
-      { id: 'placelist-new6', title: '日帰り温泉＆スパ', desc: '空庭温泉、スパワールドなどリラックスできる場所' },
-      { id: 'placelist-new7', title: '最新の体験型アート', desc: 'チームラボボタニカルガーデン大阪' },
-    ],
-    featured: [
-      { id: 'placelist-feat1', title: '大阪観光名所7選', desc: '大阪城、道頓堀、通天閣など王道ルート' },
-      { id: 'placelist-feat2', title: '家族で楽しむ大阪', desc: '海遊館、天王寺動物園など' },
-      { id: 'placelist-feat3', title: 'ディープな大阪体験', desc: '新世界、鶴橋、京橋などローカルな魅力' },
-      { id: 'placelist-feat4', title: '大阪食い倒れツアー', desc: 'たこ焼き、お好み焼き、串カツなど必食グルメ' },
-      { id: 'placelist-feat5', title: '歴史を感じる寺社仏閣', desc: '住吉大社、大阪天満宮、四天王寺を巡るルート' },
-      { id: 'placelist-feat6', title: 'お買い物プレイスリスト', desc: 'グランフロント大阪、心斎橋筋商店街など' },
-      { id: 'placelist-feat7', title: 'テーマパークで遊ぶ', desc: 'USJ、ひらかたパークなど1日遊べる場所' },
-    ],
-    ranking: [
-      { id: 'placelist-rank1', title: '絶景の夜景プレイスリスト', desc: '梅田スカイビル、コスモタワーなど' },
-      { id: 'placelist-rank2', title: 'お土産探しプレイスリスト', desc: '阪急うめだ本店、なんば周辺など' },
-      { id: 'placelist-rank3', title: 'カップル向けデート', desc: '中之島公園、万博記念公園などおすすめの場所' },
-      { id: 'placelist-rank4', title: '一人でゆっくり過ごす', desc: '大阪府立中之島図書館、国立国際美術館など' },
-      { id: 'placelist-rank5', title: '雨の日でも遊べる施設', desc: 'ニフレル、大阪市立科学館など室内プレイスリスト' },
-      { id: 'placelist-rank6', title: '自然を感じるハイキング', desc: '箕面大滝、金剛山などリフレッシュできるエリア' },
-      { id: 'placelist-rank7', title: 'アニメの聖地巡礼', desc: '日本橋オタロード周辺のサブカルプレイスリスト' },
-    ],
-  };
-
-  const currentData = collections[type] || [];
   const displayLimit = 5;
-  const hasMore = currentData.length > displayLimit;
-  const displayedData = isExpanded ? currentData : currentData.slice(0, displayLimit);
+  const hasMore = placeLists.length > displayLimit;
+  const displayedData = isExpanded ? placeLists : placeLists.slice(0, displayLimit);
+
+  if (placeLists.length === 0) return null;
 
   return (
     <section className="mb-10">
@@ -87,10 +60,10 @@ export default function PlaceListScrollSection({ title, type }: Props) {
             </div>
 
             <h3 className="font-bold text-sm truncate mb-1 text-zinc-900 dark:text-zinc-100">
-              {item.title}
+              {item.name}
             </h3>
             <p className="text-zinc-500 dark:text-zinc-400 text-xs line-clamp-2 whitespace-normal leading-relaxed">
-              {item.desc}
+              {item.description}
             </p>
           </Link>
         ))}

@@ -2,18 +2,44 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Camera, Plus, MapPin, X } from 'lucide-react';
+import { ChevronLeft, Plus, MapPin, X } from 'lucide-react';
+import LocationSearchModal from '@/components/spot/LocationSearchModal';
+import CoverImageUploader from '@/components/ui/CoverImageUploader';
+import type { PlaceSearchResult } from '@/app/api/places/search/route';
+
+type SelectedLocation = {
+  id: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+};
 
 export default function CreateSpotPage() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  
-  // 追加した地点（ロケーション）のリストを管理するステート
-  // ※今回はUIの確認のため、初期値としてダミーを1件入れています
-  const [locations, setLocations] = useState([
-    { id: '1', name: '道頓堀', address: '大阪府大阪市中央区' }
-  ]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [cover, setCover] = useState<{ url: string; path: string } | null>(null);
+
+  const [locations, setLocations] = useState<SelectedLocation[]>([]);
+
+  function handleSelectPlace(result: PlaceSearchResult) {
+    setLocations((prev) => {
+      if (prev.some((l) => l.id === result.placeId)) return prev;
+      return [
+        ...prev,
+        {
+          id: result.placeId,
+          name: result.name,
+          address: result.address,
+          lat: result.lat,
+          lng: result.lng,
+        },
+      ];
+    });
+    setSearchOpen(false);
+  }
 
   // 保存ボタンを押した時の処理
   const handleSave = () => {
@@ -47,13 +73,7 @@ export default function CreateSpotPage() {
       {/* 2. メインフォーム領域 */}
       <main className="px-4 mt-8 max-w-md mx-auto flex flex-col gap-8">
         
-        {/* カバー画像アップロード枠 (Spotify風) */}
-        <div className="w-48 h-48 bg-zinc-800 mx-auto rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-700 transition group shadow-lg">
-          <Camera className="w-10 h-10 text-zinc-500 group-hover:text-white transition-colors mb-2" />
-          <span className="text-xs font-bold text-zinc-500 group-hover:text-white transition-colors">
-            画像を選択
-          </span>
-        </div>
+        <CoverImageUploader value={cover} onChange={setCover} className="mx-auto" />
 
         {/* タイトルと説明の入力 */}
         <div className="flex flex-col gap-4">
@@ -114,14 +134,24 @@ export default function CreateSpotPage() {
             )}
           </div>
 
-          {/* 検索・追加ボタン (本来はここから検索モーダル等を開く) */}
-          <button className="w-full flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white py-3.5 rounded-full font-bold text-sm transition shadow-md">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className="w-full flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white py-3.5 rounded-full font-bold text-sm transition shadow-md"
+          >
             <Plus className="w-5 h-5" />
             場所を検索して追加
           </button>
         </div>
 
       </main>
+
+      {searchOpen && (
+        <LocationSearchModal
+          onClose={() => setSearchOpen(false)}
+          onSelect={handleSelectPlace}
+        />
+      )}
     </div>
   );
 }
