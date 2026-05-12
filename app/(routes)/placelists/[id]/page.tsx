@@ -1,11 +1,16 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, MapPin, Heart, Share2, MoreVertical } from 'lucide-react';
+import { ArrowLeft, MapPin } from 'lucide-react';
 import PlaceListMapWrapper from '@/components/PlaceListMapWrapper';
+import CollectionActions from '@/components/collection/CollectionActions';
 import { getPlaceListById } from '@/lib/server/placeLists';
+import { isPlaceListLiked } from '@/lib/server/likes';
+import { isPlaceListSaved } from '@/lib/server/saves';
 import { supabase } from '@/lib/server/supabase';
 
 export const dynamic = 'force-dynamic';
+
+const MAP_ANCHOR_ID = 'placelist-map';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -13,38 +18,28 @@ type Props = {
 
 export default async function PlaceListDetailPage({ params }: Props) {
   const { id } = await params;
-  const placeList = await getPlaceListById(supabase, id);
+  const [placeList, liked, saved] = await Promise.all([
+    getPlaceListById(supabase, id),
+    isPlaceListLiked(id),
+    isPlaceListSaved(id),
+  ]);
   if (!placeList) notFound();
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white font-sans pb-20">
-      <header className="sticky top-0 z-50 bg-zinc-50/90 dark:bg-zinc-950/90 backdrop-blur-md px-4 py-4 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800">
+      <header className="sticky top-0 z-50 bg-zinc-50/90 dark:bg-zinc-950/90 backdrop-blur-md px-4 py-4 flex items-center border-b border-zinc-200 dark:border-zinc-800">
         <Link href="/" className="p-2 -ml-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition">
           <ArrowLeft className="w-6 h-6" />
         </Link>
-        <div className="flex gap-2">
-          <button className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition">
-            <Share2 className="w-5 h-5" />
-          </button>
-          <button className="p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition">
-            <MoreVertical className="w-5 h-5" />
-          </button>
-        </div>
       </header>
 
-      <div className="w-full h-64 md:h-96 relative border-b border-zinc-200 dark:border-zinc-800">
+      <div id={MAP_ANCHOR_ID} className="w-full h-64 md:h-96 relative border-b border-zinc-200 dark:border-zinc-800 scroll-mt-0">
         <PlaceListMapWrapper spots={placeList.spots} />
       </div>
 
       <main className="px-4 py-6 max-w-4xl mx-auto">
-        <div className="mb-8">
-          <div className="flex justify-between items-start mb-2">
-            <h1 className="text-3xl font-bold">{placeList.name}</h1>
-            <button className="flex items-center gap-2 px-4 py-2 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 rounded-full transition">
-              <Heart className="w-5 h-5" />
-              <span className="text-sm font-bold">{placeList.likes ?? 0}</span>
-            </button>
-          </div>
+        <div className="mb-4">
+          <h1 className="text-3xl font-bold mb-2">{placeList.name}</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-4">{placeList.description}</p>
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white">
@@ -53,6 +48,14 @@ export default async function PlaceListDetailPage({ params }: Props) {
             <span className="text-xs text-zinc-500 dark:text-zinc-300">作成者: {placeList.creatorName || '匿名ユーザー'}</span>
           </div>
         </div>
+
+        <CollectionActions
+          placeListId={placeList.id}
+          initialLiked={liked}
+          initialSaved={saved}
+          initialLikesCount={placeList.likes ?? 0}
+          mapAnchorId={MAP_ANCHOR_ID}
+        />
 
         <section>
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
