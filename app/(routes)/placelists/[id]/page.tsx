@@ -32,19 +32,6 @@ export default async function PlaceListDetailPage({ params }: Props) {
         </div>
       </header>
 
-      {placeList.coverImageUrl && (
-        <div
-          className="w-full h-56 md:h-72 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-200 dark:bg-zinc-800"
-          style={{
-            backgroundImage: `url(${placeList.coverImageUrl})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-          role="img"
-          aria-label={`${placeList.name} のカバー画像`}
-        />
-      )}
-
       <div className="w-full h-64 md:h-96 relative border-b border-zinc-200 dark:border-zinc-800">
         <PlaceListMapWrapper spots={placeList.spots} />
       </div>
