@@ -24,7 +24,14 @@ export default async function CollectionDetailPage({ params }: Props) {
   return (
     <div className="min-h-screen bg-black text-white font-sans pb-24 overflow-y-auto [&::-webkit-scrollbar]:hidden">
 
-      <div className="relative pt-16 pb-6 px-4 bg-gradient-to-b from-indigo-900 to-black">
+      <div
+        className="relative pt-16 pb-6 px-4 bg-gradient-to-b from-indigo-900 to-black"
+        style={collection.coverImageUrl ? {
+          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.85)), url(${collection.coverImageUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        } : undefined}
+      >
         <Link href="/" className="absolute top-10 left-4 w-10 h-10 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-md z-10 hover:bg-black/60 transition">
           <ChevronLeft className="w-6 h-6 text-white" />
         </Link>
