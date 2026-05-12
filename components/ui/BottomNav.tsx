@@ -32,7 +32,7 @@ export default function BottomNav() {
           <span className="text-[10px] font-medium">絞り込み</span>
         </Link>
 
-        <Link href="/favorites" className={getNavClass('/favorites')}>
+        <Link href="/mylibrary" className={getNavClass('/mylibrary')}>
           <Library className="w-6 h-6" />
           <span className="text-[10px] font-medium">マイライブラリ</span>
         </Link>

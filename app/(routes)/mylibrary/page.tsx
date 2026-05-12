@@ -3,19 +3,19 @@ import { LayoutList, Library, Heart, ChevronRight } from 'lucide-react';
 
 const MENU_ITEMS = [
   {
-    href: '/mypage/placelists',
+    href: '/mylibrary/placelists',
     icon: <LayoutList className="w-6 h-6 text-green-500" />,
     label: '登録したプレイスリスト',
     count: 3,
   },
   {
-    href: '/favorites/saved',
+    href: '/mylibrary/saved',
     icon: <Library className="w-6 h-6 text-indigo-500" />,
     label: '保存したプレイスリスト',
     count: 3,
   },
   {
-    href: '/mypage/likes',
+    href: '/mylibrary/likes',
     icon: <Heart className="w-6 h-6 text-red-500" />,
     label: 'いいねしたプレイスリスト',
     count: 3,
