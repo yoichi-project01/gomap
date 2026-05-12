@@ -61,6 +61,31 @@ export async function getSpotById(
   return data ? rowToSpot(data as SpotRow) : null;
 }
 
+export async function listSpotsByCreator(
+  client: SupabaseClient,
+  userId: string,
+): Promise<Spot[]> {
+  const { data, error } = await client
+    .from("spots")
+    .select("*")
+    .eq("creator", userId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data as SpotRow[]).map(rowToSpot);
+}
+
+export async function countSpotsByCreator(
+  client: SupabaseClient,
+  userId: string,
+): Promise<number> {
+  const { count, error } = await client
+    .from("spots")
+    .select("id", { count: "exact", head: true })
+    .eq("creator", userId);
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export type CreateSpotInput = {
   name: string;
   description?: string;

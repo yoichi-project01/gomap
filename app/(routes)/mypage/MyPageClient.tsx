@@ -3,17 +3,22 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import ThemeToggle from "@/components/ui/ThemeToggle"
-import { logoutAction } from "@/app/actions/auth"
+import { logoutAction, deleteAccountAction } from "@/app/actions/auth"
 import { useLocalStorageState } from "@/lib/hooks/useLocalStorageState"
 import { createSupabaseBrowserClient } from "@/lib/client/supabaseBrowser"
 
-const DUMMY_STATS = { spotsCount: 3, favoritesCount: 3, likesReceived: 8 }
 const APP_VERSION = "0.1.0"
 
 export type MyPageUser = {
   email: string
   createdAt: string
   initialName: string
+}
+
+export type MyPageStats = {
+  placeListsCount: number
+  favoritesCount: number
+  likesReceived: number
 }
 
 const PREFECTURES = [
@@ -113,7 +118,7 @@ function SettingSelect({ value, options, onChange }: {
   )
 }
 
-export default function MyPageClient({ user }: { user: MyPageUser }) {
+export default function MyPageClient({ user, stats }: { user: MyPageUser; stats: MyPageStats }) {
   const [name, setName]               = useState<string>(user.initialName)
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput]     = useState(user.initialName)
@@ -130,7 +135,9 @@ export default function MyPageClient({ user }: { user: MyPageUser }) {
   const [emailNotif, setEmailNotif] = useLocalStorageState<boolean>("gomap:emailNotif", false)
 
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [isLoggingOut, startLogout] = useTransition()
+  const [deleteError, setDeleteError]     = useState<string | null>(null)
+  const [isLoggingOut, startLogout]       = useTransition()
+  const [isDeleting, startDelete]         = useTransition()
 
   const initials = name.trim().slice(0, 1)
 
@@ -212,9 +219,9 @@ export default function MyPageClient({ user }: { user: MyPageUser }) {
         {/* 統計 */}
         <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800 grid grid-cols-3 text-center">
           {[
-            { value: DUMMY_STATS.spotsCount,     label: "プレイスリスト" },
-            { value: DUMMY_STATS.favoritesCount, label: "保存済み" },
-            { value: DUMMY_STATS.likesReceived,  label: "もらったいいね" },
+            { value: stats.placeListsCount, label: "プレイスリスト" },
+            { value: stats.favoritesCount,  label: "保存済み" },
+            { value: stats.likesReceived,   label: "もらったいいね" },
           ].map((stat, i) => (
             <div key={i} className={i === 1 ? "border-x border-zinc-100 dark:border-zinc-800" : ""}>
               <p className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{stat.value}</p>
@@ -309,9 +316,27 @@ export default function MyPageClient({ user }: { user: MyPageUser }) {
             <NavRow danger label="アカウントを削除する" onClick={() => setConfirmDelete(true)} />
           ) : (
             <div className="px-4 py-3 bg-red-50 dark:bg-red-950/30">
-              <p className="text-xs text-red-500 mb-2">本当に削除しますか？この操作は取り消せません。</p>
+              <p className="text-xs text-red-500 mb-2">
+                本当に削除しますか？この操作は取り消せません。<br />
+                あなたが作成したプレイスリスト・スポット・お気に入りもすべて削除されます。
+              </p>
+              {deleteError && (
+                <p className="text-xs text-red-600 dark:text-red-400 mb-2" role="alert">{deleteError}</p>
+              )}
               <div className="flex gap-2">
-                <button className="flex-1 bg-red-500 text-white text-xs py-2 rounded-xl">削除する</button>
+                <button
+                  disabled={isDeleting}
+                  onClick={() => {
+                    setDeleteError(null)
+                    startDelete(async () => {
+                      const result = await deleteAccountAction()
+                      if (result?.error) setDeleteError(result.error)
+                    })
+                  }}
+                  className="flex-1 bg-red-500 text-white text-xs py-2 rounded-xl disabled:opacity-50"
+                >
+                  {isDeleting ? "削除中…" : "削除する"}
+                </button>
                 <button
                   onClick={() => setConfirmDelete(false)}
                   className="flex-1 border border-zinc-200 dark:border-zinc-700 text-xs py-2 rounded-xl text-zinc-600 dark:text-zinc-300"

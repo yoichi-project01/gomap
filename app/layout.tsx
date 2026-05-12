@@ -20,9 +20,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className="dark">
+    <html lang="ja" className="dark" suppressHydrationWarning>
       <head>
-        {/* フラッシュ防止: React より先にテーマを適用する */}
+        {/* フラッシュ防止: React より先にテーマを適用する
+            このスクリプトが <html> の className を書き換えるため、
+            サーバーレンダ "dark" とクライアント実 DOM (dark もしくは light) が
+            一致しないことがある。<html> 限定で hydration 警告を抑制する。 */}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('theme')||'dark';document.documentElement.classList.toggle('dark',t==='dark');}catch(e){}})();`,

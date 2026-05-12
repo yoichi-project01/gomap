@@ -71,12 +71,22 @@ const SELECT_WITH_SPOTS = `
   )
 `;
 
-export async function listPlaceLists(client: SupabaseClient): Promise<PlaceList[]> {
-  const { data, error } = await client
+export type ListPlaceListsFilters = {
+  creator?: string; // 指定すると creator に一致するものだけ返す
+};
+
+export async function listPlaceLists(
+  client: SupabaseClient,
+  filters: ListPlaceListsFilters = {},
+): Promise<PlaceList[]> {
+  let query = client
     .from("place_lists")
     .select(SELECT_WITH_SPOTS)
     .order("created_at", { ascending: false });
 
+  if (filters.creator) query = query.eq("creator", filters.creator);
+
+  const { data, error } = await query;
   if (error) throw error;
   return (data as unknown as PlaceListWithSpotsRow[]).map(rowToPlaceList);
 }
@@ -138,6 +148,18 @@ export async function createPlaceList(
   const fresh = await getPlaceListById(client, created.id);
   if (!fresh) throw new Error("作成したプレイスリストの再取得に失敗しました");
   return fresh;
+}
+
+export async function countPlaceListsByCreator(
+  client: SupabaseClient,
+  userId: string,
+): Promise<number> {
+  const { count, error } = await client
+    .from("place_lists")
+    .select("id", { count: "exact", head: true })
+    .eq("creator", userId);
+  if (error) throw error;
+  return count ?? 0;
 }
 
 // 削除成功時 true。対象がない / 権限なし (RLS) は false。

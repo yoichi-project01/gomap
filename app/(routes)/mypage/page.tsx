@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation"
 import { createSupabaseServerClient } from "@/lib/server/supabaseAuth"
+import { getUserStats, type UserStats } from "@/lib/server/stats"
 import MyPageClient, { type MyPageUser } from "./MyPageClient"
 
 export default async function MyPage() {
@@ -20,5 +21,13 @@ export default async function MyPage() {
     initialName: metadataName || email.split("@")[0] || "ユーザー",
   }
 
-  return <MyPageClient user={myPageUser} />
+  let stats: UserStats
+  try {
+    stats = await getUserStats(user.id)
+  } catch (e) {
+    console.error("[mypage] getUserStats failed", e)
+    stats = { placeListsCount: 0, favoritesCount: 0, likesReceived: 0 }
+  }
+
+  return <MyPageClient user={myPageUser} stats={stats} />
 }

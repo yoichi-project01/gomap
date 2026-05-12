@@ -73,7 +73,7 @@ export default async function PlaceListDetailPage({ params }: Props) {
                     {spot.name}
                   </h3>
                   <p className="text-zinc-500 dark:text-zinc-500 text-xs truncate">
-                    {spot.description ?? spot.desc ?? '説明はありません'}
+                    {spot.description ?? '説明はありません'}
                   </p>
                 </div>
                 <ArrowLeft className="w-4 h-4 text-zinc-400 dark:text-zinc-600 rotate-180" />

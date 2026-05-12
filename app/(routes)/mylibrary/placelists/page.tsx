@@ -1,12 +1,17 @@
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import { listPlaceLists } from "@/lib/server/placeLists"
-import { supabase } from "@/lib/server/supabase"
+import { createSupabaseServerClient } from "@/lib/server/supabaseAuth"
 import MyPlaceListsView from "./MyPlaceListsView"
 
 export const dynamic = "force-dynamic"
 
 export default async function MyPlaceListsPage() {
-  const placeLists = await listPlaceLists(supabase)
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/login?next=/mylibrary/placelists")
+
+  const placeLists = await listPlaceLists(supabase, { creator: user.id })
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-4 py-8 pb-24">

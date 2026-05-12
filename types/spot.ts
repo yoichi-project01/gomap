@@ -2,7 +2,6 @@ export type Spot = {
   id: string;
   name: string;
   description?: string;
-  desc?: string;
   lat: number;
   lng: number;
   prefecture?: string;

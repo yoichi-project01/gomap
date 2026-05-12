@@ -1,28 +1,45 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { LayoutList, Library, Heart, ChevronRight } from 'lucide-react';
+import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
+import { countPlaceListsByCreator } from '@/lib/server/placeLists';
+import { countSaved } from '@/lib/server/saves';
+import { countLiked } from '@/lib/server/likes';
 
-const MENU_ITEMS = [
-  {
-    href: '/mylibrary/placelists',
-    icon: <LayoutList className="w-6 h-6 text-green-500" />,
-    label: '登録したプレイスリスト',
-    count: 3,
-  },
-  {
-    href: '/mylibrary/saved',
-    icon: <Library className="w-6 h-6 text-indigo-500" />,
-    label: '保存したプレイスリスト',
-    count: 3,
-  },
-  {
-    href: '/mylibrary/likes',
-    icon: <Heart className="w-6 h-6 text-red-500" />,
-    label: 'いいねしたプレイスリスト',
-    count: 3,
-  },
-];
+export const dynamic = 'force-dynamic';
 
-export default function FavoritesIndexPage() {
+export default async function MyLibraryPage() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const [createdCount, savedCount, likedCount] = await Promise.all([
+    countPlaceListsByCreator(supabase, user.id),
+    countSaved(user.id),
+    countLiked(user.id),
+  ]);
+
+  const menuItems = [
+    {
+      href: '/mylibrary/placelists',
+      icon: <LayoutList className="w-6 h-6 text-green-500" />,
+      label: '登録したプレイスリスト',
+      count: createdCount,
+    },
+    {
+      href: '/mylibrary/saved',
+      icon: <Library className="w-6 h-6 text-indigo-500" />,
+      label: '保存したプレイスリスト',
+      count: savedCount,
+    },
+    {
+      href: '/mylibrary/likes',
+      icon: <Heart className="w-6 h-6 text-red-500" />,
+      label: 'いいねしたプレイスリスト',
+      count: likedCount,
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pb-24">
       <header className="sticky top-0 z-50 flex items-center px-4 pt-10 pb-4 bg-zinc-50/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
@@ -32,7 +49,7 @@ export default function FavoritesIndexPage() {
 
       <main className="px-4 mt-6">
         <div className="flex flex-col gap-3">
-          {MENU_ITEMS.map((item) => (
+          {menuItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}

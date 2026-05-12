@@ -129,7 +129,7 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
                       <h3 className="font-bold text-sm text-white">{spot.name}</h3>
                       <p className="text-xs text-zinc-400 flex items-center gap-1 mt-0.5">
                         <MapPin className="w-3 h-3" />
-                        {spot.description ?? spot.desc ?? ''}
+                        {spot.description ?? ''}
                       </p>
                     </div>
                   </div>
@@ -183,7 +183,7 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-white truncate">{spot.name}</p>
                         <p className="text-xs text-zinc-400 truncate">
-                          {spot.description ?? spot.desc ?? ''}
+                          {spot.description ?? ''}
                         </p>
                       </div>
                       <Plus className="w-4 h-4 text-zinc-400 flex-shrink-0 ml-auto" />

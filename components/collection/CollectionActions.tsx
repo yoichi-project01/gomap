@@ -2,12 +2,14 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Heart, Map as MapIcon, MoreVertical } from "lucide-react"
+import { Bookmark, Heart, Map as MapIcon } from "lucide-react"
 import { togglePlaceListLikeAction } from "@/app/actions/likes"
+import { togglePlaceListSaveAction } from "@/app/actions/saves"
 
 type Props = {
   placeListId: string
   initialLiked: boolean
+  initialSaved: boolean
   initialLikesCount: number
   mapAnchorId: string
 }
@@ -17,14 +19,17 @@ const FEEDBACK_DURATION = 2000
 export default function CollectionActions({
   placeListId,
   initialLiked,
+  initialSaved,
   initialLikesCount,
   mapAnchorId,
 }: Props) {
   const router = useRouter()
   const [liked, setLiked] = useState(initialLiked)
+  const [saved, setSaved] = useState(initialSaved)
   const [likesCount, setLikesCount] = useState(initialLikesCount)
   const [feedback, setFeedback] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
+  const [isLikePending, startLike] = useTransition()
+  const [isSavePending, startSave] = useTransition()
 
   function flash(message: string) {
     setFeedback(message)
@@ -40,7 +45,7 @@ export default function CollectionActions({
     const next = !liked
     setLiked(next)
     setLikesCount((c) => c + (next ? 1 : -1))
-    startTransition(async () => {
+    startLike(async () => {
       const result = await togglePlaceListLikeAction(placeListId)
       if (!result.ok) {
         setLiked(!next)
@@ -52,6 +57,25 @@ export default function CollectionActions({
         }
         return
       }
+      router.refresh()
+    })
+  }
+
+  function handleSave() {
+    const next = !saved
+    setSaved(next)
+    startSave(async () => {
+      const result = await togglePlaceListSaveAction(placeListId)
+      if (!result.ok) {
+        setSaved(!next)
+        if (result.reason === "unauthenticated") {
+          router.push("/login")
+        } else {
+          flash(result.message ?? "操作に失敗しました")
+        }
+        return
+      }
+      flash(next ? "保存しました" : "保存を解除しました")
       router.refresh()
     })
   }
@@ -69,7 +93,7 @@ export default function CollectionActions({
       <button
         type="button"
         onClick={handleLike}
-        disabled={isPending}
+        disabled={isLikePending}
         aria-label={liked ? "いいねを取り消す" : "いいねする"}
         aria-pressed={liked}
         className={`inline-flex items-center gap-1 transition disabled:opacity-50 ${
@@ -81,12 +105,15 @@ export default function CollectionActions({
       </button>
       <button
         type="button"
-        aria-label="メニュー (準備中)"
-        title="準備中"
-        className="text-zinc-600 cursor-not-allowed"
-        disabled
+        onClick={handleSave}
+        disabled={isSavePending}
+        aria-label={saved ? "保存を解除する" : "保存する"}
+        aria-pressed={saved}
+        className={`transition disabled:opacity-50 ${
+          saved ? "text-green-400 hover:text-green-300" : "text-zinc-400 hover:text-white"
+        }`}
       >
-        <MoreVertical className="w-7 h-7" />
+        <Bookmark className="w-7 h-7" fill={saved ? "currentColor" : "none"} />
       </button>
       {feedback && (
         <span className="text-xs text-zinc-400 ml-1" role="status">

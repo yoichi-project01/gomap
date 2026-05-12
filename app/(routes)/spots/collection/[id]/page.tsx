@@ -5,6 +5,7 @@ import CollectionMapWrapper from '@/components/PlaceListMapWrapper';
 import CollectionActions from '@/components/collection/CollectionActions';
 import { getPlaceListById } from '@/lib/server/placeLists';
 import { isPlaceListLiked } from '@/lib/server/likes';
+import { isPlaceListSaved } from '@/lib/server/saves';
 import { supabase } from '@/lib/server/supabase';
 
 type Props = { params: Promise<{ id: string }> };
@@ -13,9 +14,10 @@ const MAP_ANCHOR_ID = "collection-map";
 
 export default async function CollectionDetailPage({ params }: Props) {
   const { id } = await params;
-  const [collection, liked] = await Promise.all([
+  const [collection, liked, saved] = await Promise.all([
     getPlaceListById(supabase, id),
     isPlaceListLiked(id),
+    isPlaceListSaved(id),
   ]);
   if (!collection) notFound();
 
@@ -47,6 +49,7 @@ export default async function CollectionDetailPage({ params }: Props) {
       <CollectionActions
         placeListId={collection.id}
         initialLiked={liked}
+        initialSaved={saved}
         initialLikesCount={collection.likes ?? 0}
         mapAnchorId={MAP_ANCHOR_ID}
       />
@@ -78,7 +81,7 @@ export default async function CollectionDetailPage({ params }: Props) {
                   {spot.name}
                 </h3>
                 <p className="text-xs text-zinc-400 line-clamp-1">
-                  {spot.description ?? spot.desc ?? '説明はありません'}
+                  {spot.description ?? '説明はありません'}
                 </p>
               </div>
 

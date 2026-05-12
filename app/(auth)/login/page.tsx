@@ -17,6 +17,12 @@ export default function LoginPage() {
 
       <LoginForm />
 
+      <div className="mt-4 text-center">
+        <Link href="/forgot-password" className="text-xs text-zinc-500 dark:text-zinc-400 hover:underline">
+          パスワードをお忘れですか？
+        </Link>
+      </div>
+
       <p className="text-xs text-center text-zinc-500 dark:text-zinc-400 mt-6">
         アカウントをお持ちでないですか？{' '}
         <Link href="/signup" className="font-medium text-zinc-900 dark:text-zinc-100 hover:underline">
