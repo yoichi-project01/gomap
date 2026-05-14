@@ -3,6 +3,7 @@ import { Bell, Clock, Settings, LogIn } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
 import { getDisplayName } from '@/lib/server/profiles';
+import { countUnreadNotifications } from '@/lib/server/notifications';
 
 export default async function HomeHeader() {
   const supabase = await createSupabaseServerClient();
@@ -11,6 +12,7 @@ export default async function HomeHeader() {
   const profileName = user ? await getDisplayName(supabase, user.id) : null;
   const displayName = profileName || user?.email?.split("@")[0] || "";
   const initial = displayName.slice(0, 1).toUpperCase() || "?";
+  const unreadCount = user ? await countUnreadNotifications() : 0;
 
   return (
     <header className="sticky top-0 z-50 flex items-center px-4 pt-10 pb-4 bg-zinc-50/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
@@ -35,8 +37,13 @@ export default async function HomeHeader() {
 
         <div className="flex items-center gap-4 text-zinc-500 dark:text-zinc-400">
           <ThemeToggle className="w-8 h-8 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100" />
-          <Link href="/notifications" aria-label="通知" className="inline-flex hover:text-zinc-900 dark:hover:text-white transition">
+          <Link href="/notifications" aria-label="通知" className="relative inline-flex hover:text-zinc-900 dark:hover:text-white transition">
             <Bell className="w-6 h-6" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center leading-none">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </Link>
           <Link href="/history" aria-label="閲覧履歴" className="inline-flex hover:text-zinc-900 dark:hover:text-white transition">
             <Clock className="w-6 h-6" />
