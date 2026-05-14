@@ -36,7 +36,7 @@ create table public.spots (
   lng         double precision not null,
   prefecture  text,
   category    text,
-  creator     uuid             references auth.users(id) on delete cascade,  -- NULL = 編集部コンテンツ
+  creator     uuid             references auth.users(id) on delete set null,  -- NULL = 編集部 or 退会済みユーザー
   source      text             not null default 'user' check (source in ('user', 'map_ref')),
   created_at  timestamptz      not null default now(),
   updated_at  timestamptz      not null default now()
@@ -56,8 +56,9 @@ create table public.place_lists (
   id              uuid        primary key default gen_random_uuid(),
   name            text        not null,
   description     text,
+  category        text,
   cover_image_url text,
-  creator         uuid        references auth.users(id) on delete cascade,  -- NULL = 編集部コンテンツ
+  creator         uuid        references auth.users(id) on delete set null,  -- NULL = 編集部 or 退会済みユーザー
   likes_count     integer     not null default 0,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
@@ -65,6 +66,7 @@ create table public.place_lists (
 
 create index place_lists_created_at_idx on public.place_lists(created_at desc);
 create index place_lists_creator_idx    on public.place_lists(creator);
+create index place_lists_category_idx   on public.place_lists(category);
 
 
 -- =====================================================================

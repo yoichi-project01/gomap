@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, MapPin } from 'lucide-react';
 import PlaceListMapWrapper from '@/components/PlaceListMapWrapper';
 import CollectionActions from '@/components/collection/CollectionActions';
+import PlaceListViewTracker from '@/components/placelists/PlaceListViewTracker';
 import { getPlaceListById } from '@/lib/server/placeLists';
 import { isPlaceListLiked } from '@/lib/server/likes';
 import { isPlaceListSaved } from '@/lib/server/saves';
@@ -27,6 +28,13 @@ export default async function PlaceListDetailPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white font-sans pb-20">
+      <PlaceListViewTracker
+        id={placeList.id}
+        name={placeList.name}
+        description={placeList.description}
+        coverImageUrl={placeList.coverImageUrl}
+        spotsCount={placeList.spots.length}
+      />
       <header className="sticky top-0 z-50 bg-zinc-50/90 dark:bg-zinc-950/90 backdrop-blur-md px-4 py-4 flex items-center border-b border-zinc-200 dark:border-zinc-800">
         <Link href="/" className="p-2 -ml-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition">
           <ArrowLeft className="w-6 h-6" />

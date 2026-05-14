@@ -293,10 +293,10 @@ export default function MyPageClient({ user, stats }: { user: MyPageUser; stats:
       <div>
         <SectionTitle>サポート</SectionTitle>
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-          <NavRow disabled label="ヘルプ" sub="準備中" />
-          <NavRow disabled label="フィードバックを送る" sub="準備中" />
-          <NavRow disabled label="利用規約" sub="準備中" />
-          <NavRow disabled label="プライバシーポリシー" sub="準備中" />
+          <NavRow href="/help" label="ヘルプ" sub="使い方・よくある質問" />
+          <NavRow href="/feedback" label="フィードバックを送る" sub="ご意見・バグ報告" />
+          <NavRow href="/terms" label="利用規約" />
+          <NavRow href="/privacy" label="プライバシーポリシー" />
           <SettingRow label="バージョン">
             <span className="text-sm text-zinc-400 dark:text-zinc-500">{APP_VERSION}</span>
           </SettingRow>
@@ -317,7 +317,8 @@ export default function MyPageClient({ user, stats }: { user: MyPageUser; stats:
             <div className="px-4 py-3 bg-red-50 dark:bg-red-950/30">
               <p className="text-xs text-red-500 mb-2">
                 本当に削除しますか？この操作は取り消せません。<br />
-                あなたが作成したプレイスリスト・スポット・お気に入りもすべて削除されます。
+                プロフィール・いいね・保存・お気に入りは削除されます。<br />
+                あなたが作成したプレイスリストとスポットは「匿名ユーザー」として残ります。
               </p>
               {deleteError && (
                 <p className="text-xs text-red-600 dark:text-red-400 mb-2" role="alert">{deleteError}</p>

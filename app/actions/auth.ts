@@ -105,7 +105,8 @@ export async function deleteAccountAction(): Promise<{ error?: string } | void> 
   }
 
   // service_role でユーザー削除
-  // schema の on delete cascade で creator = user.id の spots / place_lists も自動削除される
+  // creator = user.id の spots / place_lists は on delete set null で残り、
+  // それ以外の個人ログ (favorites / place_list_likes / place_list_saves / profiles) は cascade で削除される
   const { error } = await adminClient.auth.admin.deleteUser(user.id);
   if (error) {
     console.error('[deleteAccountAction]', error);

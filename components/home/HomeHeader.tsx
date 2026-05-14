@@ -35,12 +35,12 @@ export default async function HomeHeader() {
 
         <div className="flex items-center gap-4 text-zinc-500 dark:text-zinc-400">
           <ThemeToggle className="w-8 h-8 hover:bg-zinc-200 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100" />
-          <span aria-disabled="true" title="準備中" className="inline-flex cursor-not-allowed text-zinc-300 dark:text-zinc-600">
+          <Link href="/notifications" aria-label="通知" className="inline-flex hover:text-zinc-900 dark:hover:text-white transition">
             <Bell className="w-6 h-6" />
-          </span>
-          <span aria-disabled="true" title="準備中" className="inline-flex cursor-not-allowed text-zinc-300 dark:text-zinc-600">
+          </Link>
+          <Link href="/history" aria-label="閲覧履歴" className="inline-flex hover:text-zinc-900 dark:hover:text-white transition">
             <Clock className="w-6 h-6" />
-          </span>
+          </Link>
           <Link href={user ? "/mypage" : "/login"}>
             <Settings className="w-6 h-6 cursor-pointer hover:text-zinc-900 dark:hover:text-white transition" />
           </Link>

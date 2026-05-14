@@ -2,7 +2,11 @@
 -- Gomap: 認証対応 (creator → uuid + RLS) 統合マイグレーション
 -- =====================================================================
 -- このファイルを Supabase Dashboard > SQL Editor に 1 回貼り付けて Run。
--- 内容: schema.sql + 02_likes_favorites.sql + 03_storage_covers.sql + seed.sql
+-- 内容: schema.sql / 02_likes_favorites / 03_storage_covers /
+--       06_profiles + 07_profiles_sync_auth_display_name /
+--       08_place_list_category / seed.sql
+--       (04_place_list_saves, 05_spot_source, 09_creator_on_delete_set_null は
+--        テーブル定義にインライン済み)
 -- 冪等 (drop ... cascade と create ... if not exists で再実行可能)
 -- =====================================================================
 
@@ -32,7 +36,7 @@ create table public.spots (
   lng         double precision not null,
   prefecture  text,
   category    text,
-  creator     uuid             references auth.users(id) on delete cascade,  -- NULL = 編集部
+  creator     uuid             references auth.users(id) on delete set null,  -- NULL = 編集部 or 退会済みユーザー
   source      text             not null default 'user' check (source in ('user', 'map_ref')),
   created_at  timestamptz      not null default now(),
   updated_at  timestamptz      not null default now()
@@ -50,8 +54,9 @@ create table public.place_lists (
   id              uuid        primary key default gen_random_uuid(),
   name            text        not null,
   description     text,
+  category        text,
   cover_image_url text,
-  creator         uuid        references auth.users(id) on delete cascade,  -- NULL = 編集部
+  creator         uuid        references auth.users(id) on delete set null,  -- NULL = 編集部 or 退会済みユーザー
   likes_count     integer     not null default 0,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now()
@@ -59,6 +64,7 @@ create table public.place_lists (
 
 create index place_lists_created_at_idx on public.place_lists(created_at desc);
 create index place_lists_creator_idx    on public.place_lists(creator);
+create index place_lists_category_idx   on public.place_lists(category);
 
 
 -- place_list_spots: 中間 (M:N)
@@ -365,22 +371,38 @@ create trigger profiles_set_updated_at
   for each row execute function public.set_updated_at();
 
 
--- auth.users への INSERT で profiles を自動作成
--- user_metadata.name があればそれを優先、無ければ email の @ より前
+-- =====================================================================
+-- auth.users 連動: signup と metadata 更新を profiles に反映
+--
+-- 表示名のソース・オブ・トゥルースは auth.users.raw_user_meta_data。
+-- Supabase ダッシュボードの "Display Name" 列は raw_user_meta_data->>'name'
+-- に入る (display_name キーではない)。互換のため両方をフォールバック候補にする:
+--   name → display_name → email の @ 前 → '匿名ユーザー'
+-- =====================================================================
+
+-- 旧実装の掃除 (古い migrate_all を流していた既存 DB を冪等に再実行するため)
+drop trigger if exists on_auth_user_metadata_updated on auth.users;
+drop function if exists public.sync_profile_display_name() cascade;
+
+
+-- 1) signup: auth.users への INSERT で profiles を自動作成
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
 set search_path = public
 as $$
-declare
-  meta_name text;
-  fallback  text;
 begin
-  meta_name := nullif(coalesce(new.raw_user_meta_data->>'name', ''), '');
-  fallback  := coalesce(nullif(split_part(new.email, '@', 1), ''), '匿名ユーザー');
   insert into public.profiles (id, display_name)
-  values (new.id, coalesce(meta_name, fallback))
+  values (
+    new.id,
+    coalesce(
+      nullif(trim(new.raw_user_meta_data->>'name'), ''),
+      nullif(trim(new.raw_user_meta_data->>'display_name'), ''),
+      nullif(split_part(new.email, '@', 1), ''),
+      '匿名ユーザー'
+    )
+  )
   on conflict (id) do nothing;
   return new;
 end;
@@ -392,52 +414,68 @@ create trigger on_auth_user_created
   for each row execute function public.handle_new_user();
 
 
--- raw_user_meta_data.name が変更されたら profiles.display_name を同期
-create or replace function public.sync_profile_display_name()
+-- 2) metadata 更新: auth.users.raw_user_meta_data の name / display_name が
+--    変わったら profiles.display_name に追従
+create or replace function public.handle_user_metadata_update()
 returns trigger
 language plpgsql
 security definer
 set search_path = public
 as $$
-declare
-  new_name text;
 begin
-  new_name := nullif(coalesce(new.raw_user_meta_data->>'name', ''), '');
-  if new_name is not null then
-    insert into public.profiles (id, display_name)
-    values (new.id, new_name)
-    on conflict (id) do update
-      set display_name = excluded.display_name,
-          updated_at   = now();
+  if (new.raw_user_meta_data->>'name')         is distinct from (old.raw_user_meta_data->>'name')
+  or (new.raw_user_meta_data->>'display_name') is distinct from (old.raw_user_meta_data->>'display_name') then
+    update public.profiles
+       set display_name = coalesce(
+             nullif(trim(new.raw_user_meta_data->>'name'), ''),
+             nullif(trim(new.raw_user_meta_data->>'display_name'), ''),
+             nullif(split_part(new.email, '@', 1), ''),
+             '匿名ユーザー'
+           ),
+           updated_at   = now()
+     where id = new.id;
   end if;
   return new;
 end;
 $$;
 
-drop trigger if exists on_auth_user_metadata_updated on auth.users;
-create trigger on_auth_user_metadata_updated
-  after update of raw_user_meta_data on auth.users
-  for each row
-  when (old.raw_user_meta_data is distinct from new.raw_user_meta_data)
-  execute function public.sync_profile_display_name();
+drop trigger if exists on_auth_user_updated on auth.users;
+create trigger on_auth_user_updated
+  after update on auth.users
+  for each row execute function public.handle_user_metadata_update();
 
 
--- 既存ユーザーをバックフィル
--- 1) profiles 行が無いユーザーには email 前半を初期値で入れる
+-- 3) 既存ユーザーのバックフィル
+-- 3-1) profiles 行が無い人は新規作成 (auth metadata の表示名を優先)
 insert into public.profiles (id, display_name)
 select
   u.id,
-  coalesce(nullif(split_part(u.email, '@', 1), ''), '匿名ユーザー')
+  coalesce(
+    nullif(trim(u.raw_user_meta_data->>'name'), ''),
+    nullif(trim(u.raw_user_meta_data->>'display_name'), ''),
+    nullif(split_part(u.email, '@', 1), ''),
+    '匿名ユーザー'
+  )
 from auth.users u
 on conflict (id) do nothing;
 
--- 2) user_metadata.name がある人は profiles.display_name を上書き
+-- 3-2) auth metadata に表示名が入っている人は profiles 側を上書き
 update public.profiles p
-   set display_name = trim(u.raw_user_meta_data->>'name'),
+   set display_name = coalesce(
+         nullif(trim(u.raw_user_meta_data->>'name'), ''),
+         nullif(trim(u.raw_user_meta_data->>'display_name'), '')
+       ),
        updated_at   = now()
   from auth.users u
  where p.id = u.id
-   and nullif(coalesce(u.raw_user_meta_data->>'name', ''), '') is not null;
+   and coalesce(
+         nullif(trim(u.raw_user_meta_data->>'name'), ''),
+         nullif(trim(u.raw_user_meta_data->>'display_name'), '')
+       ) is not null
+   and p.display_name is distinct from coalesce(
+         nullif(trim(u.raw_user_meta_data->>'name'), ''),
+         nullif(trim(u.raw_user_meta_data->>'display_name'), '')
+       );
 
 
 -- =====================================================================

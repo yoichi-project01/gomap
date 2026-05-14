@@ -104,6 +104,27 @@ export async function listPlaceLists(
   return rows.map((row) => rowToPlaceList(row, nameByCreator));
 }
 
+// 指定された ID のプレイスリストをまとめて取得。返却順は保証しない (呼び出し側で並べ替えること)。
+export async function listPlaceListsByIds(
+  client: SupabaseClient,
+  ids: string[],
+): Promise<PlaceList[]> {
+  if (ids.length === 0) return [];
+
+  const { data, error } = await client
+    .from("place_lists")
+    .select(SELECT_WITH_SPOTS)
+    .in("id", ids);
+
+  if (error) throw error;
+  const rows = (data ?? []) as unknown as PlaceListWithSpotsRow[];
+  const nameByCreator = await fetchDisplayNames(
+    client,
+    rows.map((r) => r.creator),
+  );
+  return rows.map((row) => rowToPlaceList(row, nameByCreator));
+}
+
 export async function getPlaceListById(
   client: SupabaseClient,
   id: string,

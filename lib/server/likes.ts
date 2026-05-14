@@ -1,7 +1,17 @@
 // プレイスリストいいねのサーバー側データアクセス
 
+import type { PostgrestError } from "@supabase/supabase-js"
 import type { PlaceList } from "@/types/spot"
 import { createSupabaseServerClient } from "./supabaseAuth"
+import { listPlaceListsByIds } from "./placeLists"
+
+function wrapPostgrestError(prefix: string, error: PostgrestError): Error {
+  const parts = [error.message, error.details, error.hint, error.code]
+    .filter((s): s is string => typeof s === "string" && s.length > 0)
+  const wrapped = new Error(`${prefix}: ${parts.join(" / ")}`)
+  console.error(prefix, error)
+  return wrapped
+}
 
 export async function isPlaceListLiked(placeListId: string): Promise<boolean> {
   const supabase = await createSupabaseServerClient()
@@ -15,79 +25,12 @@ export async function isPlaceListLiked(placeListId: string): Promise<boolean> {
     .eq("user_id", user.id)
     .maybeSingle()
 
-  if (error) throw error
+  if (error) throw wrapPostgrestError("isPlaceListLiked", error)
   return data !== null
-}
-
-const SELECT_WITH_SPOTS = `
-  place_list_id,
-  created_at,
-  place_lists (
-    *,
-    place_list_spots (
-      position,
-      spots (*)
-    )
-  )
-`
-
-type LikedRow = {
-  place_list_id: string
-  created_at: string
-  place_lists: {
-    id: string
-    name: string
-    description: string | null
-    category: string | null
-    cover_image_url: string | null
-    creator: string | null
-    likes_count: number
-    created_at: string
-    place_list_spots: Array<{
-      position: number
-      spots: {
-        id: string
-        name: string
-        description: string | null
-        lat: number
-        lng: number
-        prefecture: string | null
-        category: string | null
-      }
-    }>
-  }
 }
 
 export type LikedPlaceList = PlaceList & {
   likedAt: string
-}
-
-function rowToLiked(row: LikedRow): LikedPlaceList {
-  const list = row.place_lists
-  const spots = [...list.place_list_spots]
-    .sort((a, b) => a.position - b.position)
-    .map((pls) => ({
-      id: pls.spots.id,
-      name: pls.spots.name,
-      description: pls.spots.description ?? undefined,
-      lat: pls.spots.lat,
-      lng: pls.spots.lng,
-      prefecture: pls.spots.prefecture ?? undefined,
-      category: pls.spots.category ?? undefined,
-    }))
-
-  return {
-    id: list.id,
-    name: list.name,
-    description: list.description ?? "",
-    category: list.category ?? undefined,
-    creator: list.creator ?? undefined,
-    likes: list.likes_count,
-    coverImageUrl: list.cover_image_url ?? undefined,
-    createdAt: list.created_at,
-    spots,
-    likedAt: row.created_at,
-  }
 }
 
 export async function listLikedPlaceLists(): Promise<LikedPlaceList[]> {
@@ -95,16 +38,27 @@ export async function listLikedPlaceLists(): Promise<LikedPlaceList[]> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
-  const { data, error } = await supabase
+  const { data: likeRows, error: likesError } = await supabase
     .from("place_list_likes")
-    .select(SELECT_WITH_SPOTS)
+    .select("place_list_id, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
-  if (error) throw error
-  return (data as unknown as LikedRow[])
-    .filter((row) => row.place_lists)
-    .map(rowToLiked)
+  if (likesError) throw wrapPostgrestError("listLikedPlaceLists/likes", likesError)
+
+  const rows = (likeRows ?? []) as Array<{ place_list_id: string; created_at: string }>
+  if (rows.length === 0) return []
+
+  const lists = await listPlaceListsByIds(supabase, rows.map((r) => r.place_list_id))
+  const byId = new Map(lists.map((l) => [l.id, l]))
+
+  return rows
+    .map((r) => {
+      const list = byId.get(r.place_list_id)
+      if (!list) return null
+      return { ...list, likedAt: r.created_at }
+    })
+    .filter((v): v is LikedPlaceList => v !== null)
 }
 
 export async function countLiked(userId: string): Promise<number> {
@@ -114,6 +68,6 @@ export async function countLiked(userId: string): Promise<number> {
     .select("place_list_id", { count: "exact", head: true })
     .eq("user_id", userId)
 
-  if (error) throw error
+  if (error) throw wrapPostgrestError("countLiked", error)
   return count ?? 0
 }
