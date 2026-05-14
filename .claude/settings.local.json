@@ -38,7 +38,11 @@
       "Bash(echo \"Exit code: $?\")",
       "PowerShell(npx tsc --noEmit)",
       "PowerShell(& \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"C:\\\\Program Files\\\\nodejs\\\\node_modules\\\\npm\\\\bin\\\\npx-cli.js\" tsc --noEmit)",
-      "PowerShell(& \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \".\\\\node_modules\\\\typescript\\\\bin\\\\tsc\" --noEmit 2>&1)"
+      "PowerShell(& \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \".\\\\node_modules\\\\typescript\\\\bin\\\\tsc\" --noEmit 2>&1)",
+      "Bash(xargs grep -l \"togglePlaceListLikeAction\\\\|togglePlaceListSaveAction\")",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('.claude/settings.local.json','utf8'\\)\\); console.log\\('valid'\\)\")",
+      "Bash(git add *)",
+      "Bash(git check-ignore *)"
     ]
   }
 }

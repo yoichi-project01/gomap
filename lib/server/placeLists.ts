@@ -205,6 +205,50 @@ export async function countPlaceListsByCreator(
   return count ?? 0;
 }
 
+export type UpdatePlaceListInput = {
+  name: string;
+  description?: string;
+  coverImageUrl?: string;
+  spotIds: string[];
+};
+
+export async function updatePlaceList(
+  client: SupabaseClient,
+  id: string,
+  input: UpdatePlaceListInput,
+): Promise<PlaceList | null> {
+  const { data, error: updateError } = await client
+    .from("place_lists")
+    .update({
+      name: input.name,
+      description: input.description ?? null,
+      cover_image_url: input.coverImageUrl ?? null,
+    })
+    .eq("id", id)
+    .select("id");
+
+  if (updateError) throw updateError;
+  if (!data || data.length === 0) return null;
+
+  const { error: deleteError } = await client
+    .from("place_list_spots")
+    .delete()
+    .eq("place_list_id", id);
+  if (deleteError) throw deleteError;
+
+  if (input.spotIds.length > 0) {
+    const rows = input.spotIds.map((spotId, index) => ({
+      place_list_id: id,
+      spot_id: spotId,
+      position: index + 1,
+    }));
+    const { error: linkError } = await client.from("place_list_spots").insert(rows);
+    if (linkError) throw linkError;
+  }
+
+  return getPlaceListById(client, id);
+}
+
 // 削除成功時 true。対象がない / 権限なし (RLS) は false。
 export async function deletePlaceList(
   client: SupabaseClient,
