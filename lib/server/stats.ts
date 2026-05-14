@@ -2,8 +2,11 @@
 //   placeListsCount: 自分が作ったプレイスリスト数
 //   favoritesCount : 自分がお気に入りしたスポット数
 //   likesReceived  : 自分のプレイスリストにもらったいいね合計
+//
+// RLS は本人のデータを読める設計なので、ユーザースコープクライアントで十分。
+// service_role は使わない（最小権限の原則）。
 
-import { supabase as adminClient } from "./supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type UserStats = {
   placeListsCount: number;
@@ -11,18 +14,20 @@ export type UserStats = {
   likesReceived: number;
 };
 
-export async function getUserStats(userId: string): Promise<UserStats> {
-  // count: 'exact', head: true で件数だけ取得 (RLS をバイパスしたいので service_role)
+export async function getUserStats(
+  client: SupabaseClient,
+  userId: string,
+): Promise<UserStats> {
   const [placeListsRes, favoritesRes, likesAgg] = await Promise.all([
-    adminClient
+    client
       .from("place_lists")
       .select("id", { count: "exact", head: true })
       .eq("creator", userId),
-    adminClient
+    client
       .from("favorites")
       .select("spot_id", { count: "exact", head: true })
       .eq("user_id", userId),
-    adminClient
+    client
       .from("place_lists")
       .select("likes_count")
       .eq("creator", userId),
