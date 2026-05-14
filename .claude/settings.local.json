@@ -42,7 +42,8 @@
       "Bash(xargs grep -l \"togglePlaceListLikeAction\\\\|togglePlaceListSaveAction\")",
       "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('.claude/settings.local.json','utf8'\\)\\); console.log\\('valid'\\)\")",
       "Bash(git add *)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
