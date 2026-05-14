@@ -399,7 +399,6 @@ begin
     coalesce(
       nullif(trim(new.raw_user_meta_data->>'name'), ''),
       nullif(trim(new.raw_user_meta_data->>'display_name'), ''),
-      nullif(split_part(new.email, '@', 1), ''),
       '匿名ユーザー'
     )
   )
@@ -429,7 +428,6 @@ begin
        set display_name = coalesce(
              nullif(trim(new.raw_user_meta_data->>'name'), ''),
              nullif(trim(new.raw_user_meta_data->>'display_name'), ''),
-             nullif(split_part(new.email, '@', 1), ''),
              '匿名ユーザー'
            ),
            updated_at   = now()
@@ -453,7 +451,6 @@ select
   coalesce(
     nullif(trim(u.raw_user_meta_data->>'name'), ''),
     nullif(trim(u.raw_user_meta_data->>'display_name'), ''),
-    nullif(split_part(u.email, '@', 1), ''),
     '匿名ユーザー'
   )
 from auth.users u

@@ -2,21 +2,9 @@ import { redirect } from "next/navigation"
 import { createSupabaseServerClient } from "@/lib/server/supabaseAuth"
 import { getDisplayName } from "@/lib/server/profiles"
 import { getUserStats, type UserStats } from "@/lib/server/stats"
+import { formatJstDate } from "@/lib/format"
 import pkg from "@/package.json"
 import MyPageClient, { type MyPageUser } from "./MyPageClient"
-
-const JST_DATE = new Intl.DateTimeFormat("ja-JP", {
-  timeZone: "Asia/Tokyo",
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-})
-
-function formatCreatedAt(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return iso.slice(0, 10)
-  return JST_DATE.format(d)
-}
 
 const ZERO_STATS: UserStats = { placeListsCount: 0, favoritesCount: 0, likesReceived: 0 }
 
@@ -67,7 +55,7 @@ export default async function MyPage() {
   // メアドが漏れるため)。display_name が未設定なら「匿名ユーザー」固定。
   const myPageUser: MyPageUser = {
     email: user.email ?? "",
-    createdAt: formatCreatedAt(user.created_at),
+    createdAt: formatJstDate(user.created_at),
     initialName: displayName || "匿名ユーザー",
   }
 

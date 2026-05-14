@@ -5,6 +5,7 @@ import Link from "next/link"
 import { MapPin, Trash2, AlertTriangle } from "lucide-react"
 import type { Spot } from "@/types/spot"
 import { deleteSpot as deleteSpotApi } from "@/lib/client/spots"
+import { formatJstDate } from "@/lib/format"
 
 type Props = {
   initialSpots: Spot[]
@@ -128,7 +129,7 @@ export default function MySpotsView({ initialSpots }: Props) {
                   {spot.name}
                 </p>
                 <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
-                  {[spot.prefecture, spot.category, spot.createdAt?.slice(0, 10)].filter(Boolean).join(" · ")}
+                  {[spot.prefecture, spot.category, formatJstDate(spot.createdAt)].filter(Boolean).join(" · ")}
                 </p>
               </Link>
               <button

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import SpotMiniMapWrapper from "@/components/SpotMiniMapWrapper"
 import type { LikedPlaceList } from "@/lib/server/likes"
 import { togglePlaceListLikeAction } from "@/app/actions/likes"
+import { formatJstDate } from "@/lib/format"
 
 type Props = {
   initialPlaceLists: LikedPlaceList[]
@@ -73,7 +74,7 @@ export default function LikedPlaceListsView({ initialPlaceLists }: Props) {
                   {placeList.name}
                 </p>
                 <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
-                  スポット {placeList.spots.length}件 · いいね日: {placeList.likedAt.slice(0, 10)}
+                  スポット {placeList.spots.length}件 · いいね日: {formatJstDate(placeList.likedAt)}
                 </p>
               </Link>
               <button
