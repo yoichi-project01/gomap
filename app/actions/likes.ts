@@ -7,6 +7,11 @@ export type ToggleLikeResult =
   | { ok: true; liked: boolean }
   | { ok: false; reason: "unauthenticated" | "error"; message?: string }
 
+async function adjustLikesCount(placeListId: string, delta: 1 | -1): Promise<void> {
+  const supabase = await createSupabaseServerClient()
+  await supabase.rpc("increment_place_list_likes", { list_id: placeListId, delta })
+}
+
 export async function togglePlaceListLikeAction(placeListId: string): Promise<ToggleLikeResult> {
   if (!placeListId) return { ok: false, reason: "error", message: "placeListId が空です" }
 
@@ -30,7 +35,7 @@ export async function togglePlaceListLikeAction(placeListId: string): Promise<To
       .eq("place_list_id", placeListId)
       .eq("user_id", user.id)
     if (error) return { ok: false, reason: "error", message: error.message }
-    revalidatePath(`/spots/collection/${placeListId}`)
+    await adjustLikesCount(placeListId, -1)
     revalidatePath(`/placelists/${placeListId}`)
     return { ok: true, liked: false }
   }
@@ -39,7 +44,7 @@ export async function togglePlaceListLikeAction(placeListId: string): Promise<To
     .from("place_list_likes")
     .insert({ place_list_id: placeListId, user_id: user.id })
   if (error) return { ok: false, reason: "error", message: error.message }
-  revalidatePath(`/spots/collection/${placeListId}`)
+  await adjustLikesCount(placeListId, 1)
   revalidatePath(`/placelists/${placeListId}`)
   return { ok: true, liked: true }
 }
