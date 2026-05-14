@@ -4,15 +4,21 @@ import ThemeToggle from '@/components/ui/ThemeToggle';
 import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
 import { getDisplayName } from '@/lib/server/profiles';
 import { countUnreadNotifications } from '@/lib/server/notifications';
+import { avatarInitial } from '@/lib/display';
 
 export default async function HomeHeader() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const profileName = user ? await getDisplayName(supabase, user.id) : null;
-  const displayName = profileName || user?.email?.split("@")[0] || "";
-  const initial = displayName.slice(0, 1).toUpperCase() || "?";
-  const unreadCount = user ? await countUnreadNotifications() : 0;
+  const [profileName, unreadCount] = user
+    ? await Promise.all([
+        getDisplayName(supabase, user.id),
+        countUnreadNotifications(),
+      ])
+    : [null, 0];
+
+  const displayName = profileName || "匿名ユーザー";
+  const initial = avatarInitial(displayName);
 
   return (
     <header className="sticky top-0 z-50 flex items-center px-4 pt-10 pb-4 bg-zinc-50/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">

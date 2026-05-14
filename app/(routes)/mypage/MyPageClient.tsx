@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { User, Edit3, ChevronRight, AlertTriangle } from "lucide-react"
+import { User, Edit3, ChevronRight, AlertTriangle, MapPin, LayoutList, Sparkles } from "lucide-react"
 import ThemeToggle from "@/components/ui/ThemeToggle"
 import { logoutAction, deleteAccountAction } from "@/app/actions/auth"
 import { updateDisplayNameAction } from "@/app/actions/profile"
+import { avatarInitial } from "@/lib/display"
 
 const DISPLAY_NAME_MAX = 50
 
@@ -20,10 +21,6 @@ export type MyPageStats = {
   placeListsCount: number
   favoritesCount: number
   likesReceived: number
-}
-
-function firstGrapheme(s: string): string {
-  return Array.from(s.trim())[0] ?? ""
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -97,10 +94,17 @@ function StatsGrid({ items }: { items: StatItem[] }) {
 }
 
 function DeleteAccountDialog({
-  onClose, onConfirm, isDeleting, error,
+  email, onClose, onConfirm, isDeleting, error,
 }: {
-  onClose: () => void; onConfirm: () => void; isDeleting: boolean; error: string | null
+  email: string
+  onClose: () => void
+  onConfirm: (password: string) => void
+  isDeleting: boolean
+  error: string | null
 }) {
+  const [password, setPassword] = useState("")
+  const [confirmText, setConfirmText] = useState("")
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && !isDeleting) onClose()
@@ -114,6 +118,14 @@ function DeleteAccountDialog({
     }
   }, [onClose, isDeleting])
 
+  const emailMatches = confirmText.trim() === email
+  const canSubmit = emailMatches && password.length > 0 && !isDeleting
+
+  function handleSubmit() {
+    if (!canSubmit) return
+    onConfirm(password)
+  }
+
   return (
     <div
       role="dialog"
@@ -123,7 +135,7 @@ function DeleteAccountDialog({
       onClick={() => { if (!isDeleting) onClose() }}
     >
       <div
-        className="w-full sm:max-w-sm bg-white dark:bg-zinc-900 rounded-t-2xl sm:rounded-2xl p-5 border border-zinc-200 dark:border-zinc-800"
+        className="w-full sm:max-w-sm bg-white dark:bg-zinc-900 rounded-t-2xl sm:rounded-2xl p-5 border border-zinc-200 dark:border-zinc-800 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-3">
@@ -144,6 +156,41 @@ function DeleteAccountDialog({
             </p>
           </div>
         </div>
+
+        <div className="mt-4 space-y-3">
+          <div>
+            <label htmlFor="delete-confirm-email" className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+              確認のため、ご自身のメールアドレスを入力してください
+            </label>
+            <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mb-1.5 font-mono select-all break-all">{email}</p>
+            <input
+              id="delete-confirm-email"
+              type="email"
+              autoComplete="off"
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              disabled={isDeleting}
+              className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-2 text-sm outline-none focus:border-zinc-500 disabled:opacity-50"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="delete-password" className="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
+              現在のパスワード
+            </label>
+            <input
+              id="delete-password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSubmit() }}
+              disabled={isDeleting}
+              className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-2 text-sm outline-none focus:border-zinc-500 disabled:opacity-50"
+            />
+          </div>
+        </div>
+
         {error && (
           <p className="text-xs text-red-600 dark:text-red-400 mt-3" role="alert">{error}</p>
         )}
@@ -156,9 +203,9 @@ function DeleteAccountDialog({
             キャンセル
           </button>
           <button
-            onClick={onConfirm}
-            disabled={isDeleting}
-            className="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded-xl disabled:opacity-50"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isDeleting ? "削除中…" : "削除する"}
           </button>
@@ -190,7 +237,7 @@ export default function MyPageClient({
   const [isLoggingOut, startLogout]             = useTransition()
   const [isDeleting, startDelete]               = useTransition()
 
-  const initials = firstGrapheme(name) || firstGrapheme(user.email) || "?"
+  const initials = avatarInitial(name)
 
   function startEditingName() {
     setNameInput(name)
@@ -310,7 +357,7 @@ export default function MyPageClient({
                   </button>
                 </div>
               )}
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 truncate">{user.email}</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 truncate" title={user.email}>{user.email}</p>
               <p className="text-xs text-zinc-300 dark:text-zinc-600 mt-0.5">登録日: {user.createdAt}</p>
             </div>
           </div>
@@ -324,6 +371,41 @@ export default function MyPageClient({
             <StatsGrid items={statItems} />
           )}
         </div>
+
+        {/* 初回ユーザー向け CTA: 統計が全部 0 のときだけ表示 */}
+        {!statsError && stats.placeListsCount === 0 && stats.favoritesCount === 0 && stats.likesReceived === 0 && (
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/20 rounded-2xl border border-green-100 dark:border-green-900/40 p-5">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center text-white shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  最初のひとつから始めましょう
+                </h3>
+                <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 leading-relaxed">
+                  気になる場所をスポットとして登録したり、テーマでまとめたプレイスリストを作れます。
+                </p>
+                <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                  <Link
+                    href="/spots/create"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold rounded-xl py-2 hover:opacity-90 transition"
+                  >
+                    <MapPin className="w-3.5 h-3.5" />
+                    スポットを登録する
+                  </Link>
+                  <Link
+                    href="/placelists/create"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs font-semibold rounded-xl py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition"
+                  >
+                    <LayoutList className="w-3.5 h-3.5" />
+                    プレイスリストを作る
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* スポット */}
         <div>
@@ -390,13 +472,14 @@ export default function MyPageClient({
 
       {showDeleteDialog && (
         <DeleteAccountDialog
+          email={user.email}
           isDeleting={isDeleting}
           error={deleteError}
           onClose={() => setShowDeleteDialog(false)}
-          onConfirm={() => {
+          onConfirm={(password) => {
             setDeleteError(null)
             startDelete(async () => {
-              const result = await deleteAccountAction()
+              const result = await deleteAccountAction(password)
               if (result?.error) setDeleteError(result.error)
             })
           }}
