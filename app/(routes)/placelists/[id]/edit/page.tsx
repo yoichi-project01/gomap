@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
 import { getPlaceListById } from '@/lib/server/placeLists';
 import { listSpots } from '@/lib/server/spots';
+import { coverUrlToPath } from '@/lib/cover';
 import EditPlaceListForm from './EditPlaceListForm';
 
 export const dynamic = 'force-dynamic';
@@ -25,8 +26,10 @@ export default async function EditPlaceListPage({ params }: Props) {
   if (!placeList) notFound();
   if (placeList.creator !== user.id) notFound();
 
+  // path は URL から逆引き (Supabase Storage の URL 形式は仕様で安定)。
+  // 形式が想定外なら path は空 → 古いカバーは Storage から消えず残るが、機能は壊れない。
   const initialCover = placeList.coverImageUrl
-    ? { url: placeList.coverImageUrl, path: '' }
+    ? { url: placeList.coverImageUrl, path: coverUrlToPath(placeList.coverImageUrl) ?? '' }
     : null;
 
   return (
@@ -34,6 +37,7 @@ export default async function EditPlaceListPage({ params }: Props) {
       id={id}
       initialTitle={placeList.name}
       initialDescription={placeList.description ?? ''}
+      initialCategory={placeList.category ?? ''}
       initialCover={initialCover}
       initialSpots={placeList.spots}
       availableSpots={availableSpots}

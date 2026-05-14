@@ -41,6 +41,13 @@ export type ListSpotsFilters = {
   q?: string;
 };
 
+// PostgREST の or() 構文は ,()*% などをパースするため、ユーザー入力に
+// これらの文字が含まれるとクエリが壊れる。ilike の値部分はクォートして渡し、
+// クォート内のダブルクォートを \" にエスケープする。
+function escapeIlikeArg(input: string): string {
+  return input.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
 export async function listSpots(
   client: SupabaseClient,
   filters: ListSpotsFilters = {},
@@ -49,7 +56,10 @@ export async function listSpots(
 
   if (filters.prefecture) query = query.eq("prefecture", filters.prefecture);
   if (filters.category) query = query.eq("category", filters.category);
-  if (filters.q) query = query.or(`name.ilike.%${filters.q}%,description.ilike.%${filters.q}%`);
+  if (filters.q) {
+    const q = escapeIlikeArg(filters.q);
+    query = query.or(`name.ilike."%${q}%",description.ilike."%${q}%"`);
+  }
 
   const { data, error } = await query;
   if (error) throw error;

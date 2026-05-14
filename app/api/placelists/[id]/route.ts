@@ -28,7 +28,7 @@ export async function PUT(req: NextRequest, { params }: Context) {
     return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
   }
 
-  let body: { name?: string; description?: string; coverImageUrl?: string; spotIds?: string[] };
+  let body: { name?: string; description?: string; category?: string; coverImageUrl?: string; spotIds?: string[] };
   try {
     body = await req.json();
   } catch {
@@ -47,6 +47,7 @@ export async function PUT(req: NextRequest, { params }: Context) {
     const updated = await updatePlaceList(authed, id, {
       name: name.trim(),
       description: body.description,
+      category: body.category,
       coverImageUrl: body.coverImageUrl,
       spotIds,
     });

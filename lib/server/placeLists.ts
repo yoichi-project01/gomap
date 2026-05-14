@@ -229,6 +229,7 @@ export async function countPlaceListsByCreator(
 export type UpdatePlaceListInput = {
   name: string;
   description?: string;
+  category?: string;
   coverImageUrl?: string;
   spotIds: string[];
 };
@@ -243,6 +244,7 @@ export async function updatePlaceList(
     .update({
       name: input.name,
       description: input.description ?? null,
+      category: input.category ?? null,
       cover_image_url: input.coverImageUrl ?? null,
     })
     .eq("id", id)

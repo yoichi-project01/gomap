@@ -219,7 +219,7 @@ export default function MyPageClient({ user, stats }: { user: MyPageUser; stats:
         <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800 grid grid-cols-3 text-center">
           {[
             { value: stats.placeListsCount, label: "プレイスリスト" },
-            { value: stats.favoritesCount,  label: "保存済み" },
+            { value: stats.favoritesCount,  label: "お気に入り" },
             { value: stats.likesReceived,   label: "もらったいいね" },
           ].map((stat, i) => (
             <div key={i} className={i === 1 ? "border-x border-zinc-100 dark:border-zinc-800" : ""}>
@@ -227,6 +227,15 @@ export default function MyPageClient({ user, stats }: { user: MyPageUser; stats:
               <p className="text-xs text-zinc-400 dark:text-zinc-500">{stat.label}</p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* マイコンテンツ */}
+      <div>
+        <SectionTitle>マイコンテンツ</SectionTitle>
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+          <NavRow label="登録したスポット" href="/mypage/spots" />
+          <NavRow label="お気に入りスポット" href="/mypage/favorites" />
         </div>
       </div>
 

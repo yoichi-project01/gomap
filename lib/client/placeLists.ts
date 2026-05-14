@@ -38,6 +38,7 @@ export type UpdatePlaceListInput = {
   name: string;
   spotIds: string[];
   description?: string;
+  category?: string;
   coverImageUrl?: string;
 };
 

@@ -31,6 +31,7 @@ export async function toggleFavoriteAction(spotId: string): Promise<ToggleFavori
       .eq("user_id", user.id)
     if (error) return { ok: false, reason: "error", message: error.message }
     revalidatePath(`/spots/${spotId}`)
+    revalidatePath("/mypage/favorites")
     return { ok: true, favorited: false }
   }
 
@@ -39,5 +40,6 @@ export async function toggleFavoriteAction(spotId: string): Promise<ToggleFavori
     .insert({ spot_id: spotId, user_id: user.id })
   if (error) return { ok: false, reason: "error", message: error.message }
   revalidatePath(`/spots/${spotId}`)
+  revalidatePath("/mypage/favorites")
   return { ok: true, favorited: true }
 }

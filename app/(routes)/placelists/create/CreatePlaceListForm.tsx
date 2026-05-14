@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, Plus, MapPin, X, Search } from 'lucide-react';
 import type { Spot } from '@/types/spot';
 import { createPlaceList } from '@/lib/client/placeLists';
-import { createSpot } from '@/lib/client/spots';
+import { createSpot, deleteSpot } from '@/lib/client/spots';
 import CoverImageUploader from '@/components/ui/CoverImageUploader';
 import LocationSearchModal from '@/components/spot/LocationSearchModal';
 import type { PlaceSearchResult } from '@/app/api/places/search/route';
@@ -29,6 +29,10 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
   const [isSaving, setIsSaving] = useState(false);
   const [cover, setCover] = useState<{ url: string; path: string } | null>(null);
 
+  // このセッションで map_ref として作成したスポット ID。
+  // ユーザーが削除/キャンセルした際にオーファンを残さないよう、DB からも消す。
+  const sessionMapRefIds = useRef<Set<string>>(new Set());
+
   const filteredSpots = availableSpots.filter(
     (spot) =>
       !selectedSpots.some((s) => s.id === spot.id) &&
@@ -44,6 +48,11 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
 
   const removeSpot = (id: string) => {
     setSelectedSpots((prev) => prev.filter((s) => s.id !== id));
+    // セッション中に作った map_ref なら DB からも消してオーファンを残さない
+    if (sessionMapRefIds.current.has(id)) {
+      sessionMapRefIds.current.delete(id);
+      void deleteSpot(id).catch((err) => console.error('map_ref cleanup failed', err));
+    }
   };
 
   const handleSelectMapPlace = async (result: PlaceSearchResult) => {
@@ -58,6 +67,7 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
         prefecture: result.prefecture ?? undefined,
         source: 'map_ref',
       });
+      sessionMapRefIds.current.add(created.id);
       setSelectedSpots((prev) => [...prev, created]);
       setMapSearchOpen(false);
     } catch (err) {
@@ -66,6 +76,20 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
     } finally {
       setIsAddingMapPlace(false);
     }
+  };
+
+  // 戻る / キャンセル時に、保存されなかった map_ref スポットを掃除する
+  const cleanupUnsavedMapRefs = async () => {
+    const usedIds = new Set(selectedSpots.map((s) => s.id));
+    const orphans = Array.from(sessionMapRefIds.current).filter((id) => !usedIds.has(id));
+    sessionMapRefIds.current.clear();
+    if (orphans.length === 0) return;
+    await Promise.allSettled(orphans.map((id) => deleteSpot(id)));
+  };
+
+  const handleBack = async () => {
+    await cleanupUnsavedMapRefs();
+    router.back();
   };
 
   const handleSave = async () => {
@@ -87,6 +111,8 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
         spotIds: selectedSpots.map((s) => s.id),
         coverImageUrl: cover?.url,
       });
+      // 保存に成功したセッションでは、追加したが使わなかった map_ref があれば掃除する
+      await cleanupUnsavedMapRefs();
       router.push(`/placelists/${created.id}`);
       router.refresh();
     } catch (err) {
@@ -100,7 +126,7 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
     <div className="min-h-screen bg-black text-white font-sans pb-24 overflow-y-auto [&::-webkit-scrollbar]:hidden">
       <header className="sticky top-0 z-50 flex items-center justify-between px-4 pt-10 pb-4 bg-black/95 border-b border-zinc-800">
         <button
-          onClick={() => router.back()}
+          onClick={handleBack}
           className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 transition"
         >
           <ChevronLeft className="w-6 h-6 text-white" />
