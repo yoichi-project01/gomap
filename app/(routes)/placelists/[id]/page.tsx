@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, MapPin, Heart, Share2, MoreVertical } from 'lucide-react';
+import { ArrowLeft, MapPin, Share2, MoreVertical } from 'lucide-react';
 import PlaceListMapWrapper from '@/components/PlaceListMapWrapper';
+import PlaceListLikeButton from '@/components/placelists/PlaceListLikeButton';
 import { getPlaceListById } from '@/lib/server/placeLists';
+import { isPlaceListLiked } from '@/lib/server/likes';
 import { supabase } from '@/lib/server/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -13,7 +15,10 @@ type Props = {
 
 export default async function PlaceListDetailPage({ params }: Props) {
   const { id } = await params;
-  const placeList = await getPlaceListById(supabase, id);
+  const [placeList, liked] = await Promise.all([
+    getPlaceListById(supabase, id),
+    isPlaceListLiked(id),
+  ]);
   if (!placeList) notFound();
 
   return (
@@ -40,10 +45,11 @@ export default async function PlaceListDetailPage({ params }: Props) {
         <div className="mb-8">
           <div className="flex justify-between items-start mb-2">
             <h1 className="text-3xl font-bold">{placeList.name}</h1>
-            <button className="flex items-center gap-2 px-4 py-2 bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 rounded-full transition">
-              <Heart className="w-5 h-5" />
-              <span className="text-sm font-bold">{placeList.likes ?? 0}</span>
-            </button>
+            <PlaceListLikeButton
+              placeListId={placeList.id}
+              initialLiked={liked}
+              initialLikes={placeList.likes ?? 0}
+            />
           </div>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-4">{placeList.description}</p>
           <div className="flex items-center gap-2">

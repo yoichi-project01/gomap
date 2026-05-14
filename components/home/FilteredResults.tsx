@@ -59,8 +59,15 @@ export default function FilteredResults({ placeLists, filters }: Props) {
               key={p.id}
               className="flex flex-col group cursor-pointer"
             >
-              <div className="aspect-square w-full bg-zinc-200 dark:bg-zinc-800 rounded-md mb-3 shadow-lg group-hover:opacity-80 transition flex items-center justify-center">
-                <MapPin className="w-9 h-9 text-zinc-400 dark:text-zinc-500" />
+              <div
+                className="aspect-square w-full bg-zinc-200 dark:bg-zinc-800 rounded-md mb-3 shadow-lg group-hover:opacity-80 transition overflow-hidden flex items-center justify-center"
+                style={p.coverImageUrl ? {
+                  backgroundImage: `url(${p.coverImageUrl})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                } : undefined}
+              >
+                {!p.coverImageUrl && <MapPin className="w-9 h-9 text-zinc-400 dark:text-zinc-500" />}
               </div>
               <h3 className="font-bold text-sm truncate mb-1 text-zinc-900 dark:text-zinc-100">
                 {p.name}

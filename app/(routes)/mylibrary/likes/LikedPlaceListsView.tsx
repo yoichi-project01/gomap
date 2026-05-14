@@ -53,11 +53,17 @@ export default function LikedPlaceListsView({ initialPlaceLists }: Props) {
 
         return (
           <li key={placeList.id} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
-            <Link href={`/placelists/${placeList.id}`} className="block relative h-36 w-full bg-zinc-200 dark:bg-zinc-800">
-              {locations.length > 0 ? (
-                <SpotMiniMapWrapper locations={locations} />
-              ) : (
-                <div className="h-full w-full flex items-center justify-center text-xs text-zinc-400">地図なし</div>
+            <Link
+              href={`/placelists/${placeList.id}`}
+              className="block relative h-36 w-full bg-zinc-200 dark:bg-zinc-800 bg-cover bg-center"
+              style={placeList.coverImageUrl ? { backgroundImage: `url(${placeList.coverImageUrl})` } : undefined}
+            >
+              {!placeList.coverImageUrl && (
+                locations.length > 0 ? (
+                  <SpotMiniMapWrapper locations={locations} />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-xs text-zinc-400">地図なし</div>
+                )
               )}
             </Link>
 

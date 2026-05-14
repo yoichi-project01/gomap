@@ -34,7 +34,11 @@
       "PowerShell(Stop-Process -Id 15040 -Force -ErrorAction SilentlyContinue)",
       "Bash(curl -s -o /dev/null -w \"/login: %{http_code}\\\\n\" http://localhost:2200/login)",
       "Bash(node --env-file=.env.local -e ' *)",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(echo \"Exit code: $?\")",
+      "PowerShell(npx tsc --noEmit)",
+      "PowerShell(& \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \"C:\\\\Program Files\\\\nodejs\\\\node_modules\\\\npm\\\\bin\\\\npx-cli.js\" tsc --noEmit)",
+      "PowerShell(& \"C:\\\\Program Files\\\\nodejs\\\\node.exe\" \".\\\\node_modules\\\\typescript\\\\bin\\\\tsc\" --noEmit 2>&1)"
     ]
   }
 }

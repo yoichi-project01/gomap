@@ -1,6 +1,7 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -22,17 +23,33 @@ type Props = {
   locations: Location[];
 };
 
+function FitBounds({ locations }: { locations: Location[] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (locations.length === 0) return;
+    if (locations.length === 1) {
+      map.setView([locations[0].lat, locations[0].lng], 14);
+      return;
+    }
+    const bounds = L.latLngBounds(locations.map((l) => [l.lat, l.lng] as [number, number]));
+    map.fitBounds(bounds, { padding: [20, 20], maxZoom: 16 });
+  }, [map, locations]);
+
+  return null;
+}
+
 export default function SpotMiniMap({ locations }: Props) {
-  // ピンが1つもない場合のフォールバック（大阪中心部）
+  // ピンが1つもない場合のフォールバック
   if (!locations || locations.length === 0) return null;
 
-  // 簡易的に、配列の最初の地点を中心に設定します（ズームを少し引いて全体を見せる）
+  // FitBounds で全スポットが収まるよう自動調整される
   const centerPosition: [number, number] = [locations[0].lat, locations[0].lng];
 
   return (
-    <MapContainer 
-      center={centerPosition} 
-      zoom={12} // 複数のピンが見えるように少し引いたズーム倍率
+    <MapContainer
+      center={centerPosition}
+      zoom={12}
       className="h-full w-full z-0"
       zoomControl={false} // ミニマップなので操作パネルは隠す
       dragging={false} // スクロールの邪魔にならないようドラッグ操作を無効化
@@ -42,7 +59,8 @@ export default function SpotMiniMap({ locations }: Props) {
         attribution='&copy; OpenStreetMap'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      
+      <FitBounds locations={locations} />
+
       {/* スポットに含まれる全ての地点にピンを刺す */}
       {locations.map((loc) => (
         <Marker key={loc.id} position={[loc.lat, loc.lng]} icon={customIcon} />

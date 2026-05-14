@@ -1,18 +1,26 @@
 import Link from 'next/link';
-import { Map as MapIcon, Heart } from 'lucide-react';
+import { Map as MapIcon, Bookmark } from 'lucide-react';
 import type { PlaceList } from '@/types/spot';
 
 type Props = {
   placeLists: PlaceList[];
 };
 
+type Item = {
+  id: string;
+  title: string;
+  variant: 'shortcut' | 'placelist';
+  href: string;
+  coverImageUrl: string | null;
+};
+
 export default function RecentPlaceLists({ placeLists }: Props) {
-  const items = [
-    { id: 'fav', title: 'いいねしたプレイスリスト', isFav: true, href: '/mylibrary/likes', coverImageUrl: null as string | null },
-    ...placeLists.slice(0, 5).map((p) => ({
+  const items: Item[] = [
+    { id: 'saved', title: '保存したプレイスリスト', variant: 'shortcut', href: '/mylibrary/saved', coverImageUrl: null },
+    ...placeLists.slice(0, 5).map<Item>((p) => ({
       id: p.id,
       title: p.name,
-      isFav: false,
+      variant: 'placelist',
       href: `/placelists/${p.id}`,
       coverImageUrl: p.coverImageUrl ?? null,
     })),
@@ -37,8 +45,8 @@ export default function RecentPlaceLists({ placeLists }: Props) {
             } : undefined}
           >
             {!item.coverImageUrl && (
-              item.isFav
-                ? <Heart className="w-6 h-6 text-white" />
+              item.variant === 'shortcut'
+                ? <Bookmark className="w-6 h-6 text-white" />
                 : <MapIcon className="w-6 h-6 text-white/50" />
             )}
           </div>

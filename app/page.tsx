@@ -4,6 +4,7 @@ import PlaceListScrollSection from '@/components/home/PlaceListScrollSection';
 import FilteredResults from '@/components/home/FilteredResults';
 import AddPlaceListButton from '@/components/home/AddPlaceListButton';
 import { fetchRecentLikeCounts, listPlaceLists } from '@/lib/server/placeLists';
+import { listSavedPlaceLists } from '@/lib/server/saves';
 import { supabase } from '@/lib/server/supabase';
 import { filterPlaceLists, hasActiveFilters, parseFilters } from '@/lib/filter/placeLists';
 
@@ -19,6 +20,7 @@ export default async function HomeDashboard({
   searchParams: Promise<SearchParams>;
 }) {
   const placeLists = await listPlaceLists(supabase);
+  const savedPlaceLists = await listSavedPlaceLists();
   const filters = parseFilters(await searchParams);
   const filtering = hasActiveFilters(filters);
 
@@ -43,7 +45,7 @@ export default async function HomeDashboard({
           <FilteredResults placeLists={filtered} filters={filters} />
         ) : (
           <>
-            <RecentPlaceLists placeLists={placeLists} />
+            <RecentPlaceLists placeLists={savedPlaceLists} />
             <PlaceListScrollSection title="新着" type="new" placeLists={byNew} />
             <PlaceListScrollSection title="注目" type="featured" placeLists={featured} />
             <PlaceListScrollSection title="ランキング" type="ranking" placeLists={byRanking} />

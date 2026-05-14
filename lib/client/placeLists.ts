@@ -7,6 +7,7 @@ export type CreatePlaceListInput = {
   name: string;
   spotIds: string[];
   description?: string;
+  category?: string;
   creator?: string;
   coverImageUrl?: string;
 };

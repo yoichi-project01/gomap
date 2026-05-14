@@ -18,6 +18,7 @@ type PlaceListRow = {
   id: string;
   name: string;
   description: string | null;
+  category: string | null;
   cover_image_url: string | null;
   creator: string | null;
   likes_count: number;
@@ -60,6 +61,7 @@ function rowToPlaceList(
     id: row.id,
     name: row.name,
     description: row.description ?? "",
+    category: row.category ?? undefined,
     creator: row.creator ?? undefined,
     creatorName: row.creator ? nameByCreator.get(row.creator) : undefined,
     likes: row.likes_count,
@@ -122,6 +124,7 @@ export async function getPlaceListById(
 export type CreatePlaceListInput = {
   name: string;
   description?: string;
+  category?: string;
   creator: string; // auth.users.id (uuid)
   coverImageUrl?: string;
   spotIds: string[];
@@ -136,6 +139,7 @@ export async function createPlaceList(
     .insert({
       name: input.name,
       description: input.description ?? null,
+      category: input.category ?? null,
       creator: input.creator,
       cover_image_url: input.coverImageUrl ?? null,
     })

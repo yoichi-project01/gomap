@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
     name: string;
     spotIds: string[];
     description?: string;
+    category?: string;
     coverImageUrl?: string;
   };
 

@@ -39,6 +39,7 @@ type SavedRow = {
     id: string;
     name: string;
     description: string | null;
+    category: string | null;
     cover_image_url: string | null;
     creator: string | null;
     likes_count: number;
@@ -80,6 +81,7 @@ function rowToSaved(row: SavedRow): SavedPlaceList {
     id: list.id,
     name: list.name,
     description: list.description ?? "",
+    category: list.category ?? undefined,
     creator: list.creator ?? undefined,
     likes: list.likes_count,
     coverImageUrl: list.cover_image_url ?? undefined,

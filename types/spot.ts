@@ -20,6 +20,7 @@ export type PlaceList = {
   id: string;
   name: string;
   description: string;
+  category?: string;
   creator?: string;       // auth.users.id (uuid)
   creatorName?: string;   // profiles.display_name (表示用)
   likes?: number;

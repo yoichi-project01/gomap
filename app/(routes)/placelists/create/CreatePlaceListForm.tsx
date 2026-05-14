@@ -14,10 +14,13 @@ type Props = {
   availableSpots: Spot[];
 };
 
+const CATEGORIES = ['観光', 'グルメ', 'カフェ', '自然', 'ショッピング', 'その他'];
+
 export default function CreatePlaceListForm({ availableSpots }: Props) {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [category, setCategory] = useState<string>('');
   const [selectedSpots, setSelectedSpots] = useState<Spot[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -80,6 +83,7 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
       const created = await createPlaceList({
         name: title.trim(),
         description: description.trim() || undefined,
+        category: category || undefined,
         spotIds: selectedSpots.map((s) => s.id),
         coverImageUrl: cover?.url,
       });
@@ -129,6 +133,29 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
             rows={2}
             className="w-full bg-transparent text-sm text-center text-zinc-300 placeholder-zinc-600 outline-none border-b border-zinc-800 pb-3 focus:border-green-500 transition-colors resize-none"
           />
+        </div>
+
+        <div>
+          <h2 className="text-sm font-bold text-zinc-300 mb-3">カテゴリ</h2>
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((cat) => {
+              const active = category === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(active ? '' : cat)}
+                  className={`px-3 py-1.5 text-xs rounded-full border transition ${
+                    active
+                      ? 'bg-green-500 border-green-500 text-black font-bold'
+                      : 'border-zinc-700 text-zinc-300 hover:border-zinc-500'
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="mt-2">
