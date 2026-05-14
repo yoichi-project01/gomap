@@ -71,3 +71,17 @@ export async function countLiked(userId: string): Promise<number> {
   if (error) throw wrapPostgrestError("countLiked", error)
   return count ?? 0
 }
+
+export async function countPlaceListLikes(placeListId: string): Promise<number> {
+  const supabase = await createSupabaseServerClient()
+  const { count, error } = await supabase
+    .from("place_list_likes")
+    .select("place_list_id", { count: "exact", head: true })
+    .eq("place_list_id", placeListId)
+
+  if (error) {
+    console.error("countPlaceListLikes error:", error)
+    return 0
+  }
+  return count ?? 0
+}
