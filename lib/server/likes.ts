@@ -63,12 +63,23 @@ export async function listLikedPlaceLists(): Promise<LikedPlaceList[]> {
 
 export async function countLiked(userId: string): Promise<number> {
   const supabase = await createSupabaseServerClient()
-  const { count, error } = await supabase
+
+  const { data, error } = await supabase
     .from("place_list_likes")
-    .select("place_list_id", { count: "exact", head: true })
+    .select("place_list_id")
     .eq("user_id", userId)
 
   if (error) throw wrapPostgrestError("countLiked", error)
+
+  const ids = (data ?? []).map((r: { place_list_id: string }) => r.place_list_id)
+  if (ids.length === 0) return 0
+
+  const { count, error: verifyError } = await supabase
+    .from("place_lists")
+    .select("id", { count: "exact", head: true })
+    .in("id", ids)
+
+  if (verifyError) throw wrapPostgrestError("countLiked/verify", verifyError)
   return count ?? 0
 }
 

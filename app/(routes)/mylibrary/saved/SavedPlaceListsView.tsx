@@ -55,18 +55,20 @@ export default function SavedPlaceListsView({ initialPlaceLists }: Props) {
             key={placeList.id}
             className="bg-white dark:bg-zinc-900 rounded-xl overflow-hidden shadow border border-zinc-200 dark:border-zinc-800 flex flex-col"
           >
-            <div
-              className="h-32 w-full relative z-0 bg-zinc-100 dark:bg-zinc-800 bg-cover bg-center"
-              style={placeList.coverImageUrl ? { backgroundImage: `url(${placeList.coverImageUrl})` } : undefined}
-            >
-              {!placeList.coverImageUrl && (
-                locations.length > 0 ? (
+            <Link href={`/placelists/${placeList.id}`} className="flex h-32 w-full">
+              {placeList.coverImageUrl && (
+                <div className="w-1/5 h-full shrink-0 bg-black flex items-center justify-center overflow-hidden">
+                  <img src={placeList.coverImageUrl} alt={placeList.name} className="w-full h-full object-contain" />
+                </div>
+              )}
+              <div className={`${placeList.coverImageUrl ? 'w-4/5' : 'w-full'} h-full relative bg-zinc-100 dark:bg-zinc-800`}>
+                {locations.length > 0 ? (
                   <SpotMiniMapWrapper locations={locations} />
                 ) : (
                   <div className="h-full w-full flex items-center justify-center text-xs text-zinc-400">地図なし</div>
-                )
-              )}
-            </div>
+                )}
+              </div>
+            </Link>
 
             <div className="flex items-center p-4 gap-3">
               <Link
