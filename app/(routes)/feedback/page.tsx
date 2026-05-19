@@ -23,8 +23,7 @@ export default function FeedbackPage() {
 
       <main className="px-4 mt-6 max-w-2xl mx-auto">
         <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6 px-1">
-          ご意見・ご要望・バグ報告などをお送りください。<br />
-          下のボタンを押すと、お使いのメールアプリが起動します。
+          ご意見・ご要望・バグ報告などをお送りください。
         </p>
 
         <FeedbackForm />

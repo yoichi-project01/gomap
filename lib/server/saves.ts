@@ -26,7 +26,10 @@ export async function isPlaceListSaved(placeListId: string): Promise<boolean> {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (error) throw wrapPostgrestError("isPlaceListSaved", error);
+  if (error) {
+    console.error("isPlaceListSaved error:", error)
+    return false
+  }
   return data !== null;
 }
 

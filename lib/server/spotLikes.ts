@@ -1,77 +1,55 @@
-// お気に入りスポットのサーバー側データアクセス
-// RLS でユーザー本人のみが読み書きできる前提
-
 import type { Spot } from "@/types/spot"
 import { createSupabaseServerClient } from "./supabaseAuth"
 
-export type FavoriteSpot = Spot & {
-  favoritedAt: string
-}
+export type LikedSpot = Spot & { likedAt: string }
 
-
-export async function isSpotFavorited(spotId: string): Promise<boolean> {
+export async function isSpotLiked(spotId: string): Promise<boolean> {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return false
 
   const { data, error } = await supabase
-    .from("favorites")
+    .from("spot_likes")
     .select("spot_id")
     .eq("spot_id", spotId)
     .eq("user_id", user.id)
     .maybeSingle()
 
-  if (error) {
-    console.error("isSpotFavorited error:", error)
-    return false
-  }
+  if (error) return false
   return data !== null
 }
 
-export async function listFavoriteSpotIds(): Promise<string[]> {
+export async function listLikedSpots(): Promise<LikedSpot[]> {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
-  const { data, error } = await supabase
-    .from("favorites")
-    .select("spot_id")
-    .eq("user_id", user.id)
-
-  if (error) throw error
-  return (data ?? []).map((row) => row.spot_id as string)
-}
-
-export async function listFavoriteSpots(): Promise<FavoriteSpot[]> {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return []
-
-  const { data: favRows, error: favError } = await supabase
-    .from("favorites")
+  const { data: likeRows, error: likesError } = await supabase
+    .from("spot_likes")
     .select("spot_id, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
 
-  if (favError) throw favError
-  if (!favRows || favRows.length === 0) return []
+  if (likesError) return []
+  if (!likeRows || likeRows.length === 0) return []
 
-  const spotIds = favRows.map((r) => r.spot_id as string)
+  const spotIds = likeRows.map((r) => r.spot_id as string)
   const { data: spotsData, error: spotsError } = await supabase
     .from("spots")
     .select("*")
     .in("id", spotIds)
 
-  if (spotsError) throw spotsError
+  if (spotsError) return []
 
-  type SpotData = {
+  type SpotRow = {
     id: string; name: string; description: string | null; lat: number; lng: number;
     prefecture: string | null; category: string | null; creator: string | null;
-    source: "user" | "map_ref" | null; cover_image_url: string | null; created_at: string;
+    source: "user" | "map_ref" | null; cover_image_url: string | null;
+    likes_count: number; created_at: string;
   }
-  const spotById = new Map((spotsData ?? []).map((s) => [s.id, s as SpotData]))
+  const spotById = new Map((spotsData ?? []).map((s) => [s.id, s as SpotRow]))
 
-  return favRows
+  return likeRows
     .map((r) => {
       const spot = spotById.get(r.spot_id as string)
       if (!spot) return null
@@ -86,9 +64,24 @@ export async function listFavoriteSpots(): Promise<FavoriteSpot[]> {
         creator: spot.creator ?? undefined,
         source: spot.source ?? "user",
         coverImageUrl: spot.cover_image_url ?? undefined,
+        likesCount: spot.likes_count,
         createdAt: spot.created_at,
-        favoritedAt: r.created_at as string,
+        likedAt: r.created_at as string,
       }
     })
-    .filter((v): v is FavoriteSpot => v !== null)
+    .filter((v): v is LikedSpot => v !== null)
+}
+
+export async function countLikedSpots(): Promise<number> {
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return 0
+
+  const { count, error } = await supabase
+    .from("spot_likes")
+    .select("spot_id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+
+  if (error) return 0
+  return count ?? 0
 }

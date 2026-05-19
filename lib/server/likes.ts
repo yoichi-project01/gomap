@@ -1,6 +1,6 @@
 // プレイスリストいいねのサーバー側データアクセス
 
-import type { PostgrestError } from "@supabase/supabase-js"
+import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js"
 import type { PlaceList } from "@/types/spot"
 import { createSupabaseServerClient } from "./supabaseAuth"
 import { listPlaceListsByIds } from "./placeLists"
@@ -25,7 +25,10 @@ export async function isPlaceListLiked(placeListId: string): Promise<boolean> {
     .eq("user_id", user.id)
     .maybeSingle()
 
-  if (error) throw wrapPostgrestError("isPlaceListLiked", error)
+  if (error) {
+    console.error("isPlaceListLiked error:", error)
+    return false
+  }
   return data !== null
 }
 
@@ -63,13 +66,42 @@ export async function listLikedPlaceLists(): Promise<LikedPlaceList[]> {
 
 export async function countLiked(userId: string): Promise<number> {
   const supabase = await createSupabaseServerClient()
-  const { count, error } = await supabase
+
+  const { data, error } = await supabase
     .from("place_list_likes")
-    .select("place_list_id", { count: "exact", head: true })
+    .select("place_list_id")
     .eq("user_id", userId)
 
   if (error) throw wrapPostgrestError("countLiked", error)
+
+  const ids = (data ?? []).map((r: { place_list_id: string }) => r.place_list_id)
+  if (ids.length === 0) return 0
+
+  const { count, error: verifyError } = await supabase
+    .from("place_lists")
+    .select("id", { count: "exact", head: true })
+    .in("id", ids)
+
+  if (verifyError) throw wrapPostgrestError("countLiked/verify", verifyError)
   return count ?? 0
+}
+
+// service_role クライアントで呼び出すこと（RLS をバイパスして全ユーザーのいいねを集計する）
+export async function fetchActualLikeCounts(
+  client: SupabaseClient,
+  placeListIds: string[],
+): Promise<Map<string, number>> {
+  if (placeListIds.length === 0) return new Map()
+  const { data, error } = await client
+    .from("place_list_likes")
+    .select("place_list_id")
+    .in("place_list_id", placeListIds)
+  if (error) return new Map()
+  const counts = new Map<string, number>()
+  for (const row of (data ?? []) as Array<{ place_list_id: string }>) {
+    counts.set(row.place_list_id, (counts.get(row.place_list_id) ?? 0) + 1)
+  }
+  return counts
 }
 
 export async function countPlaceListLikes(placeListId: string): Promise<number> {

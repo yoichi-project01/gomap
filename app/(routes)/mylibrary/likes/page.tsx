@@ -1,11 +1,14 @@
 import Link from "next/link"
-import { listLikedPlaceLists } from "@/lib/server/likes"
+import { listLikedPlaceLists, fetchActualLikeCounts } from "@/lib/server/likes"
+import { supabase as adminClient } from "@/lib/server/supabase"
 import LikedPlaceListsView from "./LikedPlaceListsView"
 
 export const dynamic = "force-dynamic"
 
 export default async function LikedPlaceListsPage() {
   const placeLists = await listLikedPlaceLists()
+  const likeCountMap = await fetchActualLikeCounts(adminClient, placeLists.map((p) => p.id))
+  const placeListsWithLikes = placeLists.map((p) => ({ ...p, likes: likeCountMap.get(p.id) ?? 0 }))
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 px-4 py-8 pb-24">
@@ -23,7 +26,7 @@ export default async function LikedPlaceListsPage() {
         <span className="ml-auto text-sm text-zinc-400 dark:text-zinc-500">{placeLists.length} 件</span>
       </div>
 
-      <LikedPlaceListsView initialPlaceLists={placeLists} />
+      <LikedPlaceListsView initialPlaceLists={placeListsWithLikes} />
     </div>
   )
 }

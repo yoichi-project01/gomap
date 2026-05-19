@@ -1,8 +1,14 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { MapPin, Search, X } from "lucide-react"
+import { Search, X } from "lucide-react"
+import dynamic from "next/dynamic"
 import type { PlaceSearchResult } from "@/app/api/places/search/route"
+
+const PlaceSearchMap = dynamic(() => import("./PlaceSearchMap"), {
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-zinc-900 animate-pulse" />,
+})
 
 type Props = {
   onClose: () => void
@@ -86,6 +92,12 @@ export default function LocationSearchModal({ onClose, onSelect }: Props) {
         </button>
       </div>
 
+      {results.length > 0 && status !== "loading" && (
+        <div className="h-56 shrink-0 border-b border-zinc-800">
+          <PlaceSearchMap results={results} onSelect={onSelect} />
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto px-4 py-3 [&::-webkit-scrollbar]:hidden">
         {status === "loading" && (
           <p className="text-xs text-zinc-500 py-4 text-center">検索中…</p>
@@ -101,14 +113,16 @@ export default function LocationSearchModal({ onClose, onSelect }: Props) {
         )}
 
         <ul className="flex flex-col gap-2">
-          {hasMinLength && results.map((r) => (
+          {hasMinLength && results.map((r, i) => (
             <li key={r.placeId}>
               <button
                 type="button"
                 onClick={() => onSelect(r)}
                 className="w-full text-left flex items-start gap-3 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-lg p-3 transition"
               >
-                <MapPin className="w-4 h-4 text-zinc-400 mt-1 shrink-0" />
+                <div className="w-6 h-6 rounded-full bg-green-500 text-black font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                  {i + 1}
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-white truncate">{r.name}</p>
                   <p className="text-xs text-zinc-400 line-clamp-2 mt-0.5">{r.address}</p>
