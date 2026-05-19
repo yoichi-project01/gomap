@@ -324,12 +324,12 @@ function FilterForm() {
         placeholder="プレイスリストを検索..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full px-4 py-3 rounded-full bg-zinc-800 border border-zinc-700 text-sm text-white placeholder:text-zinc-500 outline-none focus:border-green-500 transition-colors"
+        className="w-full px-4 py-3 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none focus:border-green-500 transition-colors"
       />
 
       {/* クイックフィルタ (定番条件をワンタップで適用) */}
       <div>
-        <h2 className="text-sm font-bold text-zinc-300 mb-2 flex items-center gap-1.5">
+        <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2 flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-green-400" />
           クイックフィルタ
         </h2>
@@ -339,7 +339,7 @@ function FilterForm() {
               key={preset.label}
               type="button"
               onClick={() => applyPreset(preset)}
-              className="px-3 py-1.5 rounded-full border border-zinc-700 bg-zinc-800 text-xs text-zinc-200 hover:border-green-500 hover:text-white transition-colors"
+              className="px-3 py-1.5 rounded-full border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-600 dark:text-zinc-200 hover:border-green-500 hover:text-zinc-900 dark:hover:text-white transition-colors"
             >
               {preset.label}
             </button>
@@ -350,7 +350,7 @@ function FilterForm() {
       {/* 保存済みプリセット (ログイン中のみ表示。0件のときは非表示) */}
       {currentUserId && presets.length > 0 && (
         <div>
-          <h2 className="text-sm font-bold text-zinc-300 mb-2 flex items-center gap-1.5">
+          <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2 flex items-center gap-1.5">
             <Bookmark className="w-3.5 h-3.5 text-green-400" />
             保存済みフィルタ
           </h2>
@@ -358,7 +358,7 @@ function FilterForm() {
             {presets.map((p) => (
               <span
                 key={p.id}
-                className="inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-full border border-zinc-700 bg-zinc-800 text-xs text-zinc-200"
+                className="inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-full border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-xs text-zinc-600 dark:text-zinc-200"
               >
                 <button
                   type="button"
@@ -371,7 +371,7 @@ function FilterForm() {
                   type="button"
                   onClick={() => handleDeletePreset(p.id)}
                   aria-label={`${p.name} を削除`}
-                  className="p-1 rounded-full hover:bg-zinc-700 hover:text-red-400 transition"
+                  className="p-1 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-red-400 transition"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -383,10 +383,10 @@ function FilterForm() {
 
       {/* ヘッダ */}
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-white">絞り込み</h1>
+        <h1 className="text-xl font-bold text-zinc-900 dark:text-white">絞り込み</h1>
         <button
           onClick={handleReset}
-          className="text-xs text-zinc-400 hover:text-white transition-colors underline underline-offset-2"
+          className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors underline underline-offset-2"
         >
           すべてリセット
         </button>
@@ -394,7 +394,7 @@ function FilterForm() {
 
       {/* 都道府県 */}
       <div>
-        <h2 className="text-sm font-bold text-zinc-300 mb-2">都道府県</h2>
+        <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">都道府県</h2>
         <SelectField
           icon={<MapPin className="w-3.5 h-3.5" />}
           ariaLabel="都道府県を選択"
@@ -407,7 +407,7 @@ function FilterForm() {
 
       {/* カテゴリ (複数選択プルダウン) */}
       <div>
-        <h2 className="text-sm font-bold text-zinc-300 mb-2">カテゴリ</h2>
+        <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">カテゴリ</h2>
         <MultiSelectField
           icon={<Tag className="w-3.5 h-3.5" />}
           ariaLabel="カテゴリを選択 (複数可)"
@@ -421,12 +421,12 @@ function FilterForm() {
       {/* 距離 */}
       <div>
         <div className="flex items-center justify-between mb-2 gap-2">
-          <h2 className="text-sm font-bold text-zinc-300">距離</h2>
+          <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300">距離</h2>
           <button
             type="button"
             onClick={requestLocation}
             disabled={geoStatus === "loading"}
-            className="text-[11px] px-2.5 py-1 rounded-full border border-zinc-700 text-zinc-300 hover:border-zinc-500 disabled:opacity-50 transition-colors"
+            className="text-[11px] px-2.5 py-1 rounded-full border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500 disabled:opacity-50 transition-colors"
           >
             {geoStatus === "loading" ? "取得中…" : coords ? "現在地を再取得" : "現在地を取得"}
           </button>
@@ -450,7 +450,7 @@ function FilterForm() {
       {/* マップ範囲で絞り込み */}
       <div>
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-bold text-zinc-300 flex items-center gap-1.5">
+          <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
             <MapIcon className="w-3.5 h-3.5 text-zinc-400" />
             マップ範囲で絞り込み
           </h2>
@@ -463,14 +463,14 @@ function FilterForm() {
             className={`px-3 py-1 text-xs rounded-full border transition ${
               mapEnabled
                 ? "bg-green-500 border-green-500 text-black font-bold"
-                : "border-zinc-700 text-zinc-300 hover:border-zinc-500"
+                : "border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500"
             }`}
           >
             {mapEnabled ? "ON" : "OFF"}
           </button>
         </div>
         {mapEnabled && (
-          <div className="rounded-2xl overflow-hidden border border-zinc-700">
+          <div className="rounded-2xl overflow-hidden border border-zinc-300 dark:border-zinc-700">
             <FilterMapWrapper
               initialBBox={initialBBox}
               initialCenter={coords ? [coords.lat, coords.lng] : undefined}
@@ -487,7 +487,7 @@ function FilterForm() {
 
       {/* 公開/非公開 */}
       <div>
-        <h2 className="text-sm font-bold text-zinc-300 mb-2">公開設定</h2>
+        <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">公開設定</h2>
         <SelectField
           icon={<Globe className="w-3.5 h-3.5" />}
           ariaLabel="公開状態で絞り込み"
@@ -500,7 +500,7 @@ function FilterForm() {
 
       {/* 作成日 */}
       <div>
-        <h2 className="text-sm font-bold text-zinc-300 mb-2">作成日</h2>
+        <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">作成日</h2>
         <SelectField
           icon={<Calendar className="w-3.5 h-3.5" />}
           ariaLabel="作成日範囲で絞り込み"
@@ -513,7 +513,7 @@ function FilterForm() {
 
       {/* スポット数 */}
       <div>
-        <h2 className="text-sm font-bold text-zinc-300 mb-2">スポット数</h2>
+        <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">スポット数</h2>
         <SelectField
           icon={<ListChecks className="w-3.5 h-3.5" />}
           ariaLabel="スポット数で絞り込み"
@@ -527,7 +527,7 @@ function FilterForm() {
       {/* 自分のみ (ログイン中のみ表示) */}
       {currentUserId && (
         <div>
-          <h2 className="text-sm font-bold text-zinc-300 mb-2">登録者</h2>
+          <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">登録者</h2>
           <SelectField
             icon={<User className="w-3.5 h-3.5" />}
             ariaLabel="登録者で絞り込み"
@@ -541,7 +541,7 @@ function FilterForm() {
 
       {/* 並び順 */}
       <div>
-        <h2 className="text-sm font-bold text-zinc-300 mb-2">並び順</h2>
+        <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">並び順</h2>
         <SelectField
           icon={<ArrowDownUp className="w-3.5 h-3.5" />}
           ariaLabel="並び順を選択"
@@ -554,9 +554,9 @@ function FilterForm() {
 
       {/* 件数プレビュー + 適用ボタン + プリセット保存ボタン */}
       <div className="mt-2 flex flex-col gap-2 items-center">
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
           該当{" "}
-          <span className="font-bold text-white">
+          <span className="font-bold text-zinc-900 dark:text-white">
             {matchCount === null ? "..." : matchCount}
           </span>{" "}
           件
@@ -564,7 +564,7 @@ function FilterForm() {
         <button
           onClick={handleSubmit}
           disabled={matchCount === 0}
-          className="w-full bg-green-500 hover:bg-green-400 disabled:bg-zinc-700 disabled:text-zinc-400 text-black text-sm font-bold px-4 py-3 rounded-full transition-colors"
+          className="w-full bg-green-500 hover:bg-green-400 disabled:bg-zinc-200 dark:disabled:bg-zinc-700 disabled:text-zinc-400 text-black text-sm font-bold px-4 py-3 rounded-full transition-colors"
         >
           この条件で絞り込む
         </button>
@@ -573,7 +573,7 @@ function FilterForm() {
             type="button"
             onClick={handleSavePreset}
             disabled={savingPreset}
-            className="w-full flex items-center justify-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 text-zinc-200 text-xs font-bold px-4 py-2.5 rounded-full border border-zinc-700 transition-colors"
+            className="w-full flex items-center justify-center gap-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-50 text-zinc-700 dark:text-zinc-200 text-xs font-bold px-4 py-2.5 rounded-full border border-zinc-300 dark:border-zinc-700 transition-colors"
           >
             <Bookmark className="w-3.5 h-3.5" />
             {savingPreset ? "保存中..." : "現在の条件を保存"}
@@ -586,7 +586,7 @@ function FilterForm() {
 
 export default function FilterPage() {
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-24">
       <div className="max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-4 py-8">
         <Suspense fallback={<p className="text-sm text-zinc-400 py-8 text-center">読み込み中...</p>}>
           <FilterForm />

@@ -71,10 +71,10 @@ export default function CoverImageUploader({ value, onChange, className = "" }: 
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
-            className="w-full h-full bg-zinc-800 flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-700 transition group disabled:cursor-wait disabled:opacity-70"
+            className="w-full h-full bg-zinc-100 dark:bg-zinc-800 flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition group disabled:cursor-wait disabled:opacity-70"
           >
-            <Camera className="w-10 h-10 text-zinc-500 group-hover:text-white transition-colors mb-2" />
-            <span className="text-xs font-bold text-zinc-500 group-hover:text-white transition-colors">
+            <Camera className="w-10 h-10 text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors mb-2" />
+            <span className="text-xs font-bold text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors">
               {uploading ? "アップロード中…" : "画像を選択"}
             </span>
           </button>
@@ -100,7 +100,7 @@ export default function CoverImageUploader({ value, onChange, className = "" }: 
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="text-xs text-zinc-400 hover:text-white transition disabled:opacity-50"
+          className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition disabled:opacity-50"
         >
           {uploading ? "アップロード中…" : "画像を変更"}
         </button>

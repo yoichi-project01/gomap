@@ -56,7 +56,8 @@
       "Bash(echo \"---EXIT=$?\")",
       "Bash(echo \"RC=$?\")",
       "Bash(find /mnt/c/Users/234005/gomap/src -type d | head -50)",
-      "Read(//mnt/c/Users/234005/gomap/**)"
+      "Read(//mnt/c/Users/234005/gomap/**)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\234005\\\\gomap\\\\app\\\\\\(routes\\)\" -Filter \"page.tsx\" -Recurse)"
     ]
   }
 }

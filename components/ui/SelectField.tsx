@@ -63,7 +63,7 @@ export default function SelectField({
         className={`w-full inline-flex items-center justify-between gap-1.5 rounded-full border text-xs px-3 py-2 transition ${
           isActive
             ? 'bg-green-500 border-green-500 text-black font-bold'
-            : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:border-zinc-500'
+            : 'bg-zinc-100 dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500'
         }`}
       >
         <span className="flex items-center gap-1.5 min-w-0">
@@ -78,7 +78,7 @@ export default function SelectField({
       {open && (
         <ul
           role="listbox"
-          className="absolute left-0 right-0 top-full mt-1.5 z-20 rounded-2xl border border-zinc-700 bg-zinc-950 shadow-xl overflow-hidden py-1 max-h-56 overflow-y-auto [&::-webkit-scrollbar]:hidden"
+          className="absolute left-0 right-0 top-full mt-1.5 z-20 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 shadow-xl overflow-hidden py-1 max-h-56 overflow-y-auto [&::-webkit-scrollbar]:hidden"
         >
           {clearable && (
             <OptionItem
@@ -124,7 +124,7 @@ function OptionItem({
         type="button"
         onClick={onClick}
         className={`w-full flex items-center justify-between gap-2 text-left text-xs px-3 py-2 transition ${
-          selected ? 'bg-green-500/15 text-green-400 font-bold' : 'text-zinc-200 hover:bg-zinc-800'
+          selected ? 'bg-green-500/15 text-green-600 dark:text-green-400 font-bold' : 'text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'
         }`}
       >
         <span className="truncate">{children}</span>

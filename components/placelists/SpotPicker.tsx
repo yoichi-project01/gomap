@@ -73,22 +73,22 @@ export default function SpotPicker({
   };
 
   return (
-    <div className="mt-4 bg-zinc-900 rounded-xl border border-zinc-800">
+    <div className="mt-4 bg-zinc-50 dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
       {/* 検索バー */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-800">
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
         <Search className="w-4 h-4 text-zinc-400 flex-shrink-0" />
         <input
           type="text"
           placeholder="スポット名で検索"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 outline-none"
+          className="flex-1 bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none"
         />
         {query && (
           <button
             type="button"
             onClick={() => setQuery('')}
-            className="text-zinc-500 hover:text-white transition flex-shrink-0"
+            className="text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition flex-shrink-0"
             aria-label="検索クリア"
           >
             <X className="w-4 h-4" />
@@ -97,7 +97,7 @@ export default function SpotPicker({
       </div>
 
       {/* フィルタプルダウン (並び順 / 自分のみ / カテゴリ / 都道府県) を統一レイアウトに */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 px-4 py-3 border-b border-zinc-800">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
         <SelectField
           icon={<ArrowDownUp className="w-3.5 h-3.5" />}
           ariaLabel="並び順"
@@ -135,17 +135,17 @@ export default function SpotPicker({
       </div>
 
       {/* 件数 + 適用中フィルタ */}
-      <div className="px-4 py-2.5 border-b border-zinc-800 bg-zinc-950/50">
+      <div className="px-4 py-2.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-950/50">
         <div className="flex items-center justify-between">
           <span className="text-xs text-zinc-400">
-            <span className="font-bold text-white">{filtered.length}</span>
+            <span className="font-bold text-zinc-900 dark:text-white">{filtered.length}</span>
             <span className="text-zinc-500"> / {baseSpots.length} 件</span>
           </span>
           {hasActiveFilters && (
             <button
               type="button"
               onClick={resetAll}
-              className="text-[11px] text-zinc-400 hover:text-white transition underline underline-offset-2"
+              className="text-[11px] text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition underline underline-offset-2"
             >
               すべて解除
             </button>
@@ -183,7 +183,7 @@ export default function SpotPicker({
        */}
       <div className="flex flex-col lg:flex-row">
         {/* マップ */}
-        <div className="border-b border-zinc-800 lg:border-b-0 lg:border-r lg:w-1/2">
+        <div className="border-b border-zinc-200 dark:border-zinc-800 lg:border-b-0 lg:border-r border-zinc-200 dark:border-zinc-800 lg:w-1/2">
           <SpotPickerMapWrapper
             spots={filtered}
             refitKey={refitKey}
@@ -213,13 +213,13 @@ export default function SpotPicker({
                       focus();
                     }
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-800 transition text-left cursor-pointer"
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition text-left cursor-pointer"
                 >
-                  <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-4 h-4 text-green-500" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold text-white truncate">{spot.name}</p>
+                    <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">{spot.name}</p>
                     <p className="text-xs text-zinc-400 truncate">{spot.description ?? ''}</p>
                   </div>
                   <button
@@ -229,7 +229,7 @@ export default function SpotPicker({
                       onAdd(spot);
                     }}
                     aria-label={`${spot.name} を追加`}
-                    className="flex-shrink-0 p-1.5 -m-1 rounded-full text-zinc-400 hover:text-green-500 hover:bg-zinc-700 transition"
+                    className="flex-shrink-0 p-1.5 -m-1 rounded-full text-zinc-400 hover:text-green-500 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -253,13 +253,13 @@ function ActivePill({
   onClear: () => void;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 pl-2 pr-1 py-0.5 text-[11px] rounded-full bg-zinc-800 text-zinc-200 border border-zinc-700">
+    <span className="inline-flex items-center gap-1 pl-2 pr-1 py-0.5 text-[11px] rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-300 dark:border-zinc-700">
       <span className="text-zinc-400">{icon}</span>
       <span>{children}</span>
       <button
         type="button"
         onClick={onClear}
-        className="ml-0.5 p-0.5 rounded-full hover:bg-zinc-700 hover:text-red-400 transition"
+        className="ml-0.5 p-0.5 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-red-400 transition"
         aria-label="解除"
       >
         <X className="w-3 h-3" />

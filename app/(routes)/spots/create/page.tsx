@@ -73,12 +73,12 @@ export default function CreateSpotPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans pb-24 overflow-y-auto [&::-webkit-scrollbar]:hidden">
-      <header className="sticky top-0 z-50 flex items-center justify-between px-4 pt-10 pb-4 bg-black/95 border-b border-zinc-800">
-        <button onClick={() => router.back()} className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-700 transition">
-          <ChevronLeft className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white font-sans pb-24 overflow-y-auto [&::-webkit-scrollbar]:hidden">
+      <header className="sticky top-0 z-50 flex items-center justify-between px-4 pt-10 pb-4 bg-zinc-50/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
+        <button onClick={() => router.back()} className="w-10 h-10 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 transition">
+          <ChevronLeft className="w-6 h-6 text-zinc-900 dark:text-white" />
         </button>
-        <h1 className="text-sm font-bold text-zinc-300">新しいスポットを作成</h1>
+        <h1 className="text-sm font-bold text-zinc-700 dark:text-zinc-300">新しいスポットを作成</h1>
         <button
           onClick={handleSave}
           disabled={isSaving}
@@ -97,19 +97,19 @@ export default function CreateSpotPage() {
             placeholder="スポットのタイトル"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-transparent text-3xl font-extrabold text-center text-white placeholder-zinc-600 outline-none border-b border-zinc-800 pb-3 focus:border-green-500 transition-colors"
+            className="w-full bg-transparent text-3xl font-extrabold text-center text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-600 outline-none border-b border-zinc-200 dark:border-zinc-800 pb-3 focus:border-green-500 transition-colors"
           />
           <textarea
             placeholder="説明を追加(例:夜景がきれいで写真映えする)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            className="w-full bg-transparent text-sm text-center text-zinc-300 placeholder-zinc-600 outline-none border-b border-zinc-800 pb-3 focus:border-green-500 transition-colors resize-none"
+            className="w-full bg-transparent text-sm text-center text-zinc-600 dark:text-zinc-300 placeholder-zinc-400 dark:placeholder-zinc-600 outline-none border-b border-zinc-200 dark:border-zinc-800 pb-3 focus:border-green-500 transition-colors resize-none"
           />
         </div>
 
         <div>
-          <h2 className="text-sm font-bold text-zinc-300 mb-3">カテゴリ</h2>
+          <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-3">カテゴリ</h2>
           <SelectField
             icon={<Tag className="w-3.5 h-3.5" />}
             ariaLabel="カテゴリを選択"
@@ -122,7 +122,7 @@ export default function CreateSpotPage() {
 
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold text-zinc-300">場所</h2>
+            <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300">場所</h2>
             {location && (
               <button
                 type="button"
@@ -136,15 +136,15 @@ export default function CreateSpotPage() {
           </div>
 
           {location ? (
-            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-3">
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg p-3">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 shrink-0">
                   <MapPin className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold text-sm text-white">{location.name}</p>
-                  <p className="text-xs text-zinc-400 mt-0.5 line-clamp-2">{location.address}</p>
-                  <p className="text-[10px] text-zinc-500 mt-1 font-mono">
+                  <p className="font-bold text-sm text-zinc-900 dark:text-white">{location.name}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-2">{location.address}</p>
+                  <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1 font-mono">
                     {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
                   </p>
                 </div>
@@ -152,7 +152,7 @@ export default function CreateSpotPage() {
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="mt-3 w-full text-xs text-zinc-400 hover:text-white py-2 border-t border-zinc-800"
+                className="mt-3 w-full text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white py-2 border-t border-zinc-200 dark:border-zinc-800"
               >
                 別の場所を選択
               </button>
@@ -161,7 +161,7 @@ export default function CreateSpotPage() {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="w-full flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white py-3.5 rounded-full font-bold text-sm transition shadow-md"
+              className="w-full flex items-center justify-center gap-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white py-3.5 rounded-full font-bold text-sm transition shadow-md"
             >
               <MapPin className="w-5 h-5" />
               場所を検索して選択
