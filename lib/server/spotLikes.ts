@@ -49,27 +49,25 @@ export async function listLikedSpots(): Promise<LikedSpot[]> {
   }
   const spotById = new Map((spotsData ?? []).map((s) => [s.id, s as SpotRow]))
 
-  return likeRows
-    .map((r) => {
-      const spot = spotById.get(r.spot_id as string)
-      if (!spot) return null
-      return {
-        id: spot.id,
-        name: spot.name,
-        description: spot.description ?? undefined,
-        lat: spot.lat,
-        lng: spot.lng,
-        prefecture: spot.prefecture ?? undefined,
-        category: spot.category ?? undefined,
-        creator: spot.creator ?? undefined,
-        source: spot.source ?? "user",
-        coverImageUrl: spot.cover_image_url ?? undefined,
-        likesCount: spot.likes_count,
-        createdAt: spot.created_at,
-        likedAt: r.created_at as string,
-      }
-    })
-    .filter((v): v is LikedSpot => v !== null)
+  return likeRows.flatMap((r): LikedSpot[] => {
+    const spot = spotById.get(r.spot_id as string)
+    if (!spot) return []
+    return [{
+      id: spot.id,
+      name: spot.name,
+      description: spot.description ?? undefined,
+      lat: spot.lat,
+      lng: spot.lng,
+      prefecture: spot.prefecture ?? undefined,
+      category: spot.category ?? undefined,
+      creator: spot.creator ?? undefined,
+      source: spot.source ?? "user",
+      coverImageUrl: spot.cover_image_url ?? undefined,
+      likesCount: spot.likes_count,
+      createdAt: spot.created_at,
+      likedAt: r.created_at as string,
+    }]
+  })
 }
 
 export async function countLikedSpots(): Promise<number> {
