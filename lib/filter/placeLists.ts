@@ -9,6 +9,7 @@ export type PlaceListFilters = {
   distance?: string
   coords?: { lat: number; lng: number } | null
   order?: SortOrder
+  showAll?: boolean
 }
 
 const DISTANCE_METERS: Record<string, number> = {
@@ -35,7 +36,7 @@ function minDistance(placeList: PlaceList, coords: { lat: number; lng: number })
 }
 
 export function hasActiveFilters(f: PlaceListFilters): boolean {
-  return Boolean(f.pref || f.cats?.length || f.query || f.distance)
+  return Boolean(f.pref || f.cats?.length || f.query || f.distance || f.showAll)
 }
 
 export function filterPlaceLists(placeLists: PlaceList[], filters: PlaceListFilters): PlaceList[] {
@@ -95,5 +96,6 @@ export function parseFilters(searchParams: { [key: string]: string | string[] | 
     distance: get("distance") || undefined,
     coords: lat && lng ? { lat: Number(lat), lng: Number(lng) } : null,
     order: order ?? "登録が新しい順",
+    showAll: get("show") === "all",
   }
 }

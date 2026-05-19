@@ -141,7 +141,7 @@ function FilterForm() {
     if (order !== DEFAULT_ORDER) params.set("order", order)
     if (query.trim())            params.set("q", query.trim())
     const qs = params.toString()
-    router.push(qs ? `/?${qs}` : "/")
+    router.push(`/?${qs || "show=all"}`)
   }
 
   const prefSummary  = prefecture || "指定なし"

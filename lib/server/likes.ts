@@ -1,6 +1,6 @@
 // プレイスリストいいねのサーバー側データアクセス
 
-import type { PostgrestError } from "@supabase/supabase-js"
+import type { PostgrestError, SupabaseClient } from "@supabase/supabase-js"
 import type { PlaceList } from "@/types/spot"
 import { createSupabaseServerClient } from "./supabaseAuth"
 import { listPlaceListsByIds } from "./placeLists"
@@ -81,6 +81,24 @@ export async function countLiked(userId: string): Promise<number> {
 
   if (verifyError) throw wrapPostgrestError("countLiked/verify", verifyError)
   return count ?? 0
+}
+
+// service_role クライアントで呼び出すこと（RLS をバイパスして全ユーザーのいいねを集計する）
+export async function fetchActualLikeCounts(
+  client: SupabaseClient,
+  placeListIds: string[],
+): Promise<Map<string, number>> {
+  if (placeListIds.length === 0) return new Map()
+  const { data, error } = await client
+    .from("place_list_likes")
+    .select("place_list_id")
+    .in("place_list_id", placeListIds)
+  if (error) return new Map()
+  const counts = new Map<string, number>()
+  for (const row of (data ?? []) as Array<{ place_list_id: string }>) {
+    counts.set(row.place_list_id, (counts.get(row.place_list_id) ?? 0) + 1)
+  }
+  return counts
 }
 
 export async function countPlaceListLikes(placeListId: string): Promise<number> {
