@@ -52,7 +52,9 @@
       "Bash(echo \"eslint=$?\")",
       "Bash(echo \"build=$?\")",
       "Bash(git commit *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(echo \"---EXIT=$?\")",
+      "Bash(echo \"RC=$?\")"
     ]
   }
 }
