@@ -2,13 +2,14 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Plus, MapPin, X, Globe, Lock } from 'lucide-react';
+import { ChevronLeft, Plus, MapPin, X, Globe, Lock, Tag } from 'lucide-react';
 import type { Spot } from '@/types/spot';
 import { updatePlaceList } from '@/lib/client/placeLists';
 import { createSpot, deleteSpot } from '@/lib/client/spots';
 import CoverImageUploader from '@/components/ui/CoverImageUploader';
 import LocationSearchModal from '@/components/spot/LocationSearchModal';
 import SpotPicker from '@/components/placelists/SpotPicker';
+import SelectField from '@/components/ui/SelectField';
 import type { PlaceSearchResult } from '@/app/api/places/search/route';
 
 type Props = {
@@ -39,7 +40,7 @@ export default function EditPlaceListForm({
   const router = useRouter();
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
-  const [category, setCategory] = useState<string>(initialCategory);
+  const [category, setCategory] = useState<string | null>(initialCategory || null);
   const [isPublic, setIsPublic] = useState(initialIsPublic);
   const [selectedSpots, setSelectedSpots] = useState<Spot[]>(initialSpots);
   const [showSearch, setShowSearch] = useState(false);
@@ -173,25 +174,14 @@ export default function EditPlaceListForm({
 
         <div>
           <h2 className="text-sm font-bold text-zinc-300 mb-3">カテゴリ</h2>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((cat) => {
-              const active = category === cat;
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setCategory(active ? '' : cat)}
-                  className={`px-3 py-1.5 text-xs rounded-full border transition ${
-                    active
-                      ? 'bg-green-500 border-green-500 text-black font-bold'
-                      : 'border-zinc-700 text-zinc-300 hover:border-zinc-500'
-                  }`}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
+          <SelectField
+            icon={<Tag className="w-3.5 h-3.5" />}
+            ariaLabel="カテゴリを選択"
+            value={category}
+            options={CATEGORIES}
+            onChange={setCategory}
+            placeholder="カテゴリを選択"
+          />
         </div>
 
         <div>
@@ -200,7 +190,7 @@ export default function EditPlaceListForm({
             <button
               type="button"
               onClick={() => setIsPublic(true)}
-              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-xs transition ${
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-full border text-xs transition ${
                 isPublic
                   ? 'bg-green-500 border-green-500 text-black font-bold'
                   : 'border-zinc-700 text-zinc-300 hover:border-zinc-500'
@@ -212,7 +202,7 @@ export default function EditPlaceListForm({
             <button
               type="button"
               onClick={() => setIsPublic(false)}
-              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-xs transition ${
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-full border text-xs transition ${
                 !isPublic
                   ? 'bg-green-500 border-green-500 text-black font-bold'
                   : 'border-zinc-700 text-zinc-300 hover:border-zinc-500'
@@ -235,14 +225,14 @@ export default function EditPlaceListForm({
 
           <div className="flex flex-col gap-3 mb-6">
             {selectedSpots.length === 0 ? (
-              <div className="text-xs text-zinc-500 text-center py-8 border border-dashed border-zinc-800 rounded-lg">
+              <div className="text-xs text-zinc-500 text-center py-8 border border-dashed border-zinc-800 rounded-2xl">
                 まだスポットが追加されていません
               </div>
             ) : (
               selectedSpots.map((spot, index) => (
                 <div
                   key={spot.id}
-                  className="flex items-center justify-between bg-zinc-900 p-3 rounded-lg border border-zinc-800"
+                  className="flex items-center justify-between bg-zinc-900 p-3 rounded-2xl border border-zinc-800"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400 text-sm font-bold">

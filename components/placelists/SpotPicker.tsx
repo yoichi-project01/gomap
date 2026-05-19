@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, ChevronDown, MapPin, Plus, Search, Tag, User, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { ArrowDownUp, MapPin, Plus, Search, Tag, User, X } from 'lucide-react';
 import type { Spot } from '@/types/spot';
 import SpotPickerMapWrapper, { type FocusTarget } from '@/components/placelists/SpotPickerMapWrapper';
+import SelectField from '@/components/ui/SelectField';
 
 const CATEGORIES = ['観光', 'グルメ', 'カフェ', '自然', 'ショッピング', 'その他'];
 
-type Sort = 'recent' | 'name';
+type Sort = '最近追加' | '名前順';
+const SORT_OPTIONS: Sort[] = ['最近追加', '名前順'];
 
 type Props = {
   availableSpots: Spot[];
@@ -26,7 +28,7 @@ export default function SpotPicker({
   const [category, setCategory] = useState<string | null>(null);
   const [prefecture, setPrefecture] = useState<string | null>(null);
   const [mineOnly, setMineOnly] = useState(false);
-  const [sort, setSort] = useState<Sort>('recent');
+  const [sort, setSort] = useState<Sort>('最近追加');
   const [focused, setFocused] = useState<FocusTarget | null>(null);
 
   // 都道府県チップは availableSpots に実在するものだけ表示 (空のチップを増やさない)
@@ -53,7 +55,7 @@ export default function SpotPicker({
       if (q && !spot.name.includes(q) && !(spot.description ?? '').includes(q)) return false;
       return true;
     });
-    if (sort === 'name') {
+    if (sort === '名前順') {
       // availableSpots は created_at desc で渡される前提なので、recent の場合は並べ替え不要
       return [...list].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
     }
@@ -94,21 +96,26 @@ export default function SpotPicker({
         )}
       </div>
 
-      {/* 並び順 (セグメント) + 自分のみ (スイッチ) */}
-      <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-zinc-800">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] text-zinc-500 font-bold">並び順</span>
-          <SortSegment value={sort} onChange={setSort} />
-        </div>
-        {currentUserId && <MineSwitch on={mineOnly} onChange={setMineOnly} />}
-      </div>
-
-      {/* カテゴリ + 都道府県 (プルダウン) */}
-      <div
-        className={`grid gap-2 px-4 py-3 border-b border-zinc-800 ${
-          availablePrefectures.length > 0 ? 'grid-cols-2' : 'grid-cols-1'
-        }`}
-      >
+      {/* フィルタプルダウン (並び順 / 自分のみ / カテゴリ / 都道府県) を統一レイアウトに */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 px-4 py-3 border-b border-zinc-800">
+        <SelectField
+          icon={<ArrowDownUp className="w-3.5 h-3.5" />}
+          ariaLabel="並び順"
+          value={sort}
+          options={SORT_OPTIONS}
+          onChange={(v) => v && setSort(v as Sort)}
+          clearable={false}
+        />
+        {currentUserId && (
+          <SelectField
+            icon={<User className="w-3.5 h-3.5" />}
+            ariaLabel="登録者で絞り込み"
+            value={mineOnly ? '自分のみ' : null}
+            options={['自分のみ']}
+            onChange={(v) => setMineOnly(v === '自分のみ')}
+            placeholder="全員"
+          />
+        )}
         <SelectField
           icon={<Tag className="w-3.5 h-3.5" />}
           ariaLabel="カテゴリで絞り込み"
@@ -236,56 +243,6 @@ export default function SpotPicker({
   );
 }
 
-function SortSegment({ value, onChange }: { value: Sort; onChange: (s: Sort) => void }) {
-  return (
-    <div className="inline-flex rounded-full border border-zinc-700 bg-zinc-950 p-0.5">
-      {(['recent', 'name'] as Sort[]).map((opt) => {
-        const active = value === opt;
-        return (
-          <button
-            key={opt}
-            type="button"
-            onClick={() => onChange(opt)}
-            className={`px-2.5 py-1 text-xs rounded-full transition ${
-              active ? 'bg-green-500 text-black font-bold' : 'text-zinc-400 hover:text-white'
-            }`}
-          >
-            {opt === 'recent' ? '最近追加' : '名前順'}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function MineSwitch({ on, onChange }: { on: boolean; onChange: (next: boolean) => void }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      onClick={() => onChange(!on)}
-      className="flex items-center gap-2 group"
-    >
-      <span className="flex items-center gap-1 text-xs text-zinc-300 group-hover:text-white transition">
-        <User className="w-3 h-3" />
-        自分のみ
-      </span>
-      <span
-        className={`relative inline-block w-8 h-4 rounded-full transition-colors ${
-          on ? 'bg-green-500' : 'bg-zinc-700'
-        }`}
-      >
-        <span
-          className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-all ${
-            on ? 'left-[18px]' : 'left-0.5'
-          }`}
-        />
-      </span>
-    </button>
-  );
-}
-
 function ActivePill({
   icon,
   children,
@@ -311,122 +268,3 @@ function ActivePill({
   );
 }
 
-function SelectField({
-  icon,
-  ariaLabel,
-  value,
-  options,
-  onChange,
-}: {
-  icon: React.ReactNode;
-  ariaLabel: string;
-  value: string | null;
-  options: string[];
-  onChange: (next: string | null) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  // 外側クリック / Esc でクローズ
-  useEffect(() => {
-    if (!open) return;
-    const onPointerDown = (e: MouseEvent | TouchEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('touchstart', onPointerDown);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('touchstart', onPointerDown);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
-
-  const isActive = value !== null;
-  const displayValue = value ?? 'すべて';
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        aria-label={ariaLabel}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-        className={`w-full inline-flex items-center justify-between gap-1.5 rounded-full border text-xs px-3 py-2 transition ${
-          isActive
-            ? 'bg-green-500 border-green-500 text-black font-bold'
-            : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:border-zinc-500'
-        }`}
-      >
-        <span className="flex items-center gap-1.5 min-w-0">
-          <span className="flex-shrink-0">{icon}</span>
-          <span className="truncate">{displayValue}</span>
-        </span>
-        <ChevronDown
-          className={`w-3.5 h-3.5 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {open && (
-        <ul
-          role="listbox"
-          className="absolute left-0 right-0 top-full mt-1.5 z-20 rounded-2xl border border-zinc-700 bg-zinc-950 shadow-xl overflow-hidden py-1 max-h-56 overflow-y-auto [&::-webkit-scrollbar]:hidden"
-        >
-          <OptionItem
-            selected={value === null}
-            onClick={() => {
-              onChange(null);
-              setOpen(false);
-            }}
-          >
-            すべて
-          </OptionItem>
-          {options.map((opt) => (
-            <OptionItem
-              key={opt}
-              selected={value === opt}
-              onClick={() => {
-                onChange(opt);
-                setOpen(false);
-              }}
-            >
-              {opt}
-            </OptionItem>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-function OptionItem({
-  selected,
-  onClick,
-  children,
-}: {
-  selected: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <li role="option" aria-selected={selected}>
-      <button
-        type="button"
-        onClick={onClick}
-        className={`w-full flex items-center justify-between gap-2 text-left text-xs px-3 py-2 transition ${
-          selected ? 'bg-green-500/15 text-green-400 font-bold' : 'text-zinc-200 hover:bg-zinc-800'
-        }`}
-      >
-        <span className="truncate">{children}</span>
-        {selected && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
-      </button>
-    </li>
-  );
-}

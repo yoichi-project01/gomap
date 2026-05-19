@@ -51,7 +51,8 @@
       "Bash(echo \"tsc=$?\")",
       "Bash(echo \"eslint=$?\")",
       "Bash(echo \"build=$?\")",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(git stash *)"
     ]
   }
 }
