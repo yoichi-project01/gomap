@@ -26,6 +26,7 @@ export type PlaceList = {
   creatorName?: string;   // profiles.display_name (表示用)
   likes?: number;
   coverImageUrl?: string;
+  isPublic?: boolean;     // true = 公開 (デフォルト), false = 作成者のみ閲覧可
   createdAt?: string;
   spots: Spot[];
 };
