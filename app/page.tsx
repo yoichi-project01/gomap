@@ -5,7 +5,8 @@ import FilteredResults from '@/components/home/FilteredResults';
 import AddPlaceListButton from '@/components/home/AddPlaceListButton';
 import { fetchRecentLikeCounts, listPlaceLists } from '@/lib/server/placeLists';
 import { listSavedPlaceLists } from '@/lib/server/saves';
-import { supabase } from '@/lib/server/supabase';
+import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
+import { supabase as adminClient } from '@/lib/server/supabase';
 import { filterPlaceLists, hasActiveFilters, parseFilters } from '@/lib/filter/placeLists';
 
 const FEATURED_WINDOW_DAYS = 30;
@@ -19,7 +20,9 @@ export default async function HomeDashboard({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const placeLists = await listPlaceLists(supabase);
+  // 通常データはユーザースコープ (place_lists / profiles ともに SELECT は select_all)
+  const userClient = await createSupabaseServerClient();
+  const placeLists = await listPlaceLists(userClient);
   const savedPlaceLists = await listSavedPlaceLists();
   const filters = parseFilters(await searchParams);
   const filtering = hasActiveFilters(filters);
@@ -28,7 +31,8 @@ export default async function HomeDashboard({
   const byRanking = [...placeLists].sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
 
   // 注目: 直近 FEATURED_WINDOW_DAYS 日のいいね数の多い順(同数なら累計で安定化)
-  const recentLikeCounts = await fetchRecentLikeCounts(supabase, FEATURED_WINDOW_DAYS);
+  // place_list_likes の SELECT は select_own のみ。匿名/全ユーザー集計には service_role が必要。
+  const recentLikeCounts = await fetchRecentLikeCounts(adminClient, FEATURED_WINDOW_DAYS);
   const featured = [...placeLists].sort((a, b) => {
     const diff = (recentLikeCounts.get(b.id) ?? 0) - (recentLikeCounts.get(a.id) ?? 0);
     return diff !== 0 ? diff : (b.likes ?? 0) - (a.likes ?? 0);

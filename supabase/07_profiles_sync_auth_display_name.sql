@@ -2,13 +2,13 @@
 -- Gomap: profiles.display_name を auth.users.raw_user_meta_data の表示名と
 -- 同期する
 -- =====================================================================
--- これまでサインアップ時の display_name は email の @ より前を使っていた。
 -- 本マイグレーションで、auth.users 側の表示名をソース・オブ・トゥルースに
 -- 切り替える。
 --
 -- Supabase ダッシュボードの "Display Name" 列は raw_user_meta_data->>'name'
 -- に保存される (display_name キーではない)。互換のため両方をフォールバック
--- 候補とする: name → display_name → email の @ 前 → '匿名ユーザー'
+-- 候補とする: name → display_name → '匿名ユーザー'
+-- (メアドのローカル部はプライバシー上の理由でフォールバックに含めない)
 --
 -- * 新規サインアップ時:   auth metadata → profiles に転記 (handle_new_user)
 -- * auth metadata 更新時: profiles に追従 (handle_user_metadata_update)
@@ -31,7 +31,6 @@ begin
     coalesce(
       nullif(trim(new.raw_user_meta_data->>'name'), ''),
       nullif(trim(new.raw_user_meta_data->>'display_name'), ''),
-      nullif(split_part(new.email, '@', 1), ''),
       '匿名ユーザー'
     )
   )
@@ -55,7 +54,6 @@ begin
        set display_name = coalesce(
              nullif(trim(new.raw_user_meta_data->>'name'), ''),
              nullif(trim(new.raw_user_meta_data->>'display_name'), ''),
-             nullif(split_part(new.email, '@', 1), ''),
              '匿名ユーザー'
            )
      where id = new.id;

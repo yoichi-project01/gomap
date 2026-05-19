@@ -5,7 +5,7 @@ import PlaceListMapWrapper from '@/components/PlaceListMapWrapper';
 import CollectionActions from '@/components/collection/CollectionActions';
 import PlaceListViewTracker from '@/components/placelists/PlaceListViewTracker';
 import { getPlaceListById } from '@/lib/server/placeLists';
-import { isPlaceListLiked } from '@/lib/server/likes';
+import { isPlaceListLiked, countPlaceListLikes } from '@/lib/server/likes';
 import { isPlaceListSaved } from '@/lib/server/saves';
 import { supabase } from '@/lib/server/supabase';
 
@@ -19,10 +19,11 @@ type Props = {
 
 export default async function PlaceListDetailPage({ params }: Props) {
   const { id } = await params;
-  const [placeList, liked, saved] = await Promise.all([
+  const [placeList, liked, saved, likesCount] = await Promise.all([
     getPlaceListById(supabase, id),
     isPlaceListLiked(id),
     isPlaceListSaved(id),
+    countPlaceListLikes(id),
   ]);
   if (!placeList) notFound();
 
@@ -61,7 +62,7 @@ export default async function PlaceListDetailPage({ params }: Props) {
           placeListId={placeList.id}
           initialLiked={liked}
           initialSaved={saved}
-          initialLikesCount={placeList.likes ?? 0}
+          initialLikesCount={likesCount}
           mapAnchorId={MAP_ANCHOR_ID}
         />
 

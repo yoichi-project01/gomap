@@ -6,6 +6,7 @@ import { Pencil } from "lucide-react"
 import SpotMiniMapWrapper from "@/components/SpotMiniMapWrapper"
 import type { PlaceList } from "@/types/spot"
 import { deletePlaceList } from "@/lib/client/placeLists"
+import { formatJstDate } from "@/lib/format"
 
 type Props = {
   initialPlaceLists: PlaceList[]
@@ -92,7 +93,7 @@ export default function MyPlaceListsView({ initialPlaceLists }: Props) {
                     </p>
                     <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                       スポット {placeList.spots.length}件
-                      {placeList.createdAt ? ` · ${placeList.createdAt.slice(0, 10)}` : ""}
+                      {placeList.createdAt ? ` · ${formatJstDate(placeList.createdAt)}` : ""}
                     </p>
                     <p className="text-xs text-zinc-300 dark:text-zinc-600 mt-0.5 truncate">{placeList.description}</p>
                   </Link>

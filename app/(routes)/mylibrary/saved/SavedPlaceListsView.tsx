@@ -7,6 +7,7 @@ import { ChevronRight } from "lucide-react"
 import SpotMiniMapWrapper from "@/components/SpotMiniMapWrapper"
 import type { SavedPlaceList } from "@/lib/server/saves"
 import { togglePlaceListSaveAction } from "@/app/actions/saves"
+import { formatJstDate } from "@/lib/format"
 
 type Props = {
   initialPlaceLists: SavedPlaceList[]
@@ -79,7 +80,7 @@ export default function SavedPlaceListsView({ initialPlaceLists }: Props) {
                   {placeList.description}
                 </p>
                 <p className="text-zinc-400 dark:text-zinc-500 text-xs mt-2 font-medium">
-                  📍 {placeList.spots.length}件のスポット · 保存日: {placeList.savedAt.slice(0, 10)}
+                  📍 {placeList.spots.length}件のスポット · 保存日: {formatJstDate(placeList.savedAt)}
                 </p>
               </Link>
               <button

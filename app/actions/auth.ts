@@ -97,11 +97,30 @@ export async function forgotPasswordAction(
   return { message: 'パスワード再設定用のリンクをメールで送信しました（登録済みアドレスの場合）。' };
 }
 
-export async function deleteAccountAction(): Promise<{ error?: string } | void> {
+// アカウント削除。誤操作と盗難端末からの即時削除を防ぐため、
+//   1) 現在のパスワードでの再認証
+//   2) クライアント側で確認文字列入力 (UI レイヤ)
+// の二重ゲートを通すこと。
+export async function deleteAccountAction(
+  password: string,
+): Promise<{ error?: string } | void> {
+  if (typeof password !== 'string' || !password) {
+    return { error: '現在のパスワードを入力してください。' };
+  }
+
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  if (!user || !user.email) {
     redirect('/login');
+  }
+
+  // 現在のパスワードで再認証 (誤入力は失敗、成功で本人確認とみなす)
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password,
+  });
+  if (verifyError) {
+    return { error: '現在のパスワードが正しくありません。' };
   }
 
   // service_role でユーザー削除
@@ -141,4 +160,62 @@ export async function updatePasswordAction(
 
   revalidatePath('/', 'layout');
   redirect('/');
+}
+
+// 設定画面からのパスワード変更。
+// /auth/update-password (リカバリーメール経由) と違い、現在のパスワードによる再認証を要求する。
+//   - 現在のパスワード必須 (Supabase は signInWithPassword で検証)
+//   - 新パスワードは 6 文字以上 (リカバリーフローと統一)
+//   - 新パスワードと確認入力が一致
+//   - 現在のパスワードと同一は禁止
+//   - 変更成功時、他デバイスのセッションをサインアウト (scope: 'others') して乗っ取り耐性を高める
+export async function changePasswordAction(
+  _prev: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
+  const currentPassword = formData.get('currentPassword');
+  const newPassword     = formData.get('newPassword');
+  const confirmPassword = formData.get('confirmPassword');
+
+  if (typeof currentPassword !== 'string' || !currentPassword) {
+    return { error: '現在のパスワードを入力してください。' };
+  }
+  if (typeof newPassword !== 'string' || newPassword.length < 6) {
+    return { error: '新しいパスワードは 6 文字以上にしてください。' };
+  }
+  if (typeof confirmPassword !== 'string' || newPassword !== confirmPassword) {
+    return { error: '新しいパスワード(確認)が一致しません。' };
+  }
+  if (currentPassword === newPassword) {
+    return { error: '新しいパスワードは現在と異なるものにしてください。' };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || !user.email) {
+    return { error: 'ログインが必要です。' };
+  }
+
+  // 現在のパスワードで再認証 (失敗で攻撃シグナルになるので汎用メッセージにする)
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+  if (verifyError) {
+    return { error: '現在のパスワードが正しくありません。' };
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({ password: newPassword });
+  if (updateError) {
+    return { error: updateError.message };
+  }
+
+  // 別デバイス・別ブラウザのセッションを失効させる (現セッションは維持)
+  try {
+    await supabase.auth.signOut({ scope: 'others' });
+  } catch (e) {
+    console.error('[changePasswordAction] signOut others failed', e);
+  }
+
+  return { message: 'パスワードを変更しました。他のデバイスからは再ログインが必要です。' };
 }

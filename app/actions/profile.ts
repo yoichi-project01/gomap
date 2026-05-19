@@ -34,6 +34,12 @@ export async function updateDisplayNameAction(
     return { error: '表示名の保存に失敗しました' };
   }
 
-  // 共有プレイスリスト・コレクション・ヘッダなど、表示名を出すページ全部
-  revalidatePath('/', 'layout');
+  // 表示名を SSR で読み出している画面のみピンポイントで再検証
+  //   /              … HomeHeader (本人アバター) + placelist カードの creator 名
+  //   /mypage        … プロフィールカード
+  //   /placelists/[id] … 詳細ページの creator 名
+  // /mylibrary/* は force-dynamic で毎回再描画されるため明示不要。
+  revalidatePath('/');
+  revalidatePath('/mypage');
+  revalidatePath('/placelists/[id]', 'page');
 }
