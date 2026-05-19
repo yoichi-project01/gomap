@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Send } from "lucide-react";
-
-const RECIPIENT = "corelift.system@gmail.com";
+import { Send, CheckCircle } from "lucide-react";
+import { submitFeedbackAction } from "@/app/actions/feedback";
 
 const CATEGORIES = [
   { value: "bug", label: "バグ報告" },
@@ -17,17 +16,44 @@ export default function FeedbackForm() {
   const [category, setCategory] = useState<string>(CATEGORIES[0].value);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const trimmedSubject = subject.trim();
   const trimmedBody = body.trim();
-  const canSend = trimmedSubject.length > 0 && trimmedBody.length > 0;
+  const canSend = trimmedSubject.length > 0 && trimmedBody.length > 0 && status !== "sending";
 
-  function handleSend() {
+  async function handleSend() {
     if (!canSend) return;
-    const categoryLabel = CATEGORIES.find((c) => c.value === category)?.label ?? "";
-    const mailSubject = `[Gomap/${categoryLabel}] ${trimmedSubject}`;
-    const href = `mailto:${RECIPIENT}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(trimmedBody)}`;
-    window.location.href = href;
+    setStatus("sending");
+    setErrorMessage(null);
+
+    const result = await submitFeedbackAction({
+      category,
+      subject: trimmedSubject,
+      body: trimmedBody,
+    });
+
+    if (result.ok) {
+      setStatus("done");
+    } else {
+      setStatus("error");
+      setErrorMessage(result.message);
+    }
+  }
+
+  if (status === "done") {
+    return (
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8 flex flex-col items-center gap-4 text-center">
+        <CheckCircle className="w-12 h-12 text-green-500" />
+        <p className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+          フィードバックを送信しました
+        </p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          ご意見ありがとうございます。今後の改善に活かします。
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -87,6 +113,10 @@ export default function FeedbackForm() {
         </p>
       </div>
 
+      {status === "error" && (
+        <p className="text-xs text-red-500 text-center">{errorMessage ?? "送信に失敗しました。もう一度お試しください。"}</p>
+      )}
+
       <button
         type="button"
         onClick={handleSend}
@@ -94,12 +124,8 @@ export default function FeedbackForm() {
         className="w-full flex items-center justify-center gap-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold py-3 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
       >
         <Send className="w-4 h-4" />
-        メールアプリで送る
+        {status === "sending" ? "送信中..." : "送信する"}
       </button>
-
-      <p className="text-xs text-zinc-400 dark:text-zinc-500 text-center">
-        送信先: {RECIPIENT}
-      </p>
     </div>
   );
 }

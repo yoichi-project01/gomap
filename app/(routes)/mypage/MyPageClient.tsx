@@ -407,25 +407,6 @@ export default function MyPageClient({
           </div>
         )}
 
-        {/* スポット */}
-        <div>
-          <SectionTitle>スポット</SectionTitle>
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-            <NavRow label="登録したスポット"     href="/mypage/spots" />
-            <NavRow label="お気に入りスポット"   href="/mypage/favorites" />
-          </div>
-        </div>
-
-        {/* プレイスリスト (= マイライブラリ) */}
-        <div>
-          <SectionTitle>プレイスリスト</SectionTitle>
-          <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-            <NavRow label="登録したプレイスリスト"     href="/mylibrary/placelists" />
-            <NavRow label="保存したプレイスリスト"     href="/mylibrary/saved" />
-            <NavRow label="いいねしたプレイスリスト"   href="/mylibrary/likes" />
-          </div>
-        </div>
-
         {/* 外観 */}
         <div>
           <SectionTitle>外観</SectionTitle>

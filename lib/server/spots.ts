@@ -14,6 +14,7 @@ type SpotRow = {
   creator: string | null;
   source: SpotSource | null;
   cover_image_url: string | null;
+  likes_count?: number;
   created_at: string;
   updated_at: string;
 };
@@ -32,6 +33,7 @@ function rowToSpot(row: SpotRow): Spot {
     coverImageUrl: row.cover_image_url ?? undefined,
     createdAt: row.created_at,
     createdBy: row.creator ?? undefined,
+    likesCount: (row as { likes_count?: number }).likes_count ?? 0,
   };
 }
 

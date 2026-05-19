@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { LayoutList, Library, Heart, ChevronRight } from 'lucide-react';
+import { LayoutList, Library, Heart, MapPin, ChevronRight } from 'lucide-react';
 import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
 import { countPlaceListsByCreator } from '@/lib/server/placeLists';
 import { countSaved } from '@/lib/server/saves';
 import { countLiked } from '@/lib/server/likes';
+import { countLikedSpots } from '@/lib/server/spotLikes';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,10 +14,11 @@ export default async function MyLibraryPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const [createdCount, savedCount, likedCount] = await Promise.all([
+  const [createdCount, savedCount, likedCount, likedSpotsCount] = await Promise.all([
     countPlaceListsByCreator(supabase, user.id),
     countSaved(user.id),
     countLiked(user.id),
+    countLikedSpots(),
   ]);
 
   const menuItems = [
@@ -37,6 +39,12 @@ export default async function MyLibraryPage() {
       icon: <Heart className="w-6 h-6 text-red-500" />,
       label: 'いいねしたプレイスリスト',
       count: likedCount,
+    },
+    {
+      href: '/mylibrary/liked-spots',
+      icon: <MapPin className="w-6 h-6 text-orange-500" />,
+      label: 'いいねしたスポット',
+      count: likedSpotsCount,
     },
   ];
 

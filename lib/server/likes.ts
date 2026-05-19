@@ -25,7 +25,10 @@ export async function isPlaceListLiked(placeListId: string): Promise<boolean> {
     .eq("user_id", user.id)
     .maybeSingle()
 
-  if (error) throw wrapPostgrestError("isPlaceListLiked", error)
+  if (error) {
+    console.error("isPlaceListLiked error:", error)
+    return false
+  }
   return data !== null
 }
 

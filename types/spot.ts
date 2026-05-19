@@ -14,6 +14,7 @@ export type Spot = {
   coverImageUrl?: string;
   createdAt?: string;
   createdBy?: string;
+  likesCount?: number;
 };
 
 export type PlaceList = {

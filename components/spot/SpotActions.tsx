@@ -2,8 +2,9 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Heart, Navigation, Share2 } from "lucide-react"
+import { Heart, Star, Navigation, Share2 } from "lucide-react"
 import { toggleFavoriteAction } from "@/app/actions/favorites"
+import { toggleSpotLikeAction } from "@/app/actions/spotLikes"
 
 type Props = {
   spotId: string
@@ -11,15 +12,20 @@ type Props = {
   lat: number
   lng: number
   initialFavorited: boolean
+  initialLiked: boolean
+  likeCount: number
 }
 
 const FEEDBACK_DURATION = 2000
 
-export default function SpotActions({ spotId, name, lat, lng, initialFavorited }: Props) {
+export default function SpotActions({ spotId, name, lat, lng, initialFavorited, initialLiked, likeCount }: Props) {
   const router = useRouter()
   const [feedback, setFeedback] = useState<string | null>(null)
   const [favorited, setFavorited] = useState(initialFavorited)
-  const [isPending, startTransition] = useTransition()
+  const [liked, setLiked] = useState(initialLiked)
+  const [displayLikeCount, setDisplayLikeCount] = useState(likeCount)
+  const [isFavPending, startFavTransition] = useTransition()
+  const [isLikePending, startLikeTransition] = useTransition()
 
   const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
 
@@ -52,7 +58,7 @@ export default function SpotActions({ spotId, name, lat, lng, initialFavorited }
   function handleFavorite() {
     const next = !favorited
     setFavorited(next)
-    startTransition(async () => {
+    startFavTransition(async () => {
       const result = await toggleFavoriteAction(spotId)
       if (!result.ok) {
         setFavorited(!next)
@@ -61,9 +67,25 @@ export default function SpotActions({ spotId, name, lat, lng, initialFavorited }
         } else {
           flash(result.message ?? "操作に失敗しました")
         }
-        return
       }
-      router.refresh()
+    })
+  }
+
+  function handleLike() {
+    const next = !liked
+    setLiked(next)
+    setDisplayLikeCount((c) => c + (next ? 1 : -1))
+    startLikeTransition(async () => {
+      const result = await toggleSpotLikeAction(spotId)
+      if (!result.ok) {
+        setLiked(!next)
+        setDisplayLikeCount((c) => c + (next ? -1 : 1))
+        if (result.reason === "unauthenticated") {
+          router.push("/login")
+        } else {
+          flash(result.message ?? "操作に失敗しました")
+        }
+      }
     })
   }
 
@@ -78,20 +100,40 @@ export default function SpotActions({ spotId, name, lat, lng, initialFavorited }
       >
         <Navigation className="w-6 h-6 fill-black" />
       </a>
+
       <button
         type="button"
-        onClick={handleFavorite}
-        disabled={isPending}
-        aria-label={favorited ? "お気に入りから外す" : "お気に入りに追加"}
-        aria-pressed={favorited}
-        className={`transition disabled:opacity-50 ${
-          favorited
+        onClick={handleLike}
+        disabled={isLikePending}
+        aria-label={liked ? "いいねを取り消す" : "いいね"}
+        aria-pressed={liked}
+        className={`flex items-center gap-1 transition disabled:opacity-50 ${
+          liked
             ? "text-red-500 hover:text-red-400"
             : "text-zinc-400 dark:text-gray-400 hover:text-zinc-700 dark:hover:text-white"
         }`}
       >
-        <Heart className="w-8 h-8" fill={favorited ? "currentColor" : "none"} />
+        <Heart className="w-8 h-8" fill={liked ? "currentColor" : "none"} />
+        {displayLikeCount > 0 && (
+          <span className="text-sm font-semibold">{displayLikeCount}</span>
+        )}
       </button>
+
+      <button
+        type="button"
+        onClick={handleFavorite}
+        disabled={isFavPending}
+        aria-label={favorited ? "お気に入りから外す" : "お気に入りに追加"}
+        aria-pressed={favorited}
+        className={`transition disabled:opacity-50 ${
+          favorited
+            ? "text-yellow-400 hover:text-yellow-300"
+            : "text-zinc-400 dark:text-gray-400 hover:text-zinc-700 dark:hover:text-white"
+        }`}
+      >
+        <Star className="w-7 h-7" fill={favorited ? "currentColor" : "none"} />
+      </button>
+
       <button
         type="button"
         onClick={handleShare}
@@ -100,6 +142,7 @@ export default function SpotActions({ spotId, name, lat, lng, initialFavorited }
       >
         <Share2 className="w-7 h-7" />
       </button>
+
       {feedback && (
         <span className="text-xs text-zinc-500 dark:text-zinc-400 ml-1" role="status">
           {feedback}
