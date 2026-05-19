@@ -50,7 +50,8 @@
       "Bash(echo \"eslint_exit=$?\")",
       "Bash(echo \"tsc=$?\")",
       "Bash(echo \"eslint=$?\")",
-      "Bash(echo \"build=$?\")"
+      "Bash(echo \"build=$?\")",
+      "Bash(git commit *)"
     ]
   }
 }
