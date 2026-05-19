@@ -71,24 +71,22 @@ export async function listFavoriteSpots(): Promise<FavoriteSpot[]> {
   }
   const spotById = new Map((spotsData ?? []).map((s) => [s.id, s as SpotData]))
 
-  return favRows
-    .map((r) => {
-      const spot = spotById.get(r.spot_id as string)
-      if (!spot) return null
-      return {
-        id: spot.id,
-        name: spot.name,
-        description: spot.description ?? undefined,
-        lat: spot.lat,
-        lng: spot.lng,
-        prefecture: spot.prefecture ?? undefined,
-        category: spot.category ?? undefined,
-        creator: spot.creator ?? undefined,
-        source: spot.source ?? "user",
-        coverImageUrl: spot.cover_image_url ?? undefined,
-        createdAt: spot.created_at,
-        favoritedAt: r.created_at as string,
-      }
-    })
-    .filter((v): v is FavoriteSpot => v !== null)
+  return favRows.flatMap((r): FavoriteSpot[] => {
+    const spot = spotById.get(r.spot_id as string)
+    if (!spot) return []
+    return [{
+      id: spot.id,
+      name: spot.name,
+      description: spot.description ?? undefined,
+      lat: spot.lat,
+      lng: spot.lng,
+      prefecture: spot.prefecture ?? undefined,
+      category: spot.category ?? undefined,
+      creator: spot.creator ?? undefined,
+      source: spot.source ?? "user",
+      coverImageUrl: spot.cover_image_url ?? undefined,
+      createdAt: spot.created_at,
+      favoritedAt: r.created_at as string,
+    }]
+  })
 }

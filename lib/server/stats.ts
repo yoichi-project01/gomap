@@ -25,7 +25,7 @@ export async function getUserStats(
   client: SupabaseClient,
   userId: string,
 ): Promise<UserStats> {
-  const [placeListsRes, favoritesRes, likesRows] = await Promise.all([
+  const [placeListsRes, favoritesRes, userListsRes] = await Promise.all([
     client
       .from("place_lists")
       .select("id", { count: "exact", head: true })
@@ -36,18 +36,25 @@ export async function getUserStats(
       .eq("user_id", userId),
     client
       .from("place_lists")
-      .select("likes_count")
+      .select("id")
       .eq("creator", userId),
   ]);
 
   if (placeListsRes.error) throw placeListsRes.error;
   if (favoritesRes.error)  throw favoritesRes.error;
-  if (likesRows.error)     throw likesRows.error;
+  if (userListsRes.error)  throw userListsRes.error;
 
-  const likesReceived = (likesRows.data ?? []).reduce(
-    (sum, row) => sum + (row.likes_count ?? 0),
-    0,
-  );
+  // likes_count の非正規化カラムではなく place_list_likes を直接カウント
+  let likesReceived = 0;
+  const listIds = (userListsRes.data ?? []).map((r: { id: string }) => r.id);
+  if (listIds.length > 0) {
+    const { count, error } = await client
+      .from("place_list_likes")
+      .select("place_list_id", { count: "exact", head: true })
+      .in("place_list_id", listIds);
+    if (error) throw error;
+    likesReceived = count ?? 0;
+  }
 
   return {
     placeListsCount: placeListsRes.count ?? 0,
