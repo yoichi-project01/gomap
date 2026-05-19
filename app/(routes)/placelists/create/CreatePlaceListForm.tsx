@@ -207,10 +207,17 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
                     </div>
                     <div>
                       <h3 className="font-bold text-sm text-white">{spot.name}</h3>
-                      <p className="text-xs text-zinc-400 flex items-center gap-1 mt-0.5">
-                        <MapPin className="w-3 h-3" />
-                        {spot.description ?? ''}
-                      </p>
+                      <div className="flex flex-col gap-0.5 mt-0.5">
+                        {spot.prefecture && (
+                          <span className="text-xs text-green-400 flex items-center gap-1">
+                            <MapPin className="w-3 h-3 flex-shrink-0" />
+                            {spot.prefecture}
+                          </span>
+                        )}
+                        {spot.description && (
+                          <p className="text-xs text-zinc-400">{spot.description}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <button
@@ -271,9 +278,17 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
                       </div>
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-white truncate">{spot.name}</p>
-                        <p className="text-xs text-zinc-400 truncate">
-                          {spot.description ?? ''}
-                        </p>
+                        <div className="flex flex-col gap-0.5 mt-0.5">
+                          {spot.prefecture && (
+                            <span className="text-xs text-green-400 flex items-center gap-0.5">
+                              <MapPin className="w-3 h-3 flex-shrink-0" />
+                              {spot.prefecture}
+                            </span>
+                          )}
+                          {spot.description && (
+                            <p className="text-xs text-zinc-400 truncate">{spot.description}</p>
+                          )}
+                        </div>
                       </div>
                       <Plus className="w-4 h-4 text-zinc-400 flex-shrink-0 ml-auto" />
                     </button>
