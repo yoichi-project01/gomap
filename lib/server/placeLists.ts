@@ -22,6 +22,7 @@ type PlaceListRow = {
   cover_image_url: string | null;
   creator: string | null;
   likes_count: number;
+  is_public: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -66,6 +67,7 @@ function rowToPlaceList(
     creatorName: row.creator ? nameByCreator.get(row.creator) : undefined,
     likes: row.likes_count,
     coverImageUrl: row.cover_image_url ?? undefined,
+    isPublic: row.is_public,
     createdAt: row.created_at,
     spots: sortedSpots,
   };
@@ -148,6 +150,7 @@ export type CreatePlaceListInput = {
   category?: string;
   creator: string; // auth.users.id (uuid)
   coverImageUrl?: string;
+  isPublic?: boolean; // 省略時は true (公開)
   spotIds: string[];
 };
 
@@ -163,6 +166,7 @@ export async function createPlaceList(
       category: input.category ?? null,
       creator: input.creator,
       cover_image_url: input.coverImageUrl ?? null,
+      is_public: input.isPublic ?? true,
     })
     .select("id")
     .single();
@@ -231,6 +235,7 @@ export type UpdatePlaceListInput = {
   description?: string;
   category?: string;
   coverImageUrl?: string;
+  isPublic?: boolean; // 省略時は true (公開)
   spotIds: string[];
 };
 
@@ -246,6 +251,7 @@ export async function updatePlaceList(
       description: input.description ?? null,
       category: input.category ?? null,
       cover_image_url: input.coverImageUrl ?? null,
+      is_public: input.isPublic ?? true,
     })
     .eq("id", id)
     .select("id");

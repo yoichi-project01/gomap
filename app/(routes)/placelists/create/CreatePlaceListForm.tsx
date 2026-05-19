@@ -2,27 +2,29 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, Plus, MapPin, X, Search } from 'lucide-react';
+import { ChevronLeft, Plus, MapPin, X, Globe, Lock } from 'lucide-react';
 import type { Spot } from '@/types/spot';
 import { createPlaceList } from '@/lib/client/placeLists';
 import { createSpot, deleteSpot } from '@/lib/client/spots';
 import CoverImageUploader from '@/components/ui/CoverImageUploader';
 import LocationSearchModal from '@/components/spot/LocationSearchModal';
+import SpotPicker from '@/components/placelists/SpotPicker';
 import type { PlaceSearchResult } from '@/app/api/places/search/route';
 
 type Props = {
   availableSpots: Spot[];
+  currentUserId: string | null;
 };
 
 const CATEGORIES = ['観光', 'グルメ', 'カフェ', '自然', 'ショッピング', 'その他'];
 
-export default function CreatePlaceListForm({ availableSpots }: Props) {
+export default function CreatePlaceListForm({ availableSpots, currentUserId }: Props) {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<string>('');
+  const [isPublic, setIsPublic] = useState(true);
   const [selectedSpots, setSelectedSpots] = useState<Spot[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [mapSearchOpen, setMapSearchOpen] = useState(false);
   const [isAddingMapPlace, setIsAddingMapPlace] = useState(false);
@@ -33,17 +35,8 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
   // ユーザーが削除/キャンセルした際にオーファンを残さないよう、DB からも消す。
   const sessionMapRefIds = useRef<Set<string>>(new Set());
 
-  const filteredSpots = availableSpots.filter(
-    (spot) =>
-      !selectedSpots.some((s) => s.id === spot.id) &&
-      (searchQuery === '' ||
-        spot.name.includes(searchQuery) ||
-        (spot.description ?? '').includes(searchQuery))
-  );
-
   const addSpot = (spot: Spot) => {
     setSelectedSpots((prev) => [...prev, spot]);
-    setSearchQuery('');
   };
 
   const removeSpot = (id: string) => {
@@ -110,6 +103,7 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
         category: category || undefined,
         spotIds: selectedSpots.map((s) => s.id),
         coverImageUrl: cover?.url,
+        isPublic,
       });
       // 保存に成功したセッションでは、追加したが使わなかった map_ref があれば掃除する
       await cleanupUnsavedMapRefs();
@@ -141,7 +135,7 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
         </button>
       </header>
 
-      <main className="px-4 mt-8 max-w-md mx-auto flex flex-col gap-8">
+      <main className="px-4 mt-8 max-w-md md:max-w-2xl lg:max-w-4xl mx-auto flex flex-col gap-8">
         <CoverImageUploader value={cover} onChange={setCover} className="mx-auto" />
 
         <div className="flex flex-col gap-4">
@@ -182,6 +176,39 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
               );
             })}
           </div>
+        </div>
+
+        <div>
+          <h2 className="text-sm font-bold text-zinc-300 mb-3">公開設定</h2>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setIsPublic(true)}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-xs transition ${
+                isPublic
+                  ? 'bg-green-500 border-green-500 text-black font-bold'
+                  : 'border-zinc-700 text-zinc-300 hover:border-zinc-500'
+              }`}
+            >
+              <Globe className="w-4 h-4" />
+              公開
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsPublic(false)}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-xs transition ${
+                !isPublic
+                  ? 'bg-green-500 border-green-500 text-black font-bold'
+                  : 'border-zinc-700 text-zinc-300 hover:border-zinc-500'
+              }`}
+            >
+              <Lock className="w-4 h-4" />
+              非公開
+            </button>
+          </div>
+          <p className="text-xs text-zinc-500 mt-2">
+            {isPublic ? '誰でもこのプレイスリストを閲覧できます' : '自分だけがこのプレイスリストを閲覧できます'}
+          </p>
         </div>
 
         <div className="mt-2">
@@ -242,45 +269,12 @@ export default function CreatePlaceListForm({ availableSpots }: Props) {
           </div>
 
           {showSearch && (
-            <div className="mt-4 bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-800">
-                <Search className="w-4 h-4 text-zinc-400 flex-shrink-0" />
-                <input
-                  type="text"
-                  placeholder="スポット名で検索"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  autoFocus
-                  className="flex-1 bg-transparent text-sm text-white placeholder-zinc-500 outline-none"
-                />
-              </div>
-              <div className="max-h-64 overflow-y-auto [&::-webkit-scrollbar]:hidden">
-                {filteredSpots.length === 0 ? (
-                  <p className="text-xs text-zinc-500 text-center py-6">
-                    {searchQuery ? '該当するスポットがありません' : 'すべて追加済みです'}
-                  </p>
-                ) : (
-                  filteredSpots.map((spot) => (
-                    <button
-                      key={spot.id}
-                      onClick={() => addSpot(spot)}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-800 transition text-left"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-4 h-4 text-green-500" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-bold text-white truncate">{spot.name}</p>
-                        <p className="text-xs text-zinc-400 truncate">
-                          {spot.description ?? ''}
-                        </p>
-                      </div>
-                      <Plus className="w-4 h-4 text-zinc-400 flex-shrink-0 ml-auto" />
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
+            <SpotPicker
+              availableSpots={availableSpots}
+              selectedSpots={selectedSpots}
+              currentUserId={currentUserId}
+              onAdd={addSpot}
+            />
           )}
         </div>
       </main>

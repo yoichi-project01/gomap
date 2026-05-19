@@ -28,7 +28,7 @@ export async function PUT(req: NextRequest, { params }: Context) {
     return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
   }
 
-  let body: { name?: string; description?: string; category?: string; coverImageUrl?: string; spotIds?: string[] };
+  let body: { name?: string; description?: string; category?: string; coverImageUrl?: string; isPublic?: unknown; spotIds?: string[] };
   try {
     body = await req.json();
   } catch {
@@ -42,6 +42,9 @@ export async function PUT(req: NextRequest, { params }: Context) {
   if (!Array.isArray(spotIds) || spotIds.length === 0) {
     return NextResponse.json({ error: "spotIdsは1件以上必要です" }, { status: 400 });
   }
+  if (body.isPublic !== undefined && typeof body.isPublic !== "boolean") {
+    return NextResponse.json({ error: "isPublic は boolean で指定してください" }, { status: 400 });
+  }
 
   try {
     const updated = await updatePlaceList(authed, id, {
@@ -49,6 +52,7 @@ export async function PUT(req: NextRequest, { params }: Context) {
       description: body.description,
       category: body.category,
       coverImageUrl: body.coverImageUrl,
+      isPublic: body.isPublic as boolean | undefined,
       spotIds,
     });
     if (!updated) {

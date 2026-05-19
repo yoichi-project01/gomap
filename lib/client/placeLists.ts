@@ -10,6 +10,7 @@ export type CreatePlaceListInput = {
   category?: string;
   creator?: string;
   coverImageUrl?: string;
+  isPublic?: boolean;
 };
 
 export async function getPlaceLists(): Promise<PlaceList[]> {
@@ -40,6 +41,7 @@ export type UpdatePlaceListInput = {
   description?: string;
   category?: string;
   coverImageUrl?: string;
+  isPublic?: boolean;
 };
 
 export async function updatePlaceList(id: string, input: UpdatePlaceListInput): Promise<PlaceList> {

@@ -40,12 +40,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const rawIsPublic = (body as { isPublic?: unknown }).isPublic;
+  if (rawIsPublic !== undefined && typeof rawIsPublic !== "boolean") {
+    return NextResponse.json({ error: "isPublic は boolean で指定してください" }, { status: 400 });
+  }
+
   const input = body as {
     name: string;
     spotIds: string[];
     description?: string;
     category?: string;
     coverImageUrl?: string;
+    isPublic?: boolean;
   };
 
   try {

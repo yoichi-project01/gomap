@@ -38,9 +38,11 @@ export default async function EditPlaceListPage({ params }: Props) {
       initialTitle={placeList.name}
       initialDescription={placeList.description ?? ''}
       initialCategory={placeList.category ?? ''}
+      initialIsPublic={placeList.isPublic ?? true}
       initialCover={initialCover}
       initialSpots={placeList.spots}
       availableSpots={availableSpots}
+      currentUserId={user.id}
     />
   );
 }
