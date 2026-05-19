@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, MapPin, X } from 'lucide-react';
+import { ChevronLeft, MapPin, Tag, X } from 'lucide-react';
 import LocationSearchModal from '@/components/spot/LocationSearchModal';
 import CoverImageUploader from '@/components/ui/CoverImageUploader';
+import SelectField from '@/components/ui/SelectField';
 import type { PlaceSearchResult } from '@/app/api/places/search/route';
 import { createSpot } from '@/lib/client/spots';
 
@@ -22,7 +23,7 @@ export default function CreateSpotPage() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<string>('');
+  const [category, setCategory] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [cover, setCover] = useState<{ url: string; path: string } | null>(null);
   const [location, setLocation] = useState<SelectedLocation | null>(null);
@@ -87,7 +88,7 @@ export default function CreateSpotPage() {
         </button>
       </header>
 
-      <main className="px-4 mt-8 max-w-md mx-auto flex flex-col gap-8">
+      <main className="px-4 mt-8 max-w-md md:max-w-2xl lg:max-w-4xl mx-auto flex flex-col gap-8">
         <CoverImageUploader value={cover} onChange={setCover} className="mx-auto" />
 
         <div className="flex flex-col gap-4">
@@ -109,25 +110,14 @@ export default function CreateSpotPage() {
 
         <div>
           <h2 className="text-sm font-bold text-zinc-300 mb-3">カテゴリ</h2>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((cat) => {
-              const active = category === cat;
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setCategory(active ? '' : cat)}
-                  className={`px-3 py-1.5 text-xs rounded-full border transition ${
-                    active
-                      ? 'bg-green-500 border-green-500 text-black font-bold'
-                      : 'border-zinc-700 text-zinc-300 hover:border-zinc-500'
-                  }`}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
+          <SelectField
+            icon={<Tag className="w-3.5 h-3.5" />}
+            ariaLabel="カテゴリを選択"
+            value={category}
+            options={CATEGORIES}
+            onChange={setCategory}
+            placeholder="カテゴリを選択"
+          />
         </div>
 
         <div>

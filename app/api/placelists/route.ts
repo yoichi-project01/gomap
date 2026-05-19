@@ -58,7 +58,8 @@ export async function POST(req: NextRequest) {
     const created = await createPlaceList(authed, { ...input, creator: user.id });
     return NextResponse.json(created, { status: 201 });
   } catch (error) {
-    console.error("[POST /api/placelists]", error);
-    return NextResponse.json({ error: "プレイスリストの登録に失敗しました" }, { status: 500 });
+    const detail = error instanceof Error ? error.message : JSON.stringify(error);
+    console.error("[POST /api/placelists]", detail);
+    return NextResponse.json({ error: "プレイスリストの登録に失敗しました", detail }, { status: 500 });
   }
 }

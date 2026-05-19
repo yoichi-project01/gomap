@@ -31,7 +31,10 @@ export async function createPlaceList(input: CreatePlaceListInput): Promise<Plac
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
-  if (!res.ok) throw new Error("プレイスリストの登録に失敗しました");
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.detail ?? body.error ?? "プレイスリストの登録に失敗しました");
+  }
   return res.json();
 }
 
