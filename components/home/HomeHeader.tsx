@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Bell, Clock, Settings, LogIn } from 'lucide-react';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
-import { getDisplayName } from '@/lib/server/profiles';
+import { getProfile } from '@/lib/server/profiles';
 import { countUnreadNotifications } from '@/lib/server/notifications';
 import { avatarInitial } from '@/lib/display';
 
@@ -10,14 +10,15 @@ export default async function HomeHeader() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [profileName, unreadCount] = user
+  const [profile, unreadCount] = user
     ? await Promise.all([
-        getDisplayName(supabase, user.id),
+        getProfile(supabase, user.id),
         countUnreadNotifications(),
       ])
     : [null, 0];
 
-  const displayName = profileName || "匿名ユーザー";
+  const displayName = profile?.displayName || "匿名ユーザー";
+  const avatarUrl = profile?.avatarUrl ?? null;
   const initial = avatarInitial(displayName);
 
   return (
@@ -26,10 +27,17 @@ export default async function HomeHeader() {
         {user ? (
           <Link
             href="/mypage"
-            className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-sm font-bold text-black cursor-pointer hover:opacity-80 transition"
+            className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-80 transition"
             title={displayName}
           >
-            {initial}
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+            ) : (
+              <span className="w-full h-full rounded-full bg-green-500 flex items-center justify-center text-sm font-bold text-black">
+                {initial}
+              </span>
+            )}
           </Link>
         ) : (
           <Link
