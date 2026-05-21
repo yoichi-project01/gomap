@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, Plus, MapPin, X, Globe, Lock, Tag } from 'lucide-react';
 import type { Spot } from '@/types/spot';
@@ -21,6 +21,7 @@ const CATEGORIES = ['観光', 'グルメ', 'カフェ', '自然', 'ショッピ�
 
 export default function CreatePlaceListForm({ availableSpots, currentUserId }: Props) {
   const router = useRouter();
+  const spotPickerRef = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<string | null>(null);
@@ -31,6 +32,12 @@ export default function CreatePlaceListForm({ availableSpots, currentUserId }: P
   const [isAddingMapPlace, setIsAddingMapPlace] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [cover, setCover] = useState<{ url: string; path: string } | null>(null);
+
+  useEffect(() => {
+    if (showSearch && spotPickerRef.current) {
+      spotPickerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [showSearch]);
 
   // このセッションで map_ref として作成したスポット ID。
   // ユーザーが削除/キャンセルした際にオーファンを残さないよう、DB からも消す。
@@ -266,12 +273,14 @@ export default function CreatePlaceListForm({ availableSpots, currentUserId }: P
           </div>
 
           {showSearch && (
-            <SpotPicker
-              availableSpots={availableSpots}
-              selectedSpots={selectedSpots}
-              currentUserId={currentUserId}
-              onAdd={addSpot}
-            />
+            <div ref={spotPickerRef} className="scroll-mt-4">
+              <SpotPicker
+                availableSpots={availableSpots}
+                selectedSpots={selectedSpots}
+                currentUserId={currentUserId}
+                onAdd={addSpot}
+              />
+            </div>
           )}
         </div>
       </main>

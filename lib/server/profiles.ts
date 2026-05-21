@@ -55,3 +55,31 @@ export async function fetchDisplayNames(
     (data ?? []).map((row) => [row.id as string, row.display_name as string]),
   );
 }
+
+// 与えられた creator の配列に対して display_name と avatar_url を一括取得する。
+// 未登録 / NULL はデフォルト値で Map に含まれる。
+export async function fetchCreatorProfiles(
+  client: SupabaseClient,
+  ids: Array<string | null | undefined>,
+): Promise<Map<string, { displayName: string | null; avatarUrl: string | null }>> {
+  const unique = Array.from(
+    new Set(ids.filter((v): v is string => typeof v === "string" && v.length > 0)),
+  );
+  if (unique.length === 0) return new Map();
+
+  const { data, error } = await client
+    .from("profiles")
+    .select("id, display_name, avatar_url")
+    .in("id", unique);
+
+  if (error) throw error;
+  return new Map(
+    (data ?? []).map((row) => [
+      row.id as string,
+      {
+        displayName: (row.display_name as string | null | undefined) ?? null,
+        avatarUrl: (row.avatar_url as string | null | undefined) ?? null,
+      },
+    ]),
+  );
+}
