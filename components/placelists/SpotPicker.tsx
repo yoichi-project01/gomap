@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowDownUp, MapPin, Plus, Search, Tag, User, X } from 'lucide-react';
+import { ArrowDownUp, Heart, MapPin, Plus, Search, Tag, User, X } from 'lucide-react';
 import type { Spot } from '@/types/spot';
 import SpotPickerMapWrapper, { type FocusTarget } from '@/components/placelists/SpotPickerMapWrapper';
 import SelectField from '@/components/ui/SelectField';
@@ -11,10 +11,14 @@ const CATEGORIES = ['観光', 'グルメ', 'カフェ', '自然', 'ショッピ�
 type Sort = '最近追加' | '名前順';
 const SORT_OPTIONS: Sort[] = ['最近追加', '名前順'];
 
+type OwnerFilter = '全員' | '自分のみ' | 'いいね';
+const OWNER_OPTIONS: OwnerFilter[] = ['全員', '自分のみ', 'いいね'];
+
 type Props = {
   availableSpots: Spot[];
   selectedSpots: Spot[];
   currentUserId: string | null;
+  favoriteSpotIds: string[];
   onAdd: (spot: Spot) => void;
 };
 
@@ -22,14 +26,17 @@ export default function SpotPicker({
   availableSpots,
   selectedSpots,
   currentUserId,
+  favoriteSpotIds,
   onAdd,
 }: Props) {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<string | null>(null);
   const [prefecture, setPrefecture] = useState<string | null>(null);
-  const [mineOnly, setMineOnly] = useState(false);
+  const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>('全員');
   const [sort, setSort] = useState<Sort>('最近追加');
   const [focused, setFocused] = useState<FocusTarget | null>(null);
+
+  const favoriteIdSet = useMemo(() => new Set(favoriteSpotIds), [favoriteSpotIds]);
 
   // 都道府県チップは availableSpots に実在するものだけ表示 (空のチップを増やさない)
   const availablePrefectures = useMemo(() => {
@@ -49,27 +56,26 @@ export default function SpotPicker({
   const filtered = useMemo(() => {
     const q = query.trim();
     const list = baseSpots.filter((spot) => {
-      if (mineOnly && spot.creator !== currentUserId) return false;
+      if (ownerFilter === '自分のみ' && spot.creator !== currentUserId) return false;
+      if (ownerFilter === 'いいね' && !favoriteIdSet.has(spot.id)) return false;
       if (category && spot.category !== category) return false;
       if (prefecture && spot.prefecture !== prefecture) return false;
       if (q && !spot.name.includes(q) && !(spot.description ?? '').includes(q)) return false;
       return true;
     });
     if (sort === '名前順') {
-      // availableSpots は created_at desc で渡される前提なので、recent の場合は並べ替え不要
       return [...list].sort((a, b) => a.name.localeCompare(b.name, 'ja'));
     }
     return list;
-  }, [baseSpots, query, category, prefecture, mineOnly, sort, currentUserId]);
+  }, [baseSpots, query, category, prefecture, ownerFilter, sort, currentUserId, favoriteIdSet]);
 
-  const hasActiveFilters = query.trim() !== '' || category !== null || prefecture !== null || mineOnly;
-  // フィルタが変わったときだけマップを再フィットさせるためのキー
-  const refitKey = `${category ?? ''}|${prefecture ?? ''}|${mineOnly ? 'm' : ''}|${query.trim()}`;
+  const hasActiveFilters = query.trim() !== '' || category !== null || prefecture !== null || ownerFilter !== '全員';
+  const refitKey = `${category ?? ''}|${prefecture ?? ''}|${ownerFilter}|${query.trim()}`;
   const resetAll = () => {
     setQuery('');
     setCategory(null);
     setPrefecture(null);
-    setMineOnly(false);
+    setOwnerFilter('全員');
   };
 
   return (
@@ -108,11 +114,11 @@ export default function SpotPicker({
         />
         {currentUserId && (
           <SelectField
-            icon={<User className="w-3.5 h-3.5" />}
-            ariaLabel="登録者で絞り込み"
-            value={mineOnly ? '自分のみ' : null}
-            options={['自分のみ']}
-            onChange={(v) => setMineOnly(v === '自分のみ')}
+            icon={ownerFilter === 'いいね' ? <Heart className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
+            ariaLabel="絞り込み"
+            value={ownerFilter === '全員' ? null : ownerFilter}
+            options={OWNER_OPTIONS.filter((o) => o !== '全員')}
+            onChange={(v) => setOwnerFilter((v as OwnerFilter) ?? '全員')}
             placeholder="全員"
           />
         )}
@@ -168,9 +174,12 @@ export default function SpotPicker({
                 {prefecture}
               </ActivePill>
             )}
-            {mineOnly && (
-              <ActivePill onClear={() => setMineOnly(false)} icon={<User className="w-3 h-3" />}>
-                自分のみ
+            {ownerFilter !== '全員' && (
+              <ActivePill
+                onClear={() => setOwnerFilter('全員')}
+                icon={ownerFilter === 'いいね' ? <Heart className="w-3 h-3" /> : <User className="w-3 h-3" />}
+              >
+                {ownerFilter}
               </ActivePill>
             )}
           </div>

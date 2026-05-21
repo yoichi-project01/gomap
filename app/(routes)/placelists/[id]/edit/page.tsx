@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
 import { getPlaceListById } from '@/lib/server/placeLists';
 import { listSpots } from '@/lib/server/spots';
 import { coverUrlToPath } from '@/lib/cover';
+import { listFavoriteSpotIds } from '@/lib/server/favorites';
 import EditPlaceListForm from './EditPlaceListForm';
 
 export const dynamic = 'force-dynamic';
@@ -18,9 +19,10 @@ export default async function EditPlaceListPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/login?next=/placelists/${id}/edit`);
 
-  const [placeList, availableSpots] = await Promise.all([
+  const [placeList, availableSpots, favoriteSpotIds] = await Promise.all([
     getPlaceListById(supabase, id),
     listSpots(supabase),
+    listFavoriteSpotIds(),
   ]);
 
   if (!placeList) notFound();
@@ -43,6 +45,7 @@ export default async function EditPlaceListPage({ params }: Props) {
       initialSpots={placeList.spots}
       availableSpots={availableSpots}
       currentUserId={user.id}
+      favoriteSpotIds={favoriteSpotIds}
     />
   );
 }

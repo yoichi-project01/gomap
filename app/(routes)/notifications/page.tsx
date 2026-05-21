@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ChevronLeft, Bell, BellOff, Heart } from "lucide-react"
+import { ChevronLeft, Bell, BellOff, Bookmark, Heart } from "lucide-react"
 import { listNotifications } from "@/lib/server/notifications"
 import { MarkAllReadOnMount } from "./MarkAllReadOnMount"
 
@@ -56,20 +56,28 @@ export default async function NotificationsPage() {
               通知はありません
             </h2>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 max-w-xs leading-relaxed">
-              プレイスリストへのいいねがあるとここに表示されます。
+              プレイスリストへのいいねや保存があるとここに表示されます。
             </p>
           </div>
         ) : (
           <ul className="flex flex-col gap-1">
             {notifications.map((n) => {
+              const isSaved = n.type === "place_list_saved"
               const inner = (
                 <div className={`flex items-start gap-3 px-4 py-3.5 rounded-2xl transition-colors ${
                   n.isRead
                     ? "bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800"
                     : "bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900"
                 }`}>
-                  <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0 mt-0.5">
-                    <Heart className="w-4 h-4 text-red-500" fill="currentColor" />
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                    isSaved
+                      ? "bg-blue-100 dark:bg-blue-900/30"
+                      : "bg-red-100 dark:bg-red-900/30"
+                  }`}>
+                    {isSaved
+                      ? <Bookmark className="w-4 h-4 text-blue-500" fill="currentColor" />
+                      : <Heart className="w-4 h-4 text-red-500" fill="currentColor" />
+                    }
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-zinc-800 dark:text-zinc-200 leading-snug">
@@ -80,7 +88,7 @@ export default async function NotificationsPage() {
                       {n.placeListName ? (
                         <>「<span className="font-medium">{n.placeListName}</span>」</>
                       ) : "プレイスリスト"}
-                      {"をいいねしました"}
+                      {isSaved ? "を保存しました" : "をいいねしました"}
                     </p>
                     <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
                       {relativeTime(n.createdAt)}

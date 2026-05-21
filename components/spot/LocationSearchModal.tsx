@@ -176,7 +176,26 @@ export default function LocationSearchModal({ onClose, onSelect }: Props) {
         )}
 
         {mode === "pin" && (
-          <span className="flex-1 text-xs text-zinc-500 dark:text-zinc-400">マップをタップしてピンを立てる</span>
+          <div className="flex-1 flex items-center gap-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl px-3 py-1.5">
+            <Navigation className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+            <input
+              autoFocus
+              type="text"
+              value={mapNavQuery}
+              onChange={(e) => setMapNavQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void searchAndFly() } }}
+              placeholder="住所や場所名でマップを移動"
+              className="flex-1 bg-transparent text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none text-sm"
+            />
+            <button
+              type="button"
+              onClick={() => void searchAndFly()}
+              aria-label="移動"
+              className="shrink-0 px-2.5 py-1 rounded-lg bg-blue-500 hover:bg-blue-400 text-white text-xs font-semibold transition"
+            >
+              移動
+            </button>
+          </div>
         )}
 
         <button
@@ -252,25 +271,6 @@ export default function LocationSearchModal({ onClose, onSelect }: Props) {
 
           {/* bottom panel */}
           <div className="shrink-0 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-4 pt-3 pb-6 flex flex-col gap-3">
-            {/* map nav search */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={mapNavQuery}
-                onChange={(e) => setMapNavQuery(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void searchAndFly() } }}
-                placeholder="住所や場所名でマップを移動"
-                className="flex-1 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => void searchAndFly()}
-                className="px-3 py-2 rounded-lg bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 transition"
-              >
-                <Navigation className="w-4 h-4" />
-              </button>
-            </div>
-
             {pinResult ? (
               <>
                 <div className="flex flex-col gap-1.5">

@@ -15,11 +15,12 @@ import type { PlaceSearchResult } from '@/app/api/places/search/route';
 type Props = {
   availableSpots: Spot[];
   currentUserId: string | null;
+  favoriteSpotIds: string[];
 };
 
 const CATEGORIES = ['観光', 'グルメ', 'カフェ', '自然', 'ショッピング', 'その他'];
 
-export default function CreatePlaceListForm({ availableSpots, currentUserId }: Props) {
+export default function CreatePlaceListForm({ availableSpots, currentUserId, favoriteSpotIds }: Props) {
   const router = useRouter();
   const spotPickerRef = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState('');
@@ -278,6 +279,7 @@ export default function CreatePlaceListForm({ availableSpots, currentUserId }: P
                 availableSpots={availableSpots}
                 selectedSpots={selectedSpots}
                 currentUserId={currentUserId}
+                favoriteSpotIds={favoriteSpotIds}
                 onAdd={addSpot}
               />
             </div>
