@@ -56,7 +56,7 @@ export default function FilteredResults({ placeLists, filters, filterHref }: Pro
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {placeLists.map((p) => (
             <Link
-              href={`/placelists/${p.id}`}
+              href={`/placelists/${p.id}?back=${encodeURIComponent(filterHref)}`}
               key={p.id}
               className="flex flex-col group cursor-pointer"
             >
