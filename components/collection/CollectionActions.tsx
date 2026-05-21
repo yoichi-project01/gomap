@@ -11,6 +11,7 @@ type Props = {
   initialLiked: boolean
   initialSaved: boolean
   initialLikesCount: number
+  initialSavesCount: number
   mapAnchorId: string
 }
 
@@ -21,12 +22,14 @@ export default function CollectionActions({
   initialLiked,
   initialSaved,
   initialLikesCount,
+  initialSavesCount,
   mapAnchorId,
 }: Props) {
   const router = useRouter()
   const [liked, setLiked] = useState(initialLiked)
   const [saved, setSaved] = useState(initialSaved)
   const [likesCount, setLikesCount] = useState(initialLikesCount)
+  const [savesCount, setSavesCount] = useState(initialSavesCount)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [isLikePending, startLike] = useTransition()
   const [isSavePending, startSave] = useTransition()
@@ -64,10 +67,12 @@ export default function CollectionActions({
   function handleSave() {
     const next = !saved
     setSaved(next)
+    setSavesCount((c) => c + (next ? 1 : -1))
     startSave(async () => {
       const result = await togglePlaceListSaveAction(placeListId)
       if (!result.ok) {
         setSaved(!next)
+        setSavesCount((c) => c + (next ? -1 : 1))
         if (result.reason === "unauthenticated") {
           router.push("/login")
         } else {
@@ -97,7 +102,7 @@ export default function CollectionActions({
         aria-label={liked ? "いいねを取り消す" : "いいねする"}
         aria-pressed={liked}
         className={`inline-flex items-center gap-1 transition disabled:opacity-50 ${
-          liked ? "text-red-500 hover:text-red-400" : "text-zinc-400 hover:text-white"
+          liked ? "text-red-500 hover:text-red-400" : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-100"
         }`}
       >
         <Heart className="w-7 h-7" fill={liked ? "currentColor" : "none"} />
@@ -109,11 +114,12 @@ export default function CollectionActions({
         disabled={isSavePending}
         aria-label={saved ? "保存を解除する" : "保存する"}
         aria-pressed={saved}
-        className={`transition disabled:opacity-50 ${
-          saved ? "text-green-400 hover:text-green-300" : "text-zinc-400 hover:text-white"
+        className={`inline-flex items-center gap-1 transition disabled:opacity-50 ${
+          saved ? "text-green-400 hover:text-green-300" : "text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-100"
         }`}
       >
         <Bookmark className="w-7 h-7" fill={saved ? "currentColor" : "none"} />
+        <span className="text-xs font-bold">{savesCount}</span>
       </button>
       {feedback && (
         <span className="text-xs text-zinc-400 ml-1" role="status">

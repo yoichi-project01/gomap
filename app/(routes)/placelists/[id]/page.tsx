@@ -6,7 +6,7 @@ import CollectionActions from '@/components/collection/CollectionActions';
 import PlaceListViewTracker from '@/components/placelists/PlaceListViewTracker';
 import { getPlaceListById } from '@/lib/server/placeLists';
 import { isPlaceListLiked, countPlaceListLikes } from '@/lib/server/likes';
-import { isPlaceListSaved } from '@/lib/server/saves';
+import { isPlaceListSaved, countPlaceListSaves } from '@/lib/server/saves';
 import { supabase } from '@/lib/server/supabase';
 import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
 
@@ -29,11 +29,12 @@ export default async function PlaceListDetailPage({ params, searchParams }: Prop
   })();
   const authClient = await createSupabaseServerClient();
   const { data: { user } } = await authClient.auth.getUser();
-  const [placeList, liked, saved, likesCount] = await Promise.all([
+  const [placeList, liked, saved, likesCount, savesCount] = await Promise.all([
     getPlaceListById(supabase, id),
     isPlaceListLiked(id),
     isPlaceListSaved(id),
     countPlaceListLikes(id),
+    countPlaceListSaves(id),
   ]);
   const isOwner = !!user && placeList?.creator === user.id;
   if (!placeList) notFound();
@@ -90,6 +91,7 @@ export default async function PlaceListDetailPage({ params, searchParams }: Prop
           initialLiked={liked}
           initialSaved={saved}
           initialLikesCount={likesCount}
+          initialSavesCount={savesCount}
           mapAnchorId={MAP_ANCHOR_ID}
         />
 

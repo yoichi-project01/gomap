@@ -65,6 +65,20 @@ export async function listSavedPlaceLists(): Promise<SavedPlaceList[]> {
     .filter((v): v is SavedPlaceList => v !== null);
 }
 
+export async function countPlaceListSaves(placeListId: string): Promise<number> {
+  const supabase = await createSupabaseServerClient();
+  const { count, error } = await supabase
+    .from("place_list_saves")
+    .select("place_list_id", { count: "exact", head: true })
+    .eq("place_list_id", placeListId);
+
+  if (error) {
+    console.error("countPlaceListSaves error:", error);
+    return 0;
+  }
+  return count ?? 0;
+}
+
 export async function countSaved(userId: string): Promise<number> {
   const supabase = await createSupabaseServerClient();
   const { count, error } = await supabase
