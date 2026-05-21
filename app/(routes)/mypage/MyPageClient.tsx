@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { User, Edit3, ChevronRight, AlertTriangle, MapPin, LayoutList, Sparkles } from "lucide-react"
+import { User, Edit3, ChevronRight, AlertTriangle, MapPin, LayoutList, Sparkles, Camera } from "lucide-react"
 import ThemeToggle from "@/components/ui/ThemeToggle"
 import { logoutAction, deleteAccountAction } from "@/app/actions/auth"
-import { updateDisplayNameAction } from "@/app/actions/profile"
+import { updateDisplayNameAction, updateAvatarUrlAction } from "@/app/actions/profile"
+import { uploadAvatar } from "@/lib/client/uploadAvatar"
 import { avatarInitial } from "@/lib/display"
 
 const DISPLAY_NAME_MAX = 50
@@ -15,6 +16,7 @@ export type MyPageUser = {
   email: string
   createdAt: string
   initialName: string
+  avatarUrl: string | null
 }
 
 export type MyPageStats = {
@@ -232,12 +234,41 @@ export default function MyPageClient({
   const [savingName, setSavingName]   = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const [avatarUrl, setAvatarUrl]     = useState<string | null>(user.avatarUrl)
+  const [avatarError, setAvatarError] = useState<string | null>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleteError, setDeleteError]           = useState<string | null>(null)
   const [isLoggingOut, startLogout]             = useTransition()
   const [isDeleting, startDelete]               = useTransition()
 
   const initials = avatarInitial(name)
+
+  async function handleAvatarFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ""
+
+    setUploadingAvatar(true)
+    setAvatarError(null)
+    try {
+      const result = await uploadAvatar(file)
+      if (!result.ok) {
+        setAvatarError(result.message ?? "アップロードに失敗しました")
+        return
+      }
+      const saveResult = await updateAvatarUrlAction(result.url)
+      if (saveResult?.error) {
+        setAvatarError(saveResult.error)
+        return
+      }
+      setAvatarUrl(result.url)
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
 
   function startEditingName() {
     setNameInput(name)
@@ -302,9 +333,41 @@ export default function MyPageClient({
         {/* プロフィールカード */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center text-white dark:text-zinc-900 text-xl font-bold shrink-0">
-              {initials}
-            </div>
+            {/* アバター — クリックで画像を選択 */}
+            <button
+              type="button"
+              aria-label="アイコン画像を変更"
+              disabled={uploadingAvatar}
+              onClick={() => fileInputRef.current?.click()}
+              className="relative w-14 h-14 rounded-full shrink-0 group focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 disabled:opacity-60"
+            >
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={avatarUrl}
+                  alt="アイコン"
+                  className="w-full h-full rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full rounded-full bg-zinc-900 dark:bg-zinc-100 flex items-center justify-center text-white dark:text-zinc-900 text-xl font-bold">
+                  {initials}
+                </div>
+              )}
+              <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
+                {uploadingAvatar ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Camera className="w-5 h-5 text-white" />
+                )}
+              </div>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handleAvatarFileChange}
+            />
             <div className="flex-1 min-w-0">
               {editingName ? (
                 <div>
@@ -361,6 +424,10 @@ export default function MyPageClient({
               <p className="text-xs text-zinc-300 dark:text-zinc-600 mt-0.5">登録日: {user.createdAt}</p>
             </div>
           </div>
+
+          {avatarError && (
+            <p className="mt-2 text-xs text-red-500 dark:text-red-400" role="alert">{avatarError}</p>
+          )}
 
           {statsError ? (
             <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">

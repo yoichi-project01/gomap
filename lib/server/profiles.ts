@@ -1,5 +1,23 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+// 単一ユーザーの display_name と avatar_url を一括取得。
+export async function getProfile(
+  client: SupabaseClient,
+  userId: string,
+): Promise<{ displayName: string | null; avatarUrl: string | null }> {
+  const { data, error } = await client
+    .from("profiles")
+    .select("display_name, avatar_url")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  const name = (data?.display_name as string | undefined)?.trim();
+  return {
+    displayName: name ? name : null,
+    avatarUrl: (data?.avatar_url as string | null | undefined) ?? null,
+  };
+}
+
 // 単一ユーザーの display_name を取得。未登録 / 空文字なら null。
 export async function getDisplayName(
   client: SupabaseClient,
