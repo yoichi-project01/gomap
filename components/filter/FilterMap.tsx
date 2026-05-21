@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMapEvents, useMap } from 'react-leaflet';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { BBox } from '@/lib/filter/placeLists';
@@ -69,20 +69,23 @@ function clusterByGrid(spots: Spot[], zoom: number): Cluster[] {
 }
 
 function BoundsTracker({ onBoundsChange }: { onBoundsChange: (b: BBox) => void }) {
-  const map = useMapEvents({
-    moveend: () => emit(),
-    zoomend: () => emit(),
-  });
-
-  function emit() {
-    const b = map.getBounds();
-    onBoundsChange({ north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest() });
-  }
+  const map = useMap();
+  const cbRef = useRef(onBoundsChange);
+  cbRef.current = onBoundsChange;
 
   useEffect(() => {
+    function emit() {
+      const b = map.getBounds();
+      cbRef.current({ north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest() });
+    }
     emit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    map.on('moveend', emit);
+    map.on('zoomend', emit);
+    return () => {
+      map.off('moveend', emit);
+      map.off('zoomend', emit);
+    };
+  }, [map]);
 
   return null;
 }
