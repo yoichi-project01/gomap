@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, MapPin } from 'lucide-react';
+import { ArrowLeft, MapPin, Pencil } from 'lucide-react';
 import PlaceListMapWrapper from '@/components/PlaceListMapWrapper';
 import CollectionActions from '@/components/collection/CollectionActions';
 import PlaceListViewTracker from '@/components/placelists/PlaceListViewTracker';
@@ -8,6 +8,7 @@ import { getPlaceListById } from '@/lib/server/placeLists';
 import { isPlaceListLiked, countPlaceListLikes } from '@/lib/server/likes';
 import { isPlaceListSaved } from '@/lib/server/saves';
 import { supabase } from '@/lib/server/supabase';
+import { createSupabaseServerClient } from '@/lib/server/supabaseAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,16 +16,26 @@ const MAP_ANCHOR_ID = 'placelist-map';
 
 type Props = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ back?: string }>;
 };
 
-export default async function PlaceListDetailPage({ params }: Props) {
+export default async function PlaceListDetailPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const rawBack = (await searchParams).back;
+  const backHref = (() => {
+    if (!rawBack) return '/';
+    const decoded = decodeURIComponent(rawBack);
+    return decoded.startsWith('/filter') ? decoded : '/';
+  })();
+  const authClient = await createSupabaseServerClient();
+  const { data: { user } } = await authClient.auth.getUser();
   const [placeList, liked, saved, likesCount] = await Promise.all([
     getPlaceListById(supabase, id),
     isPlaceListLiked(id),
     isPlaceListSaved(id),
     countPlaceListLikes(id),
   ]);
+  const isOwner = !!user && placeList?.creator === user.id;
   if (!placeList) notFound();
 
   return (
@@ -36,10 +47,19 @@ export default async function PlaceListDetailPage({ params }: Props) {
         coverImageUrl={placeList.coverImageUrl}
         spotsCount={placeList.spots.length}
       />
-      <header className="sticky top-0 z-50 bg-zinc-50/90 dark:bg-zinc-950/90 backdrop-blur-md px-4 py-4 flex items-center border-b border-zinc-200 dark:border-zinc-800">
-        <Link href="/" className="p-2 -ml-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition">
+      <header className="sticky top-0 z-50 bg-zinc-50/90 dark:bg-zinc-950/90 backdrop-blur-md px-4 py-4 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800">
+        <Link href={backHref} className="p-2 -ml-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition">
           <ArrowLeft className="w-6 h-6" />
         </Link>
+        {isOwner && (
+          <Link
+            href={`/placelists/${id}/edit`}
+            className="p-2 -mr-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition"
+            aria-label="プレイスリストを編集"
+          >
+            <Pencil className="w-5 h-5" />
+          </Link>
+        )}
       </header>
 
       <div id={MAP_ANCHOR_ID} className="w-full h-64 md:h-96 relative border-b border-zinc-200 dark:border-zinc-800 scroll-mt-0">

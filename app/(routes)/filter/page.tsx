@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { MapPin, Navigation, ArrowDownUp, Tag, Sparkles, Globe, Calendar, ListChecks, User, Map as MapIcon, Bookmark, X } from "lucide-react"
 import SelectField from "@/components/ui/SelectField"
 import MultiSelectField from "@/components/ui/MultiSelectField"
-import type { PlaceList } from "@/types/spot"
+import type { PlaceList, Spot } from "@/types/spot"
 import { getPlaceLists } from "@/lib/client/placeLists"
 import { filterPlaceLists, type SortOrder, type CreatedSince, type BBox } from "@/lib/filter/placeLists"
 import { createSupabaseBrowserClient } from "@/lib/client/supabaseBrowser"
@@ -153,6 +153,22 @@ function FilterForm() {
       .catch((err) => console.error("件数プレビュー取得失敗", err))
     return () => { cancelled = true }
   }, [])
+
+  // allPlaceLists 内のスポットを重複なく収集 (フィルターマップのマーカー用)
+  const allSpots = useMemo<Spot[]>(() => {
+    if (!allPlaceLists) return []
+    const seen = new Set<string>()
+    const result: Spot[] = []
+    for (const pl of allPlaceLists) {
+      for (const spot of pl.spots) {
+        if (!seen.has(spot.id)) {
+          seen.add(spot.id)
+          result.push(spot)
+        }
+      }
+    }
+    return result
+  }, [allPlaceLists])
 
   const matchCount = useMemo(() => {
     if (!allPlaceLists) return null
@@ -474,6 +490,7 @@ function FilterForm() {
             <FilterMapWrapper
               initialBBox={initialBBox}
               initialCenter={coords ? [coords.lat, coords.lng] : undefined}
+              spots={allSpots}
               onBoundsChange={setBBox}
             />
           </div>

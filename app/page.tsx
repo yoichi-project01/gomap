@@ -40,13 +40,20 @@ export default async function HomeDashboard({
 
   const filtered = filtering ? filterPlaceLists(placeLists, filters) : [];
 
+  const sp = await searchParams;
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    if (v !== undefined) qs.set(k, Array.isArray(v) ? v[0] : v);
+  }
+  const filterHref = `/filter?${qs.toString()}`;
+
   return (
     <div className="h-screen overflow-y-auto bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-24 font-sans [&::-webkit-scrollbar]:hidden">
       <HomeHeader />
 
       <main className="px-4 mt-2">
         {filtering ? (
-          <FilteredResults placeLists={filtered} filters={filters} />
+          <FilteredResults placeLists={filtered} filters={filters} filterHref={filterHref} />
         ) : (
           <>
             <RecentPlaceLists placeLists={savedPlaceLists} />

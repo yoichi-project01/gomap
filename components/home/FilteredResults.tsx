@@ -1,11 +1,12 @@
 import Link from "next/link"
-import { MapPin, Sparkles, X } from "lucide-react"
+import { MapPin, Sparkles, SlidersHorizontal } from "lucide-react"
 import type { PlaceList } from "@/types/spot"
 import type { PlaceListFilters } from "@/lib/filter/placeLists"
 
 type Props = {
   placeLists: PlaceList[]
   filters: PlaceListFilters
+  filterHref: string
 }
 
 function Chip({ children }: { children: React.ReactNode }) {
@@ -16,7 +17,7 @@ function Chip({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default function FilteredResults({ placeLists, filters }: Props) {
+export default function FilteredResults({ placeLists, filters, filterHref }: Props) {
   const chips: string[] = []
   if (filters.pref) chips.push(filters.pref)
   if (filters.cats?.length) chips.push(...filters.cats)
@@ -33,11 +34,11 @@ export default function FilteredResults({ placeLists, filters }: Props) {
           <span className="text-sm text-zinc-400 dark:text-zinc-500">({placeLists.length})</span>
         </div>
         <Link
-          href="/"
+          href={filterHref}
           className="inline-flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition"
         >
-          <X className="w-3.5 h-3.5" />
-          クリア
+          <SlidersHorizontal className="w-3.5 h-3.5" />
+          条件を変更
         </Link>
       </div>
 
@@ -55,7 +56,7 @@ export default function FilteredResults({ placeLists, filters }: Props) {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {placeLists.map((p) => (
             <Link
-              href={`/placelists/${p.id}`}
+              href={`/placelists/${p.id}?back=${encodeURIComponent(filterHref)}`}
               key={p.id}
               className="flex flex-col group cursor-pointer"
             >
