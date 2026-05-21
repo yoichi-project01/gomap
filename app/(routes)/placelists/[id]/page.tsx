@@ -51,8 +51,19 @@ export default async function PlaceListDetailPage({ params }: Props) {
           <h1 className="text-3xl font-bold mb-2">{placeList.name}</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-4">{placeList.description}</p>
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white">
-              {placeList.creatorName?.charAt(0).toUpperCase() || 'U'}
+            <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+              {placeList.creatorAvatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={placeList.creatorAvatarUrl}
+                  alt={placeList.creatorName || '匿名ユーザー'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white">
+                  {placeList.creatorName?.charAt(0).toUpperCase() || 'U'}
+                </div>
+              )}
             </div>
             <span className="text-xs text-zinc-500 dark:text-zinc-300">作成者: {placeList.creatorName || '匿名ユーザー'}</span>
           </div>

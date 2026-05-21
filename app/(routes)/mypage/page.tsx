@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { createSupabaseServerClient } from "@/lib/server/supabaseAuth"
-import { getDisplayName } from "@/lib/server/profiles"
+import { getProfile } from "@/lib/server/profiles"
 import { getUserStats, type UserStats } from "@/lib/server/stats"
 import { formatJstDate } from "@/lib/format"
 import pkg from "@/package.json"
@@ -35,19 +35,19 @@ export default async function MyPage() {
   // 表示名取得と統計集計を並列実行。
   // 統計の失敗はユーザーに通知して 0 表示にフォールバックするが、
   // 表示名の失敗は致命的でないので Promise.allSettled で分離。
-  const [displayNameRes, statsRes] = await Promise.allSettled([
-    getDisplayName(supabase, user.id),
+  const [profileRes, statsRes] = await Promise.allSettled([
+    getProfile(supabase, user.id),
     getUserStats(supabase, user.id),
   ])
 
-  if (displayNameRes.status === "rejected") {
-    console.error("[mypage] getDisplayName failed", describeError(displayNameRes.reason))
+  if (profileRes.status === "rejected") {
+    console.error("[mypage] getProfile failed", describeError(profileRes.reason))
   }
   if (statsRes.status === "rejected") {
     console.error("[mypage] getUserStats failed", describeError(statsRes.reason))
   }
 
-  const displayName = displayNameRes.status === "fulfilled" ? displayNameRes.value : null
+  const profile = profileRes.status === "fulfilled" ? profileRes.value : null
   const stats = statsRes.status === "fulfilled" ? statsRes.value : ZERO_STATS
   const statsError = statsRes.status === "rejected"
 
@@ -56,7 +56,8 @@ export default async function MyPage() {
   const myPageUser: MyPageUser = {
     email: user.email ?? "",
     createdAt: formatJstDate(user.created_at),
-    initialName: displayName || "匿名ユーザー",
+    initialName: profile?.displayName || "匿名ユーザー",
+    avatarUrl: profile?.avatarUrl ?? null,
   }
 
   return (

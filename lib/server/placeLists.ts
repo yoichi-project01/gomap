@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { PlaceList, Spot } from "@/types/spot";
-import { fetchDisplayNames } from "@/lib/server/profiles";
+import { fetchCreatorProfiles } from "@/lib/server/profiles";
 
 type SpotRow = {
   id: string;
@@ -51,12 +51,14 @@ function spotRowToSpot(row: SpotRow): Spot {
 
 function rowToPlaceList(
   row: PlaceListWithSpotsRow,
-  nameByCreator: Map<string, string>,
+  profileByCreator: Map<string, { displayName: string; avatarUrl: string | null }>,
 ): PlaceList {
   const sortedSpots = [...row.place_list_spots]
     .sort((a, b) => a.position - b.position)
     .map((pls) => pls.spots && spotRowToSpot(pls.spots))
     .filter((s): s is Spot => Boolean(s));
+
+  const creatorProfile = row.creator ? profileByCreator.get(row.creator) : undefined;
 
   return {
     id: row.id,
@@ -64,7 +66,8 @@ function rowToPlaceList(
     description: row.description ?? "",
     category: row.category ?? undefined,
     creator: row.creator ?? undefined,
-    creatorName: row.creator ? nameByCreator.get(row.creator) : undefined,
+    creatorName: creatorProfile?.displayName,
+    creatorAvatarUrl: creatorProfile?.avatarUrl ?? undefined,
     likes: row.likes_count,
     coverImageUrl: row.cover_image_url ?? undefined,
     isPublic: row.is_public,
@@ -99,7 +102,7 @@ export async function listPlaceLists(
   const { data, error } = await query;
   if (error) throw error;
   const rows = data as unknown as PlaceListWithSpotsRow[];
-  const nameByCreator = await fetchDisplayNames(
+  const nameByCreator = await fetchCreatorProfiles(
     client,
     rows.map((r) => r.creator),
   );
@@ -120,7 +123,7 @@ export async function listPlaceListsByIds(
 
   if (error) throw error;
   const rows = (data ?? []) as unknown as PlaceListWithSpotsRow[];
-  const nameByCreator = await fetchDisplayNames(
+  const nameByCreator = await fetchCreatorProfiles(
     client,
     rows.map((r) => r.creator),
   );
@@ -140,7 +143,7 @@ export async function getPlaceListById(
   if (error) throw error;
   if (!data) return null;
   const row = data as unknown as PlaceListWithSpotsRow;
-  const nameByCreator = await fetchDisplayNames(client, [row.creator]);
+  const nameByCreator = await fetchCreatorProfiles(client, [row.creator]);
   return rowToPlaceList(row, nameByCreator);
 }
 

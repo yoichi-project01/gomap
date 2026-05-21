@@ -43,3 +43,24 @@ export async function updateDisplayNameAction(
   revalidatePath('/mypage');
   revalidatePath('/placelists/[id]', 'page');
 }
+
+export async function updateAvatarUrlAction(
+  url: string,
+): Promise<{ error?: string } | undefined> {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: 'ログインが必要です' };
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_url: url })
+    .eq('id', user.id);
+
+  if (error) {
+    console.error('[updateAvatarUrlAction]', error);
+    return { error: 'アイコンの保存に失敗しました' };
+  }
+
+  revalidatePath('/');
+  revalidatePath('/mypage');
+}

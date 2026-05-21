@@ -22,11 +22,12 @@ export type PlaceList = {
   name: string;
   description: string;
   category?: string;
-  creator?: string;       // auth.users.id (uuid)
-  creatorName?: string;   // profiles.display_name (表示用)
+  creator?: string;           // auth.users.id (uuid)
+  creatorName?: string;       // profiles.display_name (表示用)
+  creatorAvatarUrl?: string;  // profiles.avatar_url (表示用)
   likes?: number;
   coverImageUrl?: string;
-  isPublic?: boolean;     // true = 公開 (デフォルト), false = 作成者のみ閲覧可
+  isPublic?: boolean;         // true = 公開 (デフォルト), false = 作成者のみ閲覧可
   createdAt?: string;
   spots: Spot[];
 };
