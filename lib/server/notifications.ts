@@ -3,7 +3,7 @@ import { fetchDisplayNames } from "./profiles"
 
 export type AppNotification = {
   id: string
-  type: "place_list_liked"
+  type: "place_list_liked" | "place_list_saved"
   placeListId: string | null
   placeListName: string | null
   actorName: string | null
@@ -43,7 +43,7 @@ export async function listNotifications(): Promise<AppNotification[]> {
 
   return rows.map((row) => ({
     id: row.id,
-    type: row.type as "place_list_liked",
+    type: row.type as "place_list_liked" | "place_list_saved",
     placeListId: row.place_list_id,
     placeListName: row.place_lists?.name ?? null,
     actorName: nameByActor.get(row.actor_id ?? "") ?? null,

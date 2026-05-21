@@ -22,6 +22,7 @@ type Props = {
   initialSpots: Spot[];
   availableSpots: Spot[];
   currentUserId: string | null;
+  favoriteSpotIds: string[];
 };
 
 const CATEGORIES = ['観光', 'グルメ', 'カフェ', '自然', 'ショッピング', 'その他'];
@@ -36,6 +37,7 @@ export default function EditPlaceListForm({
   initialSpots,
   availableSpots,
   currentUserId,
+  favoriteSpotIds,
 }: Props) {
   const router = useRouter();
   const [title, setTitle] = useState(initialTitle);
@@ -279,6 +281,7 @@ export default function EditPlaceListForm({
               availableSpots={availableSpots}
               selectedSpots={selectedSpots}
               currentUserId={currentUserId}
+              favoriteSpotIds={favoriteSpotIds}
               onAdd={addSpot}
             />
           )}
