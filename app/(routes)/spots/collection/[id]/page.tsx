@@ -5,7 +5,7 @@ import CollectionMapWrapper from '@/components/PlaceListMapWrapper';
 import CollectionActions from '@/components/collection/CollectionActions';
 import { getPlaceListById } from '@/lib/server/placeLists';
 import { isPlaceListLiked } from '@/lib/server/likes';
-import { isPlaceListSaved } from '@/lib/server/saves';
+import { isPlaceListSaved, countPlaceListSaves } from '@/lib/server/saves';
 import { supabase } from '@/lib/server/supabase';
 
 type Props = { params: Promise<{ id: string }> };
@@ -14,10 +14,11 @@ const MAP_ANCHOR_ID = "collection-map";
 
 export default async function CollectionDetailPage({ params }: Props) {
   const { id } = await params;
-  const [collection, liked, saved] = await Promise.all([
+  const [collection, liked, saved, savesCount] = await Promise.all([
     getPlaceListById(supabase, id),
     isPlaceListLiked(id),
     isPlaceListSaved(id),
+    countPlaceListSaves(id),
   ]);
   if (!collection) notFound();
 
@@ -58,6 +59,7 @@ export default async function CollectionDetailPage({ params }: Props) {
         initialLiked={liked}
         initialSaved={saved}
         initialLikesCount={collection.likes ?? 0}
+        initialSavesCount={savesCount}
         mapAnchorId={MAP_ANCHOR_ID}
       />
 
