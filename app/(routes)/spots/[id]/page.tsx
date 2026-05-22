@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronLeft, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
+import BackButton from '@/components/ui/BackButton';
 import SpotDetailMapWrapper from '@/components/SpotDetailMapWrapper';
 import SpotActions from '@/components/spot/SpotActions';
 import { getSpotById } from '@/lib/server/spots';
@@ -30,9 +30,10 @@ export default async function SpotDetailPage({ params }: { params: Promise<{ id:
           backgroundPosition: 'center',
         } : undefined}
       >
-        <Link href="/" className="absolute top-10 left-4 w-10 h-10 bg-black/10 dark:bg-black/40 rounded-full flex items-center justify-center backdrop-blur-md z-10 hover:bg-black/20 dark:hover:bg-black/60 transition">
-          <ChevronLeft className="w-6 h-6 text-zinc-800 dark:text-white" />
-        </Link>
+        <BackButton
+          className="absolute top-10 left-4 w-10 h-10 bg-black/10 dark:bg-black/40 rounded-full flex items-center justify-center backdrop-blur-md z-10 hover:bg-black/20 dark:hover:bg-black/60 transition"
+          iconClassName="w-6 h-6 text-zinc-800 dark:text-white"
+        />
         <h1 className={`text-4xl font-extrabold mb-2 drop-shadow-sm ${spot.coverImageUrl ? 'text-white' : ''}`}>
           {spot.name}
         </h1>

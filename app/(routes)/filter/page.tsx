@@ -5,7 +5,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { MapPin, Navigation, ArrowDownUp, Tag, Sparkles, Globe, Calendar, ListChecks, User, Map as MapIcon, Bookmark, X } from "lucide-react"
+import { MapPin, Navigation, ArrowDownUp, Tag, Sparkles, Globe, Calendar, ListChecks, User, Map as MapIcon, Bookmark, X, SlidersHorizontal } from "lucide-react"
 import SelectField from "@/components/ui/SelectField"
 import MultiSelectField from "@/components/ui/MultiSelectField"
 import type { PlaceList, Spot } from "@/types/spot"
@@ -397,9 +397,8 @@ function FilterForm() {
         </div>
       )}
 
-      {/* ヘッダ */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-white">絞り込み</h1>
+      {/* リセットボタン */}
+      <div className="flex justify-end">
         <button
           onClick={handleReset}
           className="text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors underline underline-offset-2"
@@ -604,7 +603,11 @@ function FilterForm() {
 export default function FilterPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white pb-24">
-      <div className="max-w-md md:max-w-2xl lg:max-w-3xl mx-auto px-4 py-8">
+      <header className="sticky top-0 z-50 flex items-center px-4 pt-10 pb-4 bg-zinc-50/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
+        <SlidersHorizontal className="w-6 h-6 text-green-500 mr-2" />
+        <h1 className="text-xl font-bold text-zinc-900 dark:text-white">絞り込み</h1>
+      </header>
+      <div className="px-4 pt-6">
         <Suspense fallback={<p className="text-sm text-zinc-400 py-8 text-center">読み込み中...</p>}>
           <FilterForm />
         </Suspense>

@@ -322,13 +322,13 @@ export default function MyPageClient({
   ]
 
   return (
-    <div className="min-h-dvh bg-zinc-50 dark:bg-zinc-950">
-      <header className="sticky top-0 z-40 flex items-center px-4 pt-10 pb-4 bg-zinc-50/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 pb-24">
+      <header className="sticky top-0 z-50 flex items-center px-4 pt-10 pb-4 bg-zinc-50/95 dark:bg-zinc-950/95 backdrop-blur-sm border-b border-zinc-200 dark:border-zinc-800">
         <User className="w-6 h-6 text-green-500 mr-2" />
         <h1 className="text-xl font-bold text-zinc-900 dark:text-white">マイページ</h1>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 pt-6 pb-24 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 pt-6 space-y-6">
 
         {/* プロフィールカード */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5">

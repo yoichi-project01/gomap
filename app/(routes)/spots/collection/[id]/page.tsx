@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronLeft, Map as MapIcon, MoreVertical } from 'lucide-react';
+import { Map as MapIcon, MoreVertical } from 'lucide-react';
+import BackButton from '@/components/ui/BackButton';
 import CollectionMapWrapper from '@/components/PlaceListMapWrapper';
 import CollectionActions from '@/components/collection/CollectionActions';
 import { getPlaceListById } from '@/lib/server/placeLists';
@@ -33,9 +34,10 @@ export default async function CollectionDetailPage({ params }: Props) {
           backgroundPosition: 'center',
         } : undefined}
       >
-        <Link href="/" className="absolute top-10 left-4 w-10 h-10 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-md z-10 hover:bg-black/60 transition">
-          <ChevronLeft className="w-6 h-6 text-white" />
-        </Link>
+        <BackButton
+          className="absolute top-10 left-4 w-10 h-10 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-md z-10 hover:bg-black/60 transition"
+          iconClassName="w-6 h-6 text-white"
+        />
 
         <div className="mt-8">
           <h1 className="text-3xl font-extrabold mb-2 text-white shadow-sm drop-shadow-md leading-tight">
