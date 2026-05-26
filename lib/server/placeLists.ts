@@ -59,6 +59,8 @@ function rowToPlaceList(
     .filter((s): s is Spot => Boolean(s));
 
   const creatorProfile = row.creator ? profileByCreator.get(row.creator) : undefined;
+  const rawName = creatorProfile?.displayName;
+  const creatorName = rawName && rawName !== '匿名ユーザー' ? rawName : undefined;
 
   return {
     id: row.id,
@@ -66,7 +68,7 @@ function rowToPlaceList(
     description: row.description ?? "",
     tags: row.tags?.length ? row.tags : undefined,
     creator: row.creator ?? undefined,
-    creatorName: creatorProfile?.displayName ?? undefined,
+    creatorName,
     creatorAvatarUrl: creatorProfile?.avatarUrl ?? undefined,
     likes: row.likes_count,
     coverImageUrl: row.cover_image_url ?? undefined,
