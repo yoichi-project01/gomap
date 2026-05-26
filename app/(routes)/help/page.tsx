@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HelpCircle, ChevronDown, Mail, MessageSquare } from "lucide-react";
+import { HelpCircle, ChevronDown, MessageSquare } from "lucide-react";
 import BackButton from "@/components/ui/BackButton";
 
 export const metadata = {
@@ -83,7 +83,7 @@ export default function HelpPage() {
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
             <Link
               href="/feedback"
-              className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors border-b border-zinc-100 dark:border-zinc-800"
+              className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
             >
               <MessageSquare className="w-5 h-5 text-zinc-500 dark:text-zinc-400 shrink-0" />
               <div className="flex-1 min-w-0">
@@ -91,16 +91,6 @@ export default function HelpPage() {
                 <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">改善要望・バグ報告など</p>
               </div>
             </Link>
-            <a
-              href="mailto:corelift.system@gmail.com"
-              className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-            >
-              <Mail className="w-5 h-5 text-zinc-500 dark:text-zinc-400 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-zinc-800 dark:text-zinc-200">メールで問い合わせる</p>
-                <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">corelift.system@gmail.com</p>
-              </div>
-            </a>
           </div>
         </section>
       </main>

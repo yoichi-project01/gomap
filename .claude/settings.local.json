@@ -57,7 +57,16 @@
       "Bash(echo \"RC=$?\")",
       "Bash(find /mnt/c/Users/234005/gomap/src -type d | head -50)",
       "Read(//mnt/c/Users/234005/gomap/**)",
-      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\234005\\\\gomap\\\\app\\\\\\(routes\\)\" -Filter \"page.tsx\" -Recurse)"
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\234005\\\\gomap\\\\app\\\\\\(routes\\)\" -Filter \"page.tsx\" -Recurse)",
+      "Bash(npx supabase *)",
+      "Bash(curl -s -X POST \"https://aeuxkwurvwsrulaqsjsi.supabase.co/rest/v1/rpc/version\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFldXhrd3VydndzcnVsYXFzanNpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODUzNzA3MywiZXhwIjoyMDk0MTEzMDczfQ.8ttMN86ZlpS6wGI6YDC6E5J5xfxRCGV_5AawkkgF9ck\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFldXhrd3VydndzcnVsYXFzanNpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODUzNzA3MywiZXhwIjoyMDk0MTEzMDczfQ.8ttMN86ZlpS6wGI6YDC6E5J5xfxRCGV_5AawkkgF9ck\")",
+      "Bash(cat ~/.supabase/access-token 2>/dev/null || echo \"not found\")",
+      "Read(//c/Users/234005/.supabase/**)",
+      "Bash(cat ~/.pgpass 2>/dev/null || echo \"not found\")",
+      "Read(//c/Users/234005/**)",
+      "Bash(Get-ChildItem \"c:\\\\Users\\\\234005\\\\gomap\\\\node_modules\\\\next\\\\dist\\\\docs\\\\01-app\\\\03-api-reference\\\\04-functions\" -Filter \"*.md\")",
+      "Bash(Select-Object -First 30 -ExpandProperty Name)",
+      "PowerShell(\\(Get-Content \"c:\\\\Users\\\\234005\\\\gomap\\\\node_modules\\\\lucide-react\\\\package.json\" | ConvertFrom-Json\\).version)"
     ]
   }
 }

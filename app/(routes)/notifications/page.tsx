@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { Bell, BellOff, Bookmark, Heart } from "lucide-react"
 import BackButton from "@/components/ui/BackButton"
 import { listNotifications } from "@/lib/server/notifications"
