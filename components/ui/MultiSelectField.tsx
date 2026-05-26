@@ -113,8 +113,8 @@ export default function MultiSelectField({
                   onClick={() => toggle(opt)}
                   className={`w-full flex items-center justify-between gap-2 text-left text-xs px-3 py-2 transition ${
                     selected
-                      ? 'bg-green-500/15 text-green-400 font-bold'
-                      : 'text-zinc-200 hover:bg-zinc-800'
+                      ? 'bg-green-500/15 text-green-600 dark:text-green-400 font-bold'
+                      : 'text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                   }`}
                 >
                   <span className="truncate">{opt}</span>
