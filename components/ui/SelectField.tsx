@@ -49,7 +49,7 @@ export default function SelectField({
     };
   }, [open]);
 
-  const isActive = value !== null;
+  const isActive = clearable && value !== null;
   const displayValue = value ?? placeholder;
 
   return (
