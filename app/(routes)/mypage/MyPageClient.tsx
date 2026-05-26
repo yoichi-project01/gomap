@@ -218,12 +218,11 @@ function DeleteAccountDialog({
 }
 
 export default function MyPageClient({
-  user, stats, statsError, appVersion,
+  user, stats, statsError,
 }: {
   user: MyPageUser
   stats: MyPageStats
   statsError: boolean
-  appVersion: string
 }) {
   const router = useRouter()
 
@@ -492,9 +491,6 @@ export default function MyPageClient({
             <NavRow href="/feedback" label="フィードバックを送る" sub="ご意見・バグ報告" />
             <NavRow href="/terms"    label="利用規約" />
             <NavRow href="/privacy"  label="プライバシーポリシー" />
-            <SettingRow label="バージョン">
-              <span className="text-sm text-zinc-400 dark:text-zinc-500">{appVersion}</span>
-            </SettingRow>
           </div>
         </div>
 

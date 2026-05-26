@@ -1,6 +1,6 @@
 {
   "name": "gomap",
-  "version": "0.1.0",
+  "version": "19.45.45",
   "private": true,
   "scripts": {
     "dev": "next dev --port 2200",

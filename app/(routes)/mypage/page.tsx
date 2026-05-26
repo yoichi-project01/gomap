@@ -3,7 +3,7 @@ import { createSupabaseServerClient } from "@/lib/server/supabaseAuth"
 import { getProfile } from "@/lib/server/profiles"
 import { getUserStats, type UserStats } from "@/lib/server/stats"
 import { formatJstDate } from "@/lib/format"
-import pkg from "@/package.json"
+
 import MyPageClient, { type MyPageUser } from "./MyPageClient"
 
 const ZERO_STATS: UserStats = { placeListsCount: 0, favoritesCount: 0, likesReceived: 0 }
@@ -65,7 +65,6 @@ export default async function MyPage() {
       user={myPageUser}
       stats={stats}
       statsError={statsError}
-      appVersion={pkg.version}
     />
   )
 }
