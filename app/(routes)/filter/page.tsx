@@ -5,7 +5,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { MapPin, Navigation, ArrowDownUp, Tag, Sparkles, Globe, Calendar, ListChecks, User, Map as MapIcon, Bookmark, X, SlidersHorizontal } from "lucide-react"
+import { MapPin, Navigation, ArrowDownUp, Tag, Sparkles, Calendar, ListChecks, Map as MapIcon, Bookmark, X, SlidersHorizontal } from "lucide-react"
 import SelectField from "@/components/ui/SelectField"
 import MultiSelectField from "@/components/ui/MultiSelectField"
 import type { PlaceList, Spot } from "@/types/spot"
@@ -39,8 +39,6 @@ const PRESET_CATEGORIES = ["グルメ", "観光", "カフェ", "自然", "ショ
 const DISTANCES = ["500m 以内", "1km 以内", "3km 以内", "10km 以内"]
 const ORDERS    = ["登録が新しい順", "登録が古い順", "距離が近い順", "人気順"]
 
-// 公開/非公開: label 表示 → 内部 boolean に変換
-const PUB_OPTIONS = ["公開のみ", "非公開のみ"] as const
 // 作成日: ラベル → CreatedSince
 const SINCE_LABEL: Record<CreatedSince, string> = {
   week:  "今週",
@@ -89,10 +87,6 @@ function FilterForm() {
   const [query, setQuery]       = useState(searchParams.get("q") ?? "")
 
   // 追加フィルタの初期値: URL クエリから復元
-  const initialPub = searchParams.get("pub")
-  const [isPublic, setIsPublic] = useState<boolean | null>(
-    initialPub === "1" ? true : initialPub === "0" ? false : null,
-  )
   const initialSince = searchParams.get("since") as CreatedSince | null
   const [createdSince, setCreatedSince] = useState<CreatedSince | null>(
     initialSince && ["week", "month", "year"].includes(initialSince) ? initialSince : null,
@@ -101,7 +95,6 @@ function FilterForm() {
   const [minSpots, setMinSpots] = useState<number | null>(
     initialMin && /^\d+$/.test(initialMin) ? Number(initialMin) : null,
   )
-  const [mineOnly, setMineOnly] = useState(searchParams.get("mine") === "1")
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   // マップ範囲フィルタ
@@ -179,14 +172,11 @@ function FilterForm() {
       distance: distance || undefined,
       coords,
       order: order as SortOrder,
-      isPublic: isPublic ?? undefined,
       createdSince: createdSince ?? undefined,
       minSpots: minSpots ?? undefined,
-      mineOnly,
-      currentUserId: currentUserId ?? undefined,
       bbox: mapEnabled && bbox ? bbox : undefined,
     }).length
-  }, [allPlaceLists, prefecture, selectedCats, distance, order, query, coords, isPublic, createdSince, minSpots, mineOnly, currentUserId, mapEnabled, bbox])
+  }, [allPlaceLists, prefecture, selectedCats, distance, order, query, coords, createdSince, minSpots, mapEnabled, bbox])
 
   function requestLocation() {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
@@ -214,10 +204,8 @@ function FilterForm() {
     setQuery("")
     setCoords(null)
     setGeoStatus("idle")
-    setIsPublic(null)
     setCreatedSince(null)
     setMinSpots(null)
-    setMineOnly(false)
     setBBox(null)
     setMapEnabled(false)
   }
@@ -241,10 +229,8 @@ function FilterForm() {
       distance: distance || undefined,
       coords,
       order,
-      isPublic,
       createdSince,
       minSpots,
-      mineOnly,
       bbox: mapEnabled ? bbox : undefined,
     }
   }
@@ -260,14 +246,12 @@ function FilterForm() {
     setCoords(c ?? null)
     setGeoStatus(c ? "ok" : "idle")
     setOrder((d.order as string) ?? DEFAULT_ORDER)
-    setIsPublic(typeof d.isPublic === "boolean" ? d.isPublic : null)
     setCreatedSince(
       d.createdSince === "week" || d.createdSince === "month" || d.createdSince === "year"
         ? (d.createdSince as CreatedSince)
         : null,
     )
     setMinSpots(typeof d.minSpots === "number" ? d.minSpots : null)
-    setMineOnly(d.mineOnly === true)
     const b = d.bbox as BBox | null | undefined
     if (b && typeof b.north === "number") {
       setBBox(b)
@@ -318,10 +302,8 @@ function FilterForm() {
     }
     if (order !== DEFAULT_ORDER) params.set("order", order)
     if (query.trim())            params.set("q", query.trim())
-    if (isPublic !== null)       params.set("pub", isPublic ? "1" : "0")
     if (createdSince)            params.set("since", createdSince)
     if (minSpots)                params.set("min", String(minSpots))
-    if (mineOnly)                params.set("mine", "1")
     if (mapEnabled && bbox) {
       params.set("n", bbox.north.toFixed(4))
       params.set("s", bbox.south.toFixed(4))
@@ -501,19 +483,6 @@ function FilterForm() {
         )}
       </div>
 
-      {/* 公開/非公開 */}
-      <div>
-        <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">公開設定</h2>
-        <SelectField
-          icon={<Globe className="w-3.5 h-3.5" />}
-          ariaLabel="公開状態で絞り込み"
-          value={isPublic === true ? "公開のみ" : isPublic === false ? "非公開のみ" : null}
-          options={[...PUB_OPTIONS]}
-          onChange={(v) => setIsPublic(v === "公開のみ" ? true : v === "非公開のみ" ? false : null)}
-          placeholder="指定なし"
-        />
-      </div>
-
       {/* 作成日 */}
       <div>
         <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">作成日</h2>
@@ -539,21 +508,6 @@ function FilterForm() {
           placeholder="指定なし"
         />
       </div>
-
-      {/* 自分のみ (ログイン中のみ表示) */}
-      {currentUserId && (
-        <div>
-          <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-2">登録者</h2>
-          <SelectField
-            icon={<User className="w-3.5 h-3.5" />}
-            ariaLabel="登録者で絞り込み"
-            value={mineOnly ? "自分のみ" : null}
-            options={["自分のみ"]}
-            onChange={(v) => setMineOnly(v === "自分のみ")}
-            placeholder="全員"
-          />
-        </div>
-      )}
 
       {/* 並び順 */}
       <div>
