@@ -63,6 +63,7 @@ export default async function CollectionDetailPage({ params }: Props) {
         initialLikesCount={collection.likes ?? 0}
         initialSavesCount={savesCount}
         mapAnchorId={MAP_ANCHOR_ID}
+        name={collection.name}
       />
 
       <div id={MAP_ANCHOR_ID} className="px-4 mb-8 scroll-mt-4">

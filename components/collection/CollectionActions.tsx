@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Bookmark, Heart, Map as MapIcon } from "lucide-react"
+import { Bookmark, Heart, Map as MapIcon, Share2 } from "lucide-react"
 import { togglePlaceListLikeAction } from "@/app/actions/likes"
 import { togglePlaceListSaveAction } from "@/app/actions/saves"
 
@@ -13,6 +13,7 @@ type Props = {
   initialLikesCount: number
   initialSavesCount: number
   mapAnchorId: string
+  name?: string
 }
 
 const FEEDBACK_DURATION = 2000
@@ -24,6 +25,7 @@ export default function CollectionActions({
   initialLikesCount,
   initialSavesCount,
   mapAnchorId,
+  name,
 }: Props) {
   const router = useRouter()
   const [liked, setLiked] = useState(initialLiked)
@@ -37,6 +39,25 @@ export default function CollectionActions({
   function flash(message: string) {
     setFeedback(message)
     window.setTimeout(() => setFeedback((prev) => (prev === message ? null : prev)), FEEDBACK_DURATION)
+  }
+
+  async function handleShare() {
+    const url = window.location.href
+    const shareData: ShareData = { title: name, text: name, url }
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share(shareData)
+        return
+      } catch (err) {
+        if ((err as DOMException)?.name === "AbortError") return
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      flash("URL をコピーしました")
+    } catch {
+      flash("共有に失敗しました")
+    }
   }
 
   function scrollToMap() {
@@ -120,6 +141,14 @@ export default function CollectionActions({
       >
         <Bookmark className="w-7 h-7" fill={saved ? "currentColor" : "none"} />
         <span className="text-xs font-bold">{savesCount}</span>
+      </button>
+      <button
+        type="button"
+        onClick={handleShare}
+        aria-label="共有"
+        className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-100 transition"
+      >
+        <Share2 className="w-7 h-7" />
       </button>
       {feedback && (
         <span className="text-xs text-zinc-400 ml-1" role="status">

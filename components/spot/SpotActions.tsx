@@ -2,8 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Heart, Star, Navigation, Share2 } from "lucide-react"
-import { toggleFavoriteAction } from "@/app/actions/favorites"
+import { Heart, Navigation, Share2 } from "lucide-react"
 import { toggleSpotLikeAction } from "@/app/actions/spotLikes"
 
 type Props = {
@@ -11,20 +10,17 @@ type Props = {
   name: string
   lat: number
   lng: number
-  initialFavorited: boolean
   initialLiked: boolean
   likeCount: number
 }
 
 const FEEDBACK_DURATION = 2000
 
-export default function SpotActions({ spotId, name, lat, lng, initialFavorited, initialLiked, likeCount }: Props) {
+export default function SpotActions({ spotId, name, lat, lng, initialLiked, likeCount }: Props) {
   const router = useRouter()
   const [feedback, setFeedback] = useState<string | null>(null)
-  const [favorited, setFavorited] = useState(initialFavorited)
   const [liked, setLiked] = useState(initialLiked)
   const [displayLikeCount, setDisplayLikeCount] = useState(likeCount)
-  const [isFavPending, startFavTransition] = useTransition()
   const [isLikePending, startLikeTransition] = useTransition()
 
   const navUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
@@ -53,22 +49,6 @@ export default function SpotActions({ spotId, name, lat, lng, initialFavorited, 
     } catch {
       flash("共有に失敗しました")
     }
-  }
-
-  function handleFavorite() {
-    const next = !favorited
-    setFavorited(next)
-    startFavTransition(async () => {
-      const result = await toggleFavoriteAction(spotId)
-      if (!result.ok) {
-        setFavorited(!next)
-        if (result.reason === "unauthenticated") {
-          router.push("/login")
-        } else {
-          flash(result.message ?? "操作に失敗しました")
-        }
-      }
-    })
   }
 
   function handleLike() {
@@ -117,21 +97,6 @@ export default function SpotActions({ spotId, name, lat, lng, initialFavorited, 
         {displayLikeCount > 0 && (
           <span className="text-sm font-semibold">{displayLikeCount}</span>
         )}
-      </button>
-
-      <button
-        type="button"
-        onClick={handleFavorite}
-        disabled={isFavPending}
-        aria-label={favorited ? "お気に入りから外す" : "お気に入りに追加"}
-        aria-pressed={favorited}
-        className={`transition disabled:opacity-50 ${
-          favorited
-            ? "text-yellow-400 hover:text-yellow-300"
-            : "text-zinc-400 dark:text-gray-400 hover:text-zinc-700 dark:hover:text-white"
-        }`}
-      >
-        <Star className="w-7 h-7" fill={favorited ? "currentColor" : "none"} />
       </button>
 
       <button

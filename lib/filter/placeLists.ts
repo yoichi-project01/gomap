@@ -103,7 +103,7 @@ export function filterPlaceLists(placeLists: PlaceList[], filters: PlaceListFilt
   if (filters.cats?.length) {
     const cats = new Set(filters.cats)
     result = result.filter((p) =>
-      (p.category != null && cats.has(p.category)) ||
+      (p.tags?.some((t) => cats.has(t)) ?? false) ||
       p.spots.some((s) => s.category != null && cats.has(s.category))
     )
   }

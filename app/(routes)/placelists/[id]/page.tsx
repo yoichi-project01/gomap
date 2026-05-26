@@ -89,6 +89,7 @@ export default async function PlaceListDetailPage({ params }: Props) {
           initialLikesCount={likesCount}
           initialSavesCount={savesCount}
           mapAnchorId={MAP_ANCHOR_ID}
+          name={placeList.name}
         />
 
         <section>

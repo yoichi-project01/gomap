@@ -18,7 +18,7 @@ type PlaceListRow = {
   id: string;
   name: string;
   description: string | null;
-  category: string | null;
+  tags: string[] | null;
   cover_image_url: string | null;
   creator: string | null;
   likes_count: number;
@@ -64,7 +64,7 @@ function rowToPlaceList(
     id: row.id,
     name: row.name,
     description: row.description ?? "",
-    category: row.category ?? undefined,
+    tags: row.tags?.length ? row.tags : undefined,
     creator: row.creator ?? undefined,
     creatorName: creatorProfile?.displayName ?? undefined,
     creatorAvatarUrl: creatorProfile?.avatarUrl ?? undefined,
@@ -150,7 +150,7 @@ export async function getPlaceListById(
 export type CreatePlaceListInput = {
   name: string;
   description?: string;
-  category?: string;
+  tags?: string[];
   creator: string; // auth.users.id (uuid)
   coverImageUrl?: string;
   isPublic?: boolean; // 省略時は true (公開)
@@ -166,7 +166,7 @@ export async function createPlaceList(
     .insert({
       name: input.name,
       description: input.description ?? null,
-      category: input.category ?? null,
+      tags: input.tags?.length ? input.tags : null,
       creator: input.creator,
       cover_image_url: input.coverImageUrl ?? null,
       is_public: input.isPublic ?? true,
@@ -236,7 +236,7 @@ export async function countPlaceListsByCreator(
 export type UpdatePlaceListInput = {
   name: string;
   description?: string;
-  category?: string;
+  tags?: string[];
   coverImageUrl?: string;
   isPublic?: boolean; // 省略時は true (公開)
   spotIds: string[];
@@ -252,7 +252,7 @@ export async function updatePlaceList(
     .update({
       name: input.name,
       description: input.description ?? null,
-      category: input.category ?? null,
+      tags: input.tags?.length ? input.tags : null,
       cover_image_url: input.coverImageUrl ?? null,
       is_public: input.isPublic ?? true,
     })

@@ -7,7 +7,7 @@ export type CreatePlaceListInput = {
   name: string;
   spotIds: string[];
   description?: string;
-  category?: string;
+  tags?: string[];
   creator?: string;
   coverImageUrl?: string;
   isPublic?: boolean;
@@ -42,7 +42,7 @@ export type UpdatePlaceListInput = {
   name: string;
   spotIds: string[];
   description?: string;
-  category?: string;
+  tags?: string[];
   coverImageUrl?: string;
   isPublic?: boolean;
 };
