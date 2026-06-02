@@ -2,9 +2,15 @@
 
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { Bookmark, Heart, Map as MapIcon, Share2 } from "lucide-react"
+import { Bookmark, Heart, Navigation, Share2 } from "lucide-react"
 import { togglePlaceListLikeAction } from "@/app/actions/likes"
 import { togglePlaceListSaveAction } from "@/app/actions/saves"
+
+type SpotLatLng = {
+  lat: number
+  lng: number
+  name: string
+}
 
 type Props = {
   placeListId: string
@@ -14,6 +20,7 @@ type Props = {
   initialSavesCount: number
   mapAnchorId: string
   name?: string
+  spots?: SpotLatLng[]
 }
 
 const FEEDBACK_DURATION = 2000
@@ -26,6 +33,7 @@ export default function CollectionActions({
   initialSavesCount,
   mapAnchorId,
   name,
+  spots = [],
 }: Props) {
   const router = useRouter()
   const [liked, setLiked] = useState(initialLiked)
@@ -60,9 +68,17 @@ export default function CollectionActions({
     }
   }
 
-  function scrollToMap() {
-    const target = document.getElementById(mapAnchorId)
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "start" })
+  function handleRoute() {
+    if (spots.length === 0) return
+    let url: string
+    if (spots.length === 1) {
+      url = `https://www.google.com/maps/dir/?api=1&destination=${spots[0].lat},${spots[0].lng}`
+    } else {
+      const destination = spots[spots.length - 1]
+      const waypoints = spots.slice(0, -1).map((s) => `${s.lat},${s.lng}`).join("|")
+      url = `https://www.google.com/maps/dir/?api=1&destination=${destination.lat},${destination.lng}&waypoints=${encodeURIComponent(waypoints)}`
+    }
+    window.open(url, "_blank", "noopener,noreferrer")
   }
 
   function handleLike() {
@@ -110,11 +126,11 @@ export default function CollectionActions({
     <div className="flex items-center gap-6 px-4 py-2 mb-6">
       <button
         type="button"
-        onClick={scrollToMap}
-        aria-label="地図を表示"
+        onClick={handleRoute}
+        aria-label="経路案内"
         className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg text-black"
       >
-        <MapIcon className="w-6 h-6 fill-black" />
+        <Navigation className="w-6 h-6 fill-black" />
       </button>
       <button
         type="button"

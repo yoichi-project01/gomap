@@ -90,6 +90,7 @@ export default async function PlaceListDetailPage({ params }: Props) {
           initialSavesCount={savesCount}
           mapAnchorId={MAP_ANCHOR_ID}
           name={placeList.name}
+          spots={placeList.spots.map((s) => ({ lat: s.lat, lng: s.lng, name: s.name }))}
         />
 
         <section>
