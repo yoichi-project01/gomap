@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js"
 import type { Spot } from "@/types/spot"
 import { createSupabaseServerClient } from "./supabaseAuth"
 
@@ -70,15 +71,14 @@ export async function listLikedSpots(): Promise<LikedSpot[]> {
   })
 }
 
-export async function countLikedSpots(): Promise<number> {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return 0
-
-  const { count, error } = await supabase
+export async function countLikedSpots(
+  client: SupabaseClient,
+  userId: string,
+): Promise<number> {
+  const { count, error } = await client
     .from("spot_likes")
     .select("spot_id", { count: "exact", head: true })
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
 
   if (error) return 0
   return count ?? 0

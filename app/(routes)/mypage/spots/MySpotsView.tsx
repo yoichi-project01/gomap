@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { MapPin, Trash2, AlertTriangle } from "lucide-react"
+import { MapPin, Pencil, Trash2, AlertTriangle } from "lucide-react"
+import SpotMiniMapWrapper from "@/components/SpotMiniMapWrapper"
 import type { Spot } from "@/types/spot"
 import { deleteSpot as deleteSpotApi } from "@/lib/client/spots"
 import { formatJstDate } from "@/lib/format"
@@ -120,10 +121,21 @@ export default function MySpotsView({ initialSpots }: Props) {
 
   return (
     <>
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col gap-3">
         {spots.map((spot) => (
           <li key={spot.id} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3">
+            <Link href={`/spots/${spot.id}`} className="flex h-36 w-full">
+              {spot.coverImageUrl && (
+                <div className="w-1/5 h-full shrink-0 bg-black flex items-center justify-center overflow-hidden">
+                  <img src={spot.coverImageUrl} alt={spot.name} className="w-full h-full object-contain" />
+                </div>
+              )}
+              <div className={`${spot.coverImageUrl ? "w-4/5" : "w-full"} h-full relative bg-zinc-200 dark:bg-zinc-800`}>
+                <SpotMiniMapWrapper locations={[{ id: spot.id, name: spot.name, lat: spot.lat, lng: spot.lng }]} />
+              </div>
+            </Link>
+
+            <div className="flex items-start justify-between px-4 py-3 gap-3">
               <Link href={`/spots/${spot.id}`} className="flex-1 min-w-0 group">
                 <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
                   {spot.name}
@@ -132,13 +144,22 @@ export default function MySpotsView({ initialSpots }: Props) {
                   {[spot.prefecture, spot.category, formatJstDate(spot.createdAt)].filter(Boolean).join(" · ")}
                 </p>
               </Link>
-              <button
-                onClick={() => { setError(null); setTarget(spot) }}
-                className="ml-3 p-1.5 text-zinc-300 dark:text-zinc-600 hover:text-red-400 transition-colors shrink-0"
-                aria-label={`${spot.name}を削除`}
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-1 ml-3 mt-0.5 shrink-0">
+                <Link
+                  href={`/spots/${spot.id}/edit`}
+                  className="p-1.5 text-zinc-300 dark:text-zinc-600 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+                  aria-label={`${spot.name}を編集`}
+                >
+                  <Pencil className="w-4 h-4" />
+                </Link>
+                <button
+                  onClick={() => { setError(null); setTarget(spot) }}
+                  className="p-1.5 text-zinc-300 dark:text-zinc-600 hover:text-red-400 transition-colors"
+                  aria-label={`${spot.name}を削除`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </li>
         ))}

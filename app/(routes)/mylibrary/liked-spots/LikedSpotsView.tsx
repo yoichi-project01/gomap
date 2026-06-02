@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Heart, MapPin } from "lucide-react"
+import { Heart } from "lucide-react"
 import SpotMiniMapWrapper from "@/components/SpotMiniMapWrapper"
 import type { LikedSpot } from "@/lib/server/spotLikes"
 import { toggleSpotLikeAction } from "@/app/actions/spotLikes"
@@ -49,10 +49,7 @@ export default function LikedSpotsView({ initialSpots }: Props) {
   return (
     <ul className="flex flex-col gap-3">
       {spots.map((spot) => (
-        <li
-          key={spot.id}
-          className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden"
-        >
+        <li key={spot.id} className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
           <Link href={`/spots/${spot.id}`} className="flex h-36 w-full">
             {spot.coverImageUrl && (
               <div className="w-1/5 h-full shrink-0 bg-black flex items-center justify-center overflow-hidden">
@@ -66,17 +63,11 @@ export default function LikedSpotsView({ initialSpots }: Props) {
 
           <div className="flex items-start justify-between px-4 py-3 gap-3">
             <Link href={`/spots/${spot.id}`} className="flex-1 min-w-0 group">
-              <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
                 {spot.name}
               </p>
-              {spot.prefecture && (
-                <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 flex items-center gap-1">
-                  <MapPin className="w-3 h-3 shrink-0" />
-                  {spot.prefecture}
-                </p>
-              )}
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
-                いいね日: {formatJstDate(spot.likedAt)}
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
+                {[spot.prefecture, `いいね日: ${formatJstDate(spot.likedAt)}`].filter(Boolean).join(" · ")}
               </p>
             </Link>
             <button

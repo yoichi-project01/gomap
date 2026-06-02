@@ -142,6 +142,41 @@ export async function createSpot(
   return rowToSpot(data as SpotRow);
 }
 
+export type UpdateSpotInput = {
+  name?: string;
+  description?: string | null;
+  lat?: number;
+  lng?: number;
+  prefecture?: string | null;
+  category?: string | null;
+  coverImageUrl?: string | null;
+};
+
+export async function updateSpot(
+  client: SupabaseClient,
+  id: string,
+  input: UpdateSpotInput,
+): Promise<Spot | null> {
+  const patch: Record<string, unknown> = {};
+  if (input.name         !== undefined) patch.name            = input.name;
+  if (input.description  !== undefined) patch.description     = input.description  ?? null;
+  if (input.lat          !== undefined) patch.lat             = input.lat;
+  if (input.lng          !== undefined) patch.lng             = input.lng;
+  if (input.prefecture   !== undefined) patch.prefecture      = input.prefecture   ?? null;
+  if (input.category     !== undefined) patch.category        = input.category     ?? null;
+  if (input.coverImageUrl !== undefined) patch.cover_image_url = input.coverImageUrl ?? null;
+
+  const { data, error } = await client
+    .from("spots")
+    .update(patch)
+    .eq("id", id)
+    .select("*")
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? rowToSpot(data as SpotRow) : null;
+}
+
 // 削除成功時 true、対象がない / 権限なし (RLS) は false
 export async function deleteSpot(
   client: SupabaseClient,

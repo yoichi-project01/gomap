@@ -66,7 +66,12 @@
       "Read(//c/Users/234005/**)",
       "Bash(Get-ChildItem \"c:\\\\Users\\\\234005\\\\gomap\\\\node_modules\\\\next\\\\dist\\\\docs\\\\01-app\\\\03-api-reference\\\\04-functions\" -Filter \"*.md\")",
       "Bash(Select-Object -First 30 -ExpandProperty Name)",
-      "PowerShell(\\(Get-Content \"c:\\\\Users\\\\234005\\\\gomap\\\\node_modules\\\\lucide-react\\\\package.json\" | ConvertFrom-Json\\).version)"
+      "PowerShell(\\(Get-Content \"c:\\\\Users\\\\234005\\\\gomap\\\\node_modules\\\\lucide-react\\\\package.json\" | ConvertFrom-Json\\).version)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\234005\\\\gomap\" -Directory)",
+      "Bash(Select-Object Name)",
+      "mcp__claude_ai_Canva__request-outline-review",
+      "mcp__claude_ai_Canva__generate-design-structured",
+      "mcp__claude_ai_Canva__create-design-from-candidate"
     ]
   }
 }

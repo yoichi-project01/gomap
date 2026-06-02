@@ -83,7 +83,7 @@ export async function countSaved(userId: string): Promise<number> {
   const supabase = await createSupabaseServerClient();
   const { count, error } = await supabase
     .from("place_list_saves")
-    .select("place_list_id", { count: "exact", head: true })
+    .select("place_list_id, place_lists!inner(id)", { count: "exact", head: true })
     .eq("user_id", userId);
 
   if (error) throw wrapPostgrestError("countSaved", error);

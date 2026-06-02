@@ -52,6 +52,26 @@ export async function createSpot(input: CreateSpotInput): Promise<Spot> {
   return res.json();
 }
 
+export type UpdateSpotInput = {
+  name?: string;
+  description?: string | null;
+  lat?: number;
+  lng?: number;
+  prefecture?: string | null;
+  category?: string | null;
+  coverImageUrl?: string | null;
+};
+
+export async function updateSpot(id: string, input: UpdateSpotInput): Promise<Spot> {
+  const res = await fetch(`/api/spots/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) throw new Error("スポットの更新に失敗しました");
+  return res.json();
+}
+
 export async function deleteSpot(id: string): Promise<void> {
   const res = await fetch(`/api/spots/${encodeURIComponent(id)}`, { method: "DELETE" });
   if (!res.ok) throw new Error("スポットの削除に失敗しました");
