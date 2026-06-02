@@ -9,14 +9,14 @@ import { createSpot, deleteSpot } from '@/lib/client/spots';
 import CoverImageUploader from '@/components/ui/CoverImageUploader';
 import LocationSearchModal from '@/components/spot/LocationSearchModal';
 import SpotPicker from '@/components/placelists/SpotPicker';
-import SelectField from '@/components/ui/SelectField';
+import MultiSelectField from '@/components/ui/MultiSelectField';
 import type { PlaceSearchResult } from '@/app/api/places/search/route';
 
 type Props = {
   id: string;
   initialTitle: string;
   initialDescription: string;
-  initialCategory: string;
+  initialTags: string[];
   initialIsPublic: boolean;
   initialCover: { url: string; path: string } | null;
   initialSpots: Spot[];
@@ -31,7 +31,7 @@ export default function EditPlaceListForm({
   id,
   initialTitle,
   initialDescription,
-  initialCategory,
+  initialTags,
   initialIsPublic,
   initialCover,
   initialSpots,
@@ -42,7 +42,7 @@ export default function EditPlaceListForm({
   const router = useRouter();
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
-  const [category, setCategory] = useState<string | null>(initialCategory || null);
+  const [tags, setTags] = useState<string[]>(initialTags);
   const [isPublic, setIsPublic] = useState(initialIsPublic);
   const [selectedSpots, setSelectedSpots] = useState<Spot[]>(initialSpots);
   const [showSearch, setShowSearch] = useState(false);
@@ -120,7 +120,7 @@ export default function EditPlaceListForm({
       await updatePlaceList(id, {
         name: title.trim(),
         description: description.trim() || undefined,
-        category: category || undefined,
+        tags: tags.length ? tags : undefined,
         spotIds: selectedSpots.map((s) => s.id),
         coverImageUrl: cover?.url,
         isPublic,
@@ -175,14 +175,15 @@ export default function EditPlaceListForm({
         </div>
 
         <div>
-          <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-3">カテゴリ</h2>
-          <SelectField
+          <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-3">タグ（最大2つ）</h2>
+          <MultiSelectField
             icon={<Tag className="w-3.5 h-3.5" />}
-            ariaLabel="カテゴリを選択"
-            value={category}
+            ariaLabel="タグを選択"
+            values={tags}
             options={CATEGORIES}
-            onChange={setCategory}
-            placeholder="カテゴリを選択"
+            onChange={setTags}
+            placeholder="タグを選択"
+            max={2}
           />
         </div>
 

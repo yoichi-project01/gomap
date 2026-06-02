@@ -47,7 +47,7 @@ export default async function CollectionDetailPage({ params }: Props) {
             {collection.description}
           </p>
           <div className="flex items-center gap-2 text-xs font-bold text-zinc-400">
-            <span className="text-white">{collection.creatorName ?? '匿名ユーザー'}</span>
+            <span className="text-white">{collection.creatorName ?? 'Unknown'}</span>
             <span>•</span>
             <span>{collection.likes ?? 0} 件のいいね</span>
             <span>•</span>
@@ -63,6 +63,7 @@ export default async function CollectionDetailPage({ params }: Props) {
         initialLikesCount={collection.likes ?? 0}
         initialSavesCount={savesCount}
         mapAnchorId={MAP_ANCHOR_ID}
+        name={collection.name}
       />
 
       <div id={MAP_ANCHOR_ID} className="px-4 mb-8 scroll-mt-4">

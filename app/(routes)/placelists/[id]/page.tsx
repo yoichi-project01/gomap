@@ -71,14 +71,14 @@ export default async function PlaceListDetailPage({ params }: Props) {
             <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
               {placeList.creatorAvatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={placeList.creatorAvatarUrl} alt={placeList.creatorName || '匿名ユーザー'} className="w-full h-full object-cover" />
+                <img src={placeList.creatorAvatarUrl} alt={placeList.creatorName || 'Unknown'} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white">
                   {placeList.creatorName?.charAt(0).toUpperCase() || 'U'}
                 </div>
               )}
             </div>
-            <span className="text-xs text-zinc-500 dark:text-zinc-300">作成者: {placeList.creatorName || '匿名ユーザー'}</span>
+            <span className="text-xs text-zinc-500 dark:text-zinc-300">作成者: {placeList.creatorName || 'Unknown'}</span>
           </div>
         </div>
 
@@ -89,6 +89,7 @@ export default async function PlaceListDetailPage({ params }: Props) {
           initialLikesCount={likesCount}
           initialSavesCount={savesCount}
           mapAnchorId={MAP_ANCHOR_ID}
+          name={placeList.name}
         />
 
         <section>

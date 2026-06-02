@@ -21,7 +21,7 @@ export type PlaceList = {
   id: string;
   name: string;
   description: string;
-  category?: string;
+  tags?: string[];
   creator?: string;       // auth.users.id (uuid)
   creatorName?: string;   // profiles.display_name (表示用)
   creatorAvatarUrl?: string; // profiles.avatar_url (表示用)

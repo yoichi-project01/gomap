@@ -39,7 +39,7 @@ export default async function EditPlaceListPage({ params }: Props) {
       id={id}
       initialTitle={placeList.name}
       initialDescription={placeList.description ?? ''}
-      initialCategory={placeList.category ?? ''}
+      initialTags={placeList.tags ?? []}
       initialIsPublic={placeList.isPublic ?? true}
       initialCover={initialCover}
       initialSpots={placeList.spots}

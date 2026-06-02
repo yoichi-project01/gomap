@@ -9,8 +9,8 @@ type Props = {
   values: string[];
   options: string[];
   onChange: (next: string[]) => void;
-  // values が空のときに表示する文字列。省略時は "すべて"。
   placeholder?: string;
+  max?: number;
 };
 
 // SelectField と同じビジュアル言語の複数選択プルダウン。
@@ -23,6 +23,7 @@ export default function MultiSelectField({
   options,
   onChange,
   placeholder = 'すべて',
+  max,
 }: Props) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -49,15 +50,14 @@ export default function MultiSelectField({
   }, [open]);
 
   const isActive = values.length > 0;
-  const displayValue =
-    values.length === 0
-      ? placeholder
-      : values.length === 1
-        ? values[0]
-        : `${values[0]} ほか${values.length - 1}件`;
+  const displayValue = values.length === 0 ? placeholder : values.join(' · ');
 
   const toggle = (opt: string) => {
-    onChange(values.includes(opt) ? values.filter((v) => v !== opt) : [...values, opt]);
+    if (values.includes(opt)) {
+      onChange(values.filter((v) => v !== opt));
+    } else if (max === undefined || values.length < max) {
+      onChange([...values, opt]);
+    }
   };
 
   return (

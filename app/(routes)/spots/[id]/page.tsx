@@ -4,15 +4,13 @@ import BackButton from '@/components/ui/BackButton';
 import SpotDetailMapWrapper from '@/components/SpotDetailMapWrapper';
 import SpotActions from '@/components/spot/SpotActions';
 import { getSpotById } from '@/lib/server/spots';
-import { isSpotFavorited } from '@/lib/server/favorites';
 import { isSpotLiked } from '@/lib/server/spotLikes';
 import { supabase } from '@/lib/server/supabase';
 
 export default async function SpotDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [spot, favorited, liked] = await Promise.all([
+  const [spot, liked] = await Promise.all([
     getSpotById(supabase, id),
-    isSpotFavorited(id),
     isSpotLiked(id),
   ]);
   if (!spot) notFound();
@@ -48,7 +46,6 @@ export default async function SpotDetailPage({ params }: { params: Promise<{ id:
         name={spot.name}
         lat={spot.lat}
         lng={spot.lng}
-        initialFavorited={favorited}
         initialLiked={liked}
         likeCount={spot.likesCount ?? 0}
       />
