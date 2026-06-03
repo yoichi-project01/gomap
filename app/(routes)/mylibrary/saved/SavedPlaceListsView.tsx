@@ -33,7 +33,9 @@ export default function SavedPlaceListsView({ initialPlaceLists }: Props) {
         } else {
           alert(result.message ?? "保存解除に失敗しました")
         }
+        return
       }
+      router.refresh()
     })
   }
 

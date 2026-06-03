@@ -73,7 +73,8 @@
       "mcp__claude_ai_Canva__generate-design-structured",
       "mcp__claude_ai_Canva__create-design-from-candidate",
       "PowerShell(Get-ChildItem \"c:\\\\Users\\\\234005\\\\gomap\" -Depth 2 | Where-Object { $_.Extension -eq \".tsx\" -or $_.PSIsContainer } | Select-Object FullName)",
-      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\234005\\\\gomap\\\\app\" -Recurse | Where-Object { $_.Name -match \"placelist\" } | Select-Object FullName)"
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\234005\\\\gomap\\\\app\" -Recurse | Where-Object { $_.Name -match \"placelist\" } | Select-Object FullName)",
+      "PowerShell(Head -20)"
     ]
   }
 }

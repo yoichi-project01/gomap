@@ -39,6 +39,8 @@ export default function CreateSpotPage() {
     });
     // タイトルが未入力なら場所名で初期化
     if (!title.trim()) setTitle(result.name);
+    // 説明が未入力なら住所で初期化
+    if (!description.trim()) setDescription(result.address);
     setSearchOpen(false);
   }
 
