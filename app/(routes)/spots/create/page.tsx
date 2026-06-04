@@ -2,14 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, MapPin, Tag, X } from 'lucide-react';
+import { ChevronLeft, MapPin, X } from 'lucide-react';
 import LocationSearchModal from '@/components/spot/LocationSearchModal';
 import CoverImageUploader from '@/components/ui/CoverImageUploader';
-import SelectField from '@/components/ui/SelectField';
 import type { PlaceSearchResult } from '@/app/api/places/search/route';
 import { createSpot } from '@/lib/client/spots';
-
-const CATEGORIES = ['観光', 'グルメ', 'カフェ', '自然', 'ショッピング', 'その他'];
 
 type SelectedLocation = {
   name: string;
@@ -23,7 +20,6 @@ export default function CreateSpotPage() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [cover, setCover] = useState<{ url: string; path: string } | null>(null);
   const [location, setLocation] = useState<SelectedLocation | null>(null);
@@ -62,7 +58,6 @@ export default function CreateSpotPage() {
         lng: location.lng,
         description: description.trim() || undefined,
         prefecture: location.prefecture ?? undefined,
-        category: category || undefined,
         coverImageUrl: cover?.url,
       });
       router.push(`/spots/${created.id}`);
@@ -107,18 +102,6 @@ export default function CreateSpotPage() {
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
             className="w-full bg-transparent text-sm text-center text-zinc-600 dark:text-zinc-300 placeholder-zinc-400 dark:placeholder-zinc-600 outline-none border-b border-zinc-200 dark:border-zinc-800 pb-3 focus:border-green-500 transition-colors resize-none"
-          />
-        </div>
-
-        <div>
-          <h2 className="text-sm font-bold text-zinc-700 dark:text-zinc-300 mb-3">カテゴリ</h2>
-          <SelectField
-            icon={<Tag className="w-3.5 h-3.5" />}
-            ariaLabel="カテゴリを選択"
-            value={category}
-            options={CATEGORIES}
-            onChange={setCategory}
-            placeholder="カテゴリを選択"
           />
         </div>
 
